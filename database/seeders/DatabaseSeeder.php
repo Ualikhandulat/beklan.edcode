@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
     {
         if ( User::doesntExist() ) {
             User::create([
-                'role' => Role::Administrator,
+                'role' => Role::Admin,
                 'name' => "Dulat",
                 'login' => "87074432113",
                 'iin' => "000000000000",

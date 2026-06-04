@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('nusqas', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Subject::class::class)->constrained();
+            $table->foreignIdFor(Subject::class)->constrained();
             $table->string('title');
             $table->timestamps();
             $table->softDeletes();
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('variants');
+        Schema::dropIfExists('nusqas');
     }
 };
