@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Subject;
+use App\Models\Topic;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,16 +13,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('questions', function (Blueprint $table) {
             $table->id();
-            $table->string('role');
-            $table->string('name');
-            $table->string('login')->unique(); // телефон
-            $table->string('iin')->unique();
-            $table->string('password');
-            $table->rememberToken();
+            $table->foreignIdFor(Subject::class)->constrained();
+            $table->foreignIdFor(Topic::class)->constrained();
+            $table->integer('count_variants');
+            $table->integer('count_answers');
+            $table->longText('text');
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('subject_id');
         });
     }
 
@@ -29,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('questions');
     }
 };
