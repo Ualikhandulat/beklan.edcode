@@ -2,9 +2,16 @@
     'name',
     'label'       => null,
     'placeholder' => '',
+    'value'       => null,
     'rows'        => 4,
     'required'    => false,
+    'disabled'    => false,
 ])
+
+@php
+    $hasError = $errors->has($name);
+    $borderClass = $hasError ? 'border-danger' : '';
+@endphp
 
 <div class="form-group">
     @if ($label)
@@ -21,9 +28,10 @@
         name="{{ $name }}"
         rows="{{ $rows }}"
         placeholder="{{ $placeholder }}"
-        {{ $required ? 'required' : '' }}
-        {{ $attributes }}
-    >{{ old($name) }}</textarea>
+        @if ($required) required @endif
+        @if ($disabled) disabled @endif
+        {{ $attributes->merge(['class' => $borderClass]) }}
+    >{{ old($name, $value) }}</textarea>
 
     @error($name)
         <p class="form-error">{{ $message }}</p>

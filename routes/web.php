@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\GroupController as AdminGroupController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Public\HomeController;
@@ -22,7 +23,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 /* Admin */
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::resource('groups', AdminGroupController::class)->except(['show']);
+    Route::resource('users', AdminUserController::class)->except(['show']);
     Route::get('/subjects', [AdminSubjectController::class, 'index'])->name('subjects.index');
 });
 

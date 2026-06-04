@@ -27,6 +27,12 @@
                 Главная
             </a>
 
+            <a href="{{ route('admin.groups.index') }}"
+               class="sidebar-nav-link {{ request()->routeIs('admin.groups.*') ? 'active' : '' }}">
+                <x-icon name="user-group" class="w-5 h-5 shrink-0" />
+                Группы
+            </a>
+
             <a href="{{ route('admin.users.index') }}"
                class="sidebar-nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <x-icon name="users" class="w-5 h-5 shrink-0" />

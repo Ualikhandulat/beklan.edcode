@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Role;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -17,6 +18,7 @@ class User extends Authenticatable
         'login',
         'iin',
         'password',
+        'group_id',
     ];
 
     protected $hidden = [
@@ -25,7 +27,12 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'role'      => Role::class,
-        'password'  => 'hashed',
+        'role'     => Role::class,
+        'password' => 'hashed',
     ];
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
+    }
 }

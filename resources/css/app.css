@@ -83,9 +83,9 @@
 /* ── Components ────────────────────────────────────────────────── */
 @layer components {
 
-    /* Buttons */
+    /* Buttons — border border-transparent на base чтобы все кнопки одного размера */
     .btn {
-        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-2xl transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 select-none;
+        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-2xl border border-transparent transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 select-none;
     }
     .btn-sm {
         @apply px-3 py-1.5 text-xs;
@@ -94,19 +94,19 @@
         @apply px-7 py-3.5 text-base;
     }
     .btn-primary {
-        @apply bg-primary text-white hover:bg-primary-hover shadow-sm;
+        @apply bg-primary text-white hover:bg-primary-hover shadow-sm hover:shadow-md;
     }
     .btn-info {
-        @apply bg-info text-white hover:bg-info-hover shadow-sm;
+        @apply bg-info text-white hover:bg-info-hover shadow-sm hover:shadow-md;
     }
     .btn-danger {
-        @apply bg-danger text-white hover:bg-danger-hover shadow-sm;
+        @apply bg-danger text-white hover:bg-danger-hover shadow-sm hover:shadow-md;
     }
     .btn-success {
-        @apply bg-success text-white hover:bg-success-hover shadow-sm;
+        @apply bg-success text-white hover:bg-success-hover shadow-sm hover:shadow-md;
     }
     .btn-outline {
-        @apply bg-white text-text border border-border hover:border-gray-400 hover:bg-gray-50 shadow-sm;
+        @apply bg-white text-text border-border hover:border-gray-400 hover:bg-gray-50 shadow-sm;
     }
     .btn-ghost {
         @apply bg-transparent text-text-muted hover:bg-gray-100 hover:text-text;
@@ -117,7 +117,7 @@
         @apply bg-card rounded-2xl border border-border p-6;
         box-shadow: var(--shadow-card);
     }
-    .card-sm {
+    .card.card-sm {
         @apply p-4;
     }
 
@@ -235,6 +235,12 @@
     .link {
         @apply text-info hover:text-info-hover font-semibold transition-colors;
     }
+
+    /* Scrollbar */
+    .custom-scrollbar::-webkit-scrollbar       { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.25); }
 
     /* Public navbar */
     .public-nav {
