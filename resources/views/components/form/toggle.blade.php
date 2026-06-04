@@ -18,7 +18,7 @@
                 @if($checked) checked @endif
                 @if($disabled) disabled @endif
             >
-            <div class="w-11 h-6 bg-gray-200 peer-checked:bg-primary rounded-full transition-all duration-300 shadow-inner border border-gray-200 peer-focus:ring-2 peer-focus:ring-primary/30"></div>
+            <div class="w-11 h-6 bg-gray-200 peer-checked:bg-success rounded-full transition-all duration-300 shadow-inner border border-gray-200 peer-focus:ring-2 peer-focus:ring-success/30"></div>
             <div class="absolute top-[2px] left-[2px] bg-white rounded-full h-5 w-5 shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] peer-checked:translate-x-full"></div>
         </div>
         @if ($label)

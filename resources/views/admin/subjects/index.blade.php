@@ -1,13 +1,10 @@
 @extends('layouts.admin')
-@section('title', 'Предметы')
-@section('page-title', 'Предметы')
-@section('page-subtitle', 'Управление учебными предметами')
 
 @section('content')
 
 <div class="flex items-center justify-between mb-5">
     <div></div>
-    <a href="{{ route('admin.subjects.create') }}" class="btn btn-primary shrink-0">
+    <a href="{{ route('admin.subjects.create') }}" class="btn btn-success shrink-0">
         <x-icon name="plus" class="w-4 h-4 shrink-0" />
         Добавить предмет
     </a>

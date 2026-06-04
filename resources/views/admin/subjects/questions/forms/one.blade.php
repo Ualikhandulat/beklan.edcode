@@ -19,7 +19,7 @@
     </div>
 
     <div class="flex items-center justify-between mt-6">
-        <button type="submit" class="btn btn-primary">Добавить вопрос</button>
+        <button type="submit" class="btn btn-success">Добавить вопрос</button>
         <a href="{{ $showUrl }}" class="btn btn-outline">Отмена</a>
     </div>
 </form>

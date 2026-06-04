@@ -1,7 +1,4 @@
 @extends('layouts.admin')
-@section('title', 'Группы')
-@section('page-title', 'Группы')
-@section('page-subtitle', 'Управление группами студентов')
 
 @section('content')
 
@@ -26,7 +23,7 @@
         </div>
     </form>
 
-    <a href="{{ route('admin.groups.create') }}" class="btn btn-primary shrink-0">
+    <a href="{{ route('admin.groups.create') }}" class="btn btn-success shrink-0">
         <x-icon name="plus" class="w-4 h-4 shrink-0" />
         Добавить группу
     </a>

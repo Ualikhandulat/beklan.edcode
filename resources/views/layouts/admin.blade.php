@@ -1,9 +1,16 @@
 <!DOCTYPE html>
+@php
+    $navItems  = $navigations ?? [];
+    $lastLabel = count($navItems) > 0 ? array_values($navItems)[count($navItems) - 1] : null;
+    $pageTitle = $lastLabel
+        ? $lastLabel . ' — ' . config('app.name')
+        : config('app.name');
+@endphp
 <html lang="ru">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Панель') — EdCode Admin</title>
+    <title>{{ $pageTitle }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -68,19 +75,28 @@
 
     {{-- Main --}}
     <div class="admin-wrapper">
-        <header class="admin-topbar">
-            <div>
-                <h1 class="page-title">@yield('page-title', 'Панель администратора')</h1>
-                @hasSection('page-subtitle')
-                    <p class="page-subtitle">@yield('page-subtitle')</p>
-                @endif
-            </div>
-            <div class="flex items-center gap-2 text-sm text-text-muted">
-                <span class="font-semibold text-text">{{ auth()->user()->name }}</span>
-            </div>
-        </header>
-
         <main class="admin-content">
+
+            {{-- Breadcrumb --}}
+            @if (count($navItems) > 0)
+                <nav class="flex items-center gap-1.5 mb-5 text-sm flex-wrap">
+                    <a href="{{ route('admin.dashboard') }}" class="text-text-muted hover:text-primary transition-colors shrink-0">
+                        <x-icon name="home" class="w-4 h-4" />
+                    </a>
+                    @foreach ($navItems as $url => $label)
+                        <x-icon name="chevron-right" class="w-4 h-4 text-black shrink-0" />
+                        @if ($loop->last)
+                            <span class="text-text font-bold truncate">{{ $label }}</span>
+                        @else
+                            <a href="{{ $url }}" class="text-text-muted hover:text-primary transition-colors shrink-0">
+                                {{ $label }}
+                            </a>
+                        @endif
+                    @endforeach
+                </nav>
+            @endif
+
+            {{-- Flash messages --}}
             @if (session('success'))
                 <x-alert type="success" :message="session('success')" />
             @endif

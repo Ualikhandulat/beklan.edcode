@@ -1,7 +1,4 @@
 @extends('layouts.admin')
-@section('title', 'Пользователи')
-@section('page-title', 'Пользователи')
-@section('page-subtitle', 'Управление пользователями системы')
 
 @section('content')
 
@@ -26,7 +23,7 @@
         </div>
     </form>
 
-    <a href="{{ route('admin.users.create') }}" class="btn btn-primary shrink-0">
+    <a href="{{ route('admin.users.create') }}" class="btn btn-success shrink-0">
         <x-icon name="plus" class="w-4 h-4 shrink-0" />
         Добавить пользователя
     </a>

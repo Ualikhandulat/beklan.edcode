@@ -1,7 +1,4 @@
 @extends('layouts.admin')
-@section('title', $group->exists ? 'Редактировать группу' : 'Добавить группу')
-@section('page-title', $group->exists ? 'Редактировать группу' : 'Добавить группу')
-@section('page-subtitle', $group->exists ? $group->title : 'Заполните данные новой группы')
 
 @section('content')
 
@@ -31,7 +28,7 @@
             />
 
             <div class="flex items-center justify-between mt-6">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-success">
                     {{ $group->exists ? 'Сохранить изменения' : 'Создать группу' }}
                 </button>
                 <a href="{{ route('admin.groups.index') }}" class="btn btn-outline">

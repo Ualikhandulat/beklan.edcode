@@ -1,7 +1,4 @@
 @extends('layouts.admin')
-@section('title', $subject->title)
-@section('page-title', $subject->title)
-@section('page-subtitle', 'Темы и нұсқалар предмета')
 
 @section('content')
 
@@ -33,7 +30,7 @@
 @if ($tab === 'topics')
     <div class="flex items-center justify-between mb-4">
         <h3 class="text-base font-extrabold text-text">Тақырыптар</h3>
-        <a href="{{ route('admin.subjects.topics.create', $subject) }}" class="btn btn-primary btn-sm">
+        <a href="{{ route('admin.subjects.topics.create', $subject) }}" class="btn btn-success btn-sm">
             <x-icon name="plus" class="w-4 h-4" />
             Добавить тему
         </a>
@@ -88,7 +85,7 @@
 @else
     <div class="flex items-center justify-between mb-4">
         <h3 class="text-base font-extrabold text-text">Нұсқалар</h3>
-        <a href="{{ route('admin.subjects.nusqas.create', $subject) }}" class="btn btn-primary btn-sm">
+        <a href="{{ route('admin.subjects.nusqas.create', $subject) }}" class="btn btn-success btn-sm">
             <x-icon name="plus" class="w-4 h-4" />
             Добавить нұсқа
         </a>

@@ -1,7 +1,4 @@
 @extends('layouts.admin')
-@section('title', 'Главная')
-@section('page-title', 'Главная')
-@section('page-subtitle', 'Обзор системы')
 
 @section('content')
 

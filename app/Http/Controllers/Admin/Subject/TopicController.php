@@ -14,11 +14,18 @@ class TopicController extends Controller
 {
     public function create(Subject $subject): View
     {
+        $navigations = [
+            route('admin.subjects.index')        => 'Предметы',
+            route('admin.subjects.show', $subject) => $subject->title,
+            '#'                                  => 'Добавить тему',
+        ];
+
         return view('admin.subjects.topics.form', [
-            'subject' => $subject,
-            'topic'   => new Topic(),
-            'action'  => route('admin.subjects.topics.store', $subject),
-            'method'  => 'POST',
+            'subject'     => $subject,
+            'topic'       => new Topic(),
+            'action'      => route('admin.subjects.topics.store', $subject),
+            'method'      => 'POST',
+            'navigations' => $navigations,
         ]);
     }
 
@@ -34,8 +41,7 @@ class TopicController extends Controller
     {
         $type      = request('type');
         $questions = $topic->questions()->with('detail', 'details')->latest()->get();
-
-        $showUrl = route('admin.subjects.topics.show', [$subject, $topic]);
+        $showUrl   = route('admin.subjects.topics.show', [$subject, $topic]);
 
         $storeRoutes = [
             'one'   => route('admin.subjects.topics.questions.store.one',   [$subject, $topic]),
@@ -48,17 +54,30 @@ class TopicController extends Controller
             ? $topic->questions()->where('type', QuestionType::IS_GROUP)->get()
             : collect();
 
+        $navigations = [
+            route('admin.subjects.index')        => 'Предметы',
+            route('admin.subjects.show', $subject) => $subject->title,
+            '#'                                  => $topic->title,
+        ];
+
         return view('admin.subjects.topics.show',
-            compact('subject', 'topic', 'questions', 'type', 'showUrl', 'storeRoutes', 'contexts'));
+            compact('subject', 'topic', 'questions', 'type', 'showUrl', 'storeRoutes', 'contexts', 'navigations'));
     }
 
     public function edit(Subject $subject, Topic $topic): View
     {
+        $navigations = [
+            route('admin.subjects.index')        => 'Предметы',
+            route('admin.subjects.show', $subject) => $subject->title,
+            '#'                                  => $topic->title,
+        ];
+
         return view('admin.subjects.topics.form', [
-            'subject' => $subject,
-            'topic'   => $topic,
-            'action'  => route('admin.subjects.topics.update', [$subject, $topic]),
-            'method'  => 'PUT',
+            'subject'     => $subject,
+            'topic'       => $topic,
+            'action'      => route('admin.subjects.topics.update', [$subject, $topic]),
+            'method'      => 'PUT',
+            'navigations' => $navigations,
         ]);
     }
 

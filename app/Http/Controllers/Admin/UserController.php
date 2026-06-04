@@ -28,17 +28,27 @@ class UserController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.users.index', compact('users'));
+        $navigations = [
+            route('admin.users.index') => 'Пользователи',
+        ];
+
+        return view('admin.users.index', compact('users', 'navigations'));
     }
 
     public function create(): View
     {
+        $navigations = [
+            route('admin.users.index') => 'Пользователи',
+            '#'                        => 'Добавить пользователя',
+        ];
+
         return view('admin.users.form', [
-            'user'   => new User(),
-            'groups' => Group::orderBy('title')->pluck('title', 'id'),
-            'roles'  => collect(Role::cases())->mapWithKeys(fn($r) => [$r->value => $r->title()]),
-            'action' => route('admin.users.store'),
-            'method' => 'POST',
+            'user'        => new User(),
+            'groups'      => Group::orderBy('title')->pluck('title', 'id'),
+            'roles'       => collect(Role::cases())->mapWithKeys(fn($r) => [$r->value => $r->title()]),
+            'action'      => route('admin.users.store'),
+            'method'      => 'POST',
+            'navigations' => $navigations,
         ]);
     }
 
@@ -47,32 +57,34 @@ class UserController extends Controller
         User::create($request->validated());
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'Пользователь успешно создан.');
+            ->with('success', 'Пользователь создан.');
     }
 
     public function edit(User $user): View
     {
+        $navigations = [
+            route('admin.users.index') => 'Пользователи',
+            '#'                        => $user->name,
+        ];
+
         return view('admin.users.form', [
-            'user'   => $user,
-            'groups' => Group::orderBy('title')->pluck('title', 'id'),
-            'roles'  => collect(Role::cases())->mapWithKeys(fn($r) => [$r->value => $r->title()]),
-            'action' => route('admin.users.update', $user),
-            'method' => 'PUT',
+            'user'        => $user,
+            'groups'      => Group::orderBy('title')->pluck('title', 'id'),
+            'roles'       => collect(Role::cases())->mapWithKeys(fn($r) => [$r->value => $r->title()]),
+            'action'      => route('admin.users.update', $user),
+            'method'      => 'PUT',
+            'navigations' => $navigations,
         ]);
     }
 
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
         $data = $request->validated();
-
-        if (empty($data['password'])) {
-            unset($data['password']);
-        }
-
+        if (empty($data['password'])) unset($data['password']);
         $user->update($data);
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'Пользователь успешно обновлён.');
+            ->with('success', 'Пользователь обновлён.');
     }
 
     public function destroy(User $user): RedirectResponse

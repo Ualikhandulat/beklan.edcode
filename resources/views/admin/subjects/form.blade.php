@@ -1,7 +1,4 @@
 @extends('layouts.admin')
-@section('title', $subject->exists ? 'Редактировать предмет' : 'Добавить предмет')
-@section('page-title', $subject->exists ? 'Редактировать предмет' : 'Добавить предмет')
-@section('page-subtitle', $subject->exists ? $subject->title : 'Заполните данные нового предмета')
 
 @section('content')
 
@@ -33,7 +30,7 @@
             </div>
 
             <div class="flex items-center justify-between mt-6">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-success">
                     {{ $subject->exists ? 'Сохранить изменения' : 'Создать предмет' }}
                 </button>
                 <a href="{{ route('admin.subjects.index') }}" class="btn btn-outline">Отмена</a>

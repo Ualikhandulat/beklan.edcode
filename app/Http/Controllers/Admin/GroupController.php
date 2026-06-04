@@ -20,15 +20,25 @@ class GroupController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('admin.groups.index', compact('groups'));
+        $navigations = [
+            route('admin.groups.index') => 'Группы',
+        ];
+
+        return view('admin.groups.index', compact('groups', 'navigations'));
     }
 
     public function create(): View
     {
+        $navigations = [
+            route('admin.groups.index') => 'Группы',
+            '#'                         => 'Добавить группу',
+        ];
+
         return view('admin.groups.form', [
-            'group'  => new Group(),
-            'action' => route('admin.groups.store'),
-            'method' => 'POST',
+            'group'       => new Group(),
+            'action'      => route('admin.groups.store'),
+            'method'      => 'POST',
+            'navigations' => $navigations,
         ]);
     }
 
@@ -37,15 +47,21 @@ class GroupController extends Controller
         Group::create($request->validated());
 
         return redirect()->route('admin.groups.index')
-            ->with('success', 'Группа успешно создана.');
+            ->with('success', 'Группа создана.');
     }
 
     public function edit(Group $group): View
     {
+        $navigations = [
+            route('admin.groups.index') => 'Группы',
+            '#'                         => $group->title,
+        ];
+
         return view('admin.groups.form', [
-            'group'  => $group,
-            'action' => route('admin.groups.update', $group),
-            'method' => 'PUT',
+            'group'       => $group,
+            'action'      => route('admin.groups.update', $group),
+            'method'      => 'PUT',
+            'navigations' => $navigations,
         ]);
     }
 
@@ -54,7 +70,7 @@ class GroupController extends Controller
         $group->update($request->validated());
 
         return redirect()->route('admin.groups.index')
-            ->with('success', 'Группа успешно обновлена.');
+            ->with('success', 'Группа обновлена.');
     }
 
     public function destroy(Group $group): RedirectResponse

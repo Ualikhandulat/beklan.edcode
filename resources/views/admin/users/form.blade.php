@@ -1,7 +1,4 @@
 @extends('layouts.admin')
-@section('title', $user->exists ? 'Редактировать пользователя' : 'Добавить пользователя')
-@section('page-title', $user->exists ? 'Редактировать пользователя' : 'Добавить пользователя')
-@section('page-subtitle', $user->exists ? $user->name : 'Заполните данные нового пользователя')
 
 @section('content')
 
@@ -69,7 +66,7 @@
             </div>
 
             <div class="flex items-center justify-between mt-6">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-success">
                     {{ $user->exists ? 'Сохранить изменения' : 'Создать пользователя' }}
                 </button>
                 <a href="{{ route('admin.users.index') }}" class="btn btn-outline">

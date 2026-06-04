@@ -1,9 +1,6 @@
 @use(App\Enums\QuestionType)
 
 @extends('layouts.admin')
-@section('title', $topic->title)
-@section('page-title', $topic->title)
-@section('page-subtitle', $subject->title . ' / Тақырып')
 
 @section('content')
 

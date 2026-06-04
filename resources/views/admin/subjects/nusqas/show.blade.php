@@ -1,9 +1,6 @@
 @use(App\Enums\QuestionType)
 
 @extends('layouts.admin')
-@section('title', $nusqa->title)
-@section('page-title', $nusqa->title)
-@section('page-subtitle', $subject->title . ' / Нұсқа')
 
 @section('content')
 

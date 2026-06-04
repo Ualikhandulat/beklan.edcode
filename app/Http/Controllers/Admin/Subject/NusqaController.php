@@ -14,11 +14,18 @@ class NusqaController extends Controller
 {
     public function create(Subject $subject): View
     {
+        $navigations = [
+            route('admin.subjects.index')        => 'Предметы',
+            route('admin.subjects.show', $subject) => $subject->title,
+            '#'                                  => 'Добавить нұсқа',
+        ];
+
         return view('admin.subjects.nusqas.form', [
-            'subject' => $subject,
-            'nusqa'   => new Nusqa(),
-            'action'  => route('admin.subjects.nusqas.store', $subject),
-            'method'  => 'POST',
+            'subject'     => $subject,
+            'nusqa'       => new Nusqa(),
+            'action'      => route('admin.subjects.nusqas.store', $subject),
+            'method'      => 'POST',
+            'navigations' => $navigations,
         ]);
     }
 
@@ -34,8 +41,7 @@ class NusqaController extends Controller
     {
         $type      = request('type');
         $questions = $nusqa->questions()->with('detail', 'details')->latest()->get();
-
-        $showUrl = route('admin.subjects.nusqas.show', [$subject, $nusqa]);
+        $showUrl   = route('admin.subjects.nusqas.show', [$subject, $nusqa]);
 
         $storeRoutes = [
             'one'   => route('admin.subjects.nusqas.questions.store.one',   [$subject, $nusqa]),
@@ -48,17 +54,30 @@ class NusqaController extends Controller
             ? $nusqa->questions()->where('type', QuestionType::IS_GROUP)->get()
             : collect();
 
+        $navigations = [
+            route('admin.subjects.index')        => 'Предметы',
+            route('admin.subjects.show', $subject) => $subject->title,
+            '#'                                  => $nusqa->title,
+        ];
+
         return view('admin.subjects.nusqas.show',
-            compact('subject', 'nusqa', 'questions', 'type', 'showUrl', 'storeRoutes', 'contexts'));
+            compact('subject', 'nusqa', 'questions', 'type', 'showUrl', 'storeRoutes', 'contexts', 'navigations'));
     }
 
     public function edit(Subject $subject, Nusqa $nusqa): View
     {
+        $navigations = [
+            route('admin.subjects.index')        => 'Предметы',
+            route('admin.subjects.show', $subject) => $subject->title,
+            '#'                                  => $nusqa->title,
+        ];
+
         return view('admin.subjects.nusqas.form', [
-            'subject' => $subject,
-            'nusqa'   => $nusqa,
-            'action'  => route('admin.subjects.nusqas.update', [$subject, $nusqa]),
-            'method'  => 'PUT',
+            'subject'     => $subject,
+            'nusqa'       => $nusqa,
+            'action'      => route('admin.subjects.nusqas.update', [$subject, $nusqa]),
+            'method'      => 'PUT',
+            'navigations' => $navigations,
         ]);
     }
 
