@@ -42,19 +42,19 @@
 
         <div class="sidebar-footer">
             <div class="flex items-center gap-3 px-1 mb-3">
-                <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                    <span class="text-xs font-extrabold text-primary">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
+                <div class="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                    <span class="text-sm font-extrabold text-primary">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span>
                 </div>
                 <div class="min-w-0">
-                    <p class="text-xs font-bold text-text truncate">{{ auth()->user()->name }}</p>
-                    <p class="text-[10px] text-text-muted">{{ auth()->user()->role->title() }}</p>
+                    <p class="text-sm font-bold text-text truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-xs text-text-muted">{{ auth()->user()->role->title() }}</p>
                 </div>
             </div>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="btn btn-ghost btn-sm w-full justify-start gap-2">
+                <button type="submit" class="btn btn-ghost btn-sm w-full justify-start gap-2 text-text-muted hover:text-danger hover:bg-danger-light">
                     <x-icon name="logout" class="w-4 h-4 shrink-0" />
-                    Выйти
+                    Выйти из системы
                 </button>
             </form>
         </div>

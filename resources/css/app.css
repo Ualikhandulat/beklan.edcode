@@ -195,13 +195,17 @@
         @apply flex-1 py-4 overflow-y-auto;
     }
     .sidebar-section-title {
-        @apply px-6 mb-1 mt-4 text-[10px] font-extrabold text-text-muted uppercase tracking-widest;
+        @apply px-6 mb-2 mt-5 text-[10px] font-extrabold text-text-muted uppercase tracking-widest;
     }
     .sidebar-nav-link {
-        @apply flex items-center gap-3 mx-3 px-3 py-2.5 rounded-2xl text-sm font-bold text-text-muted transition-all hover:bg-primary-light hover:text-primary;
+        @apply flex items-center gap-3 mx-3 px-4 py-3 rounded-2xl text-sm font-bold text-text transition-all duration-150 hover:bg-gray-100;
     }
     .sidebar-nav-link.active {
-        @apply bg-primary-light text-primary;
+        @apply bg-primary text-white;
+        box-shadow: 0 4px 14px rgba(242, 153, 74, 0.40);
+    }
+    .sidebar-nav-link.active:hover {
+        @apply bg-primary-hover;
     }
     .sidebar-footer {
         @apply px-4 py-4 border-t border-border shrink-0;
