@@ -29,8 +29,10 @@
                 <tr>
                     <td class="text-text-muted">{{ $i + 1 }}</td>
                     <td>
-                        <a href="{{ route('admin.subjects.show', $subject) }}" class="font-bold text-text hover:text-primary transition-colors">
+                        <a href="{{ route('admin.subjects.show', $subject) }}"
+                           class="inline-flex items-center gap-1.5 font-semibold text-info hover:text-info-hover transition-colors">
                             {{ $subject->title }}
+                            <x-icon name="arrow-top-right" class="w-3.5 h-3.5 shrink-0" />
                         </a>
                     </td>
                     <td><span class="badge badge-info">{{ $subject->topics_count }}</span></td>

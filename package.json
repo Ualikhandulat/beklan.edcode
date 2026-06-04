@@ -14,6 +14,8 @@
         "vite": "^8.0.0"
     },
     "dependencies": {
-        "alpinejs": "^3.15.12"
+        "alpinejs": "^3.15.12",
+        "katex": "^0.17.0",
+        "quill": "^2.0.3"
     }
 }

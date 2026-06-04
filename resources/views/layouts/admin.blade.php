@@ -10,6 +10,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $pageTitle }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -79,18 +80,17 @@
 
             {{-- Breadcrumb --}}
             @if (count($navItems) > 0)
-                <nav class="flex items-center gap-1.5 mb-5 text-sm flex-wrap">
-                    <a href="{{ route('admin.dashboard') }}" class="text-text-muted hover:text-primary transition-colors shrink-0">
-                        <x-icon name="home" class="w-4 h-4" />
+                <nav class="flex items-center gap-1 mb-5 flex-wrap">
+                    <a href="{{ route('admin.dashboard') }}"
+                       class="btn btn-outline btn-sm shrink-0">
+                        <x-icon name="home" class="w-3.5 h-3.5" />
                     </a>
                     @foreach ($navItems as $url => $label)
-                        <x-icon name="chevron-right" class="w-4 h-4 text-black shrink-0" />
+                        <x-icon name="chevron-right" class="w-4 h-4 text-text-muted shrink-0" />
                         @if ($loop->last)
-                            <span class="text-text font-bold truncate">{{ $label }}</span>
+                            <span class="btn btn-sm bg-gray-100 text-text border border-border cursor-default font-bold truncate">{{ $label }}</span>
                         @else
-                            <a href="{{ $url }}" class="text-text-muted hover:text-primary transition-colors shrink-0">
-                                {{ $label }}
-                            </a>
+                            <a href="{{ $url }}" class="btn btn-outline btn-sm shrink-0">{{ $label }}</a>
                         @endif
                     @endforeach
                 </nav>

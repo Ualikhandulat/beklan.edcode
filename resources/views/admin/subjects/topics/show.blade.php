@@ -8,10 +8,7 @@
 
 {{-- Верхняя навигация --}}
 <div class="flex items-center justify-between mb-6">
-    <a href="{{ route('admin.subjects.show', $subject) }}" class="btn btn-ghost btn-sm text-text-muted">
-        <x-icon name="chevron-down" class="w-4 h-4 rotate-90" />
-        К предмету
-    </a>
+    <div></div>
 
     <div class="flex gap-2">
         <a href="{{ $showUrl }}?type=one"

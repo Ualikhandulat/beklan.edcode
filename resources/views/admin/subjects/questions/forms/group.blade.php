@@ -2,8 +2,8 @@
     $contextOptions = $contexts->mapWithKeys(fn($q) => [
         $q->id => Str::limit(strip_tags($q->text), 80)
     ])->toArray();
-    $hasContexts  = $contexts->isNotEmpty();
-    $defaultMode  = $hasContexts ? 'existing' : 'new';
+    $hasContexts = $contexts->isNotEmpty();
+    $defaultMode = $hasContexts ? 'existing' : 'new';
 @endphp
 
 <form method="POST" action="{{ $storeRoutes['group'] }}" x-data="{ mode: '{{ $defaultMode }}' }">
@@ -24,8 +24,12 @@
     <input type="hidden" name="context_mode" x-model="mode">
 
     <div x-show="mode === 'new'">
-        <x-form.textarea name="context_text" label="Текст контекста" :rows="5"
-            placeholder="Прочитайте текст и ответьте на вопросы..." />
+        <div class="form-group">
+            <label>Текст контекста</label>
+            <input type="hidden" name="context_text" data-wysiwyg-target="context_text" value="{{ old('context_text') }}">
+            <div data-wysiwyg="context_text" data-placeholder="Прочитайте текст и ответьте на вопросы..."></div>
+            @error('context_text') <p class="form-error">{{ $message }}</p> @enderror
+        </div>
     </div>
 
     @if ($hasContexts)
@@ -39,8 +43,12 @@
 
     <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">Подвопрос</p>
 
-    <x-form.textarea name="question" label="Текст подвопроса" :rows="2"
-        placeholder="Вопрос к контексту..." :required="true" />
+    <div class="form-group">
+        <label>Текст подвопроса <span class="text-danger">*</span></label>
+        <input type="hidden" name="question" data-wysiwyg-target="question" value="{{ old('question') }}">
+        <div data-wysiwyg="question" data-placeholder="Вопрос к контексту..."></div>
+        @error('question') <p class="form-error">{{ $message }}</p> @enderror
+    </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
         <div class="form-group">

@@ -1,3 +1,5 @@
+@use(App\Enums\PartType)
+
 @extends('layouts.admin')
 
 @section('content')
@@ -5,137 +7,94 @@
 @php
     $topicsUrl = route('admin.subjects.show', $subject) . '?tab=topics';
     $nusqasUrl = route('admin.subjects.show', $subject) . '?tab=nusqas';
+    $isTopics  = $tab === 'topics';
+    $partType  = $isTopics ? PartType::Topic : PartType::Nusqa;
+    $parts     = $isTopics ? $topics : $nusqas;
 @endphp
 
-{{-- Tabs --}}
-<div class="flex justify-center gap-4 mb-8 card mx-auto">
-    <a href="{{ $topicsUrl }}"
-       class="card card-sm min-w-48 text-center transition-all hover:shadow-md {{ $tab === 'topics' ? 'border-primary bg-primary text-white' : 'hover:border-gray-300' }}">
-        <p class="text-2xl font-extrabold mb-1 {{ $tab === 'topics' ? 'text-white' : 'text-primary' }}">
-            {{ $subject->topics->count() }}
-        </p>
-        <p class="text-sm font-bold {{ $tab === 'topics' ? 'text-white/90' : 'text-text' }}">Тақырыптар</p>
-    </a>
+<div class="max-w-4xl mx-auto">
+    <div class="card">
 
-    <a href="{{ $nusqasUrl }}"
-       class="card card-sm min-w-48 text-center transition-all hover:shadow-md {{ $tab === 'nusqas' ? 'border-primary bg-primary text-white' : 'hover:border-gray-300' }}">
-        <p class="text-2xl font-extrabold mb-1 {{ $tab === 'nusqas' ? 'text-white' : 'text-primary' }}">
-            {{ $subject->nusqas->count() }}
-        </p>
-        <p class="text-sm font-bold {{ $tab === 'nusqas' ? 'text-white/90' : 'text-text' }}">Нұсқалар</p>
-    </a>
+        {{-- Tabs header --}}
+        <div class="flex border-b border-border -mx-6 px-6 mb-6">
+            <a href="{{ $topicsUrl }}"
+               class="tab-item {{ $isTopics ? 'tab-active' : '' }}">
+                <x-icon name="book-open" class="w-4 h-4" />
+                Тақырыптар
+                <span class="tab-count {{ $isTopics ? 'tab-count-active' : '' }}">{{ $topics->count() }}</span>
+            </a>
+            <a href="{{ $nusqasUrl }}"
+               class="tab-item {{ ! $isTopics ? 'tab-active' : '' }}">
+                <x-icon name="clipboard-list" class="w-4 h-4" />
+                Нұсқалар
+                <span class="tab-count {{ ! $isTopics ? 'tab-count-active' : '' }}">{{ $nusqas->count() }}</span>
+            </a>
+        </div>
+
+        {{-- Tab actions --}}
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="font-extrabold text-text">{{ $partType->labelPlural() }}</h3>
+            <a href="{{ route('admin.subjects.parts.create', $subject) }}?type={{ $partType->value }}"
+               class="btn btn-success btn-sm">
+                <x-icon name="plus" class="w-4 h-4" />
+                {{ $partType->createLabel() }}
+            </a>
+        </div>
+
+        {{-- Tab content --}}
+        @if ($parts->isEmpty())
+            <div class="text-center text-text-muted py-10 border border-dashed border-border rounded-2xl">
+                {{ $partType->labelPlural() }} не добавлены.
+            </div>
+        @else
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="w-10">#</th>
+                            <th>Название</th>
+                            <th>Вопросов</th>
+                            <th class="w-20"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($parts as $i => $part)
+                            <tr>
+                                <td class="text-text-muted text-xs">{{ $i + 1 }}</td>
+                                <td>
+                                    <a href="{{ route('admin.subjects.parts.show', [$subject, $part]) }}"
+                                       class="inline-flex items-center gap-1.5 font-semibold text-info hover:text-info-hover transition-colors">
+                                        {{ $part->title }}
+                                        <x-icon name="arrow-top-right" class="w-3.5 h-3.5 shrink-0" />
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="badge {{ $partType->badgeClass() }}">{{ $part->questions->count() }}</span>
+                                </td>
+                                <td>
+                                    <div class="flex items-center gap-1">
+                                        <a href="{{ route('admin.subjects.parts.edit', [$subject, $part]) }}"
+                                           class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light">
+                                            <x-icon name="pencil" class="w-4 h-4" />
+                                        </a>
+                                        <form method="POST"
+                                              action="{{ route('admin.subjects.parts.destroy', [$subject, $part]) }}"
+                                              onsubmit="return confirm('Удалить?')">
+                                            @csrf @method('DELETE')
+                                            <button class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light">
+                                                <x-icon name="trash" class="w-4 h-4" />
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+
+    </div>
 </div>
-
-{{-- Content --}}
-@if ($tab === 'topics')
-    <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-extrabold text-text">Тақырыптар</h3>
-        <a href="{{ route('admin.subjects.topics.create', $subject) }}" class="btn btn-success btn-sm">
-            <x-icon name="plus" class="w-4 h-4" />
-            Добавить тему
-        </a>
-    </div>
-
-    @if ($subject->topics->isEmpty())
-        <div class="card text-center text-text-muted py-10 text-sm">Темы не добавлены.</div>
-    @else
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th class="w-10">#</th>
-                        <th>Название</th>
-                        <th>Вопросов</th>
-                        <th class="w-24"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($subject->topics as $i => $topic)
-                        <tr>
-                            <td class="text-text-muted">{{ $i + 1 }}</td>
-                            <td>
-                                <a href="{{ route('admin.subjects.topics.show', [$subject, $topic]) }}"
-                                   class="font-semibold hover:text-primary transition-colors">
-                                    {{ $topic->title }}
-                                </a>
-                            </td>
-                            <td><span class="badge badge-success">{{ $topic->questions->count() }}</span></td>
-                            <td>
-                                <div class="flex items-center gap-1.5">
-                                    <a href="{{ route('admin.subjects.topics.edit', [$subject, $topic]) }}"
-                                       class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light">
-                                        <x-icon name="pencil" class="w-4 h-4" />
-                                    </a>
-                                    <form method="POST" action="{{ route('admin.subjects.topics.destroy', [$subject, $topic]) }}"
-                                          onsubmit="return confirm('Удалить тему?')">
-                                        @csrf @method('DELETE')
-                                        <button class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light">
-                                            <x-icon name="trash" class="w-4 h-4" />
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-
-@else
-    <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-extrabold text-text">Нұсқалар</h3>
-        <a href="{{ route('admin.subjects.nusqas.create', $subject) }}" class="btn btn-success btn-sm">
-            <x-icon name="plus" class="w-4 h-4" />
-            Добавить нұсқа
-        </a>
-    </div>
-
-    @if ($subject->nusqas->isEmpty())
-        <div class="card text-center text-text-muted py-10 text-sm">Нұсқалар не добавлены.</div>
-    @else
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th class="w-10">#</th>
-                        <th>Название</th>
-                        <th>Вопросов</th>
-                        <th class="w-24"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($subject->nusqas as $i => $nusqa)
-                        <tr>
-                            <td class="text-text-muted">{{ $i + 1 }}</td>
-                            <td>
-                                <a href="{{ route('admin.subjects.nusqas.show', [$subject, $nusqa]) }}"
-                                   class="font-semibold hover:text-primary transition-colors">
-                                    {{ $nusqa->title }}
-                                </a>
-                            </td>
-                            <td><span class="badge badge-success">{{ $nusqa->questions->count() }}</span></td>
-                            <td>
-                                <div class="flex items-center gap-1.5">
-                                    <a href="{{ route('admin.subjects.nusqas.edit', [$subject, $nusqa]) }}"
-                                       class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light">
-                                        <x-icon name="pencil" class="w-4 h-4" />
-                                    </a>
-                                    <form method="POST" action="{{ route('admin.subjects.nusqas.destroy', [$subject, $nusqa]) }}"
-                                          onsubmit="return confirm('Удалить нұсқа?')">
-                                        @csrf @method('DELETE')
-                                        <button class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light">
-                                            <x-icon name="trash" class="w-4 h-4" />
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-@endif
 
 @endsection

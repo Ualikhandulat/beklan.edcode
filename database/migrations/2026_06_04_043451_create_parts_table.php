@@ -7,25 +7,22 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('nusqas', function (Blueprint $table) {
+        Schema::create('parts', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Subject::class)->constrained();
+            $table->foreignIdFor(Subject::class)->constrained()->cascadeOnDelete();
             $table->string('title');
+            $table->string('type'); // PartType enum value: 'topic' | 'nusqa'
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index('subject_id');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('nusqas');
+        Schema::dropIfExists('parts');
     }
 };

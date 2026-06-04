@@ -236,6 +236,42 @@
         @apply text-info hover:text-info-hover font-semibold transition-colors;
     }
 
+    /* Tabs (Filament-style) */
+    .tab-item {
+        @apply inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-text-muted border-b-2 border-transparent transition-all duration-150 hover:text-text hover:border-gray-300 shrink-0 cursor-pointer;
+    }
+    .tab-active {
+        @apply text-primary border-primary;
+    }
+    .tab-count {
+        @apply inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-extrabold bg-gray-100 text-text-muted;
+    }
+    .tab-count-active {
+        @apply bg-primary-light text-primary;
+    }
+
+    /* WYSIWYG Editor */
+    .wysiwyg-wrapper {
+        @apply rounded-2xl border border-border overflow-hidden transition-colors;
+    }
+    .wysiwyg-wrapper:focus-within {
+        @apply border-primary ring-2 ring-primary/20;
+    }
+    .wysiwyg-wrapper .ql-toolbar {
+        @apply border-0 border-b border-border bg-gray-50 rounded-t-2xl;
+    }
+    .wysiwyg-wrapper .ql-container {
+        @apply border-0 text-sm font-sans;
+        min-height: 120px;
+    }
+    .wysiwyg-wrapper .ql-editor {
+        @apply text-sm text-text;
+        min-height: 120px;
+    }
+    .wysiwyg-wrapper .ql-editor.ql-blank::before {
+        @apply text-text-muted not-italic;
+    }
+
     /* Scrollbar */
     .custom-scrollbar::-webkit-scrollbar       { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }

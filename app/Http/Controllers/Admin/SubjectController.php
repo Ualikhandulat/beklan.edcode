@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\PartType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSubjectRequest;
 use App\Http\Requests\Admin\UpdateSubjectRequest;
@@ -13,7 +14,7 @@ class SubjectController extends Controller
 {
     public function index(): View
     {
-        $subjects = Subject::withCount(['topics', 'nusqas', 'questions'])->latest()->get();
+        $subjects = Subject::withCount(['topics', 'nusqas', 'questions', 'parts'])->latest()->get();
 
         $navigations = [
             route('admin.subjects.index') => 'Предметы',
@@ -26,13 +27,13 @@ class SubjectController extends Controller
     {
         $navigations = [
             route('admin.subjects.index') => 'Предметы',
-            '#'                           => 'Добавить предмет',
+            '#' => 'Добавить предмет',
         ];
 
         return view('admin.subjects.form', [
-            'subject'     => new Subject(),
-            'action'      => route('admin.subjects.store'),
-            'method'      => 'POST',
+            'subject' => new Subject,
+            'action' => route('admin.subjects.store'),
+            'method' => 'POST',
             'navigations' => $navigations,
         ]);
     }
@@ -48,28 +49,31 @@ class SubjectController extends Controller
     public function show(Subject $subject): View
     {
         $tab = request('tab', 'topics');
-        $subject->load(['topics.questions', 'nusqas.questions']);
+        $subject->load(['parts.questions']);
+
+        $topics = $subject->parts->where('type', PartType::Topic);
+        $nusqas = $subject->parts->where('type', PartType::Nusqa);
 
         $navigations = [
             route('admin.subjects.index') => 'Предметы',
-            '#'                           => $subject->title,
+            '#' => $subject->title,
         ];
 
-        return view('admin.subjects.show', compact('subject', 'tab', 'navigations'));
+        return view('admin.subjects.show', compact('subject', 'tab', 'topics', 'nusqas', 'navigations'));
     }
 
     public function edit(Subject $subject): View
     {
         $navigations = [
-            route('admin.subjects.index')        => 'Предметы',
+            route('admin.subjects.index') => 'Предметы',
             route('admin.subjects.show', $subject) => $subject->title,
-            '#'                                  => 'Редактировать',
+            '#' => 'Редактировать',
         ];
 
         return view('admin.subjects.form', [
-            'subject'     => $subject,
-            'action'      => route('admin.subjects.update', $subject),
-            'method'      => 'PUT',
+            'subject' => $subject,
+            'action' => route('admin.subjects.update', $subject),
+            'method' => 'PUT',
             'navigations' => $navigations,
         ]);
     }
@@ -84,6 +88,11 @@ class SubjectController extends Controller
 
     public function destroy(Subject $subject): RedirectResponse
     {
+        if ($subject->parts()->exists()) {
+            return redirect()->back()
+                ->with('error', 'Нельзя удалить «'.$subject->title.'»: сначала удалите все темы и нұсқалар.');
+        }
+
         $subject->delete();
 
         return redirect()->route('admin.subjects.index')

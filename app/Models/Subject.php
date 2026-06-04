@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PartType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -16,17 +17,22 @@ class Subject extends Model
 
     protected $casts = [
         'is_ent_subject' => 'boolean',
-        'is_active'      => 'boolean',
+        'is_active' => 'boolean',
     ];
+
+    public function parts(): HasMany
+    {
+        return $this->hasMany(Part::class);
+    }
 
     public function topics(): HasMany
     {
-        return $this->hasMany(Topic::class);
+        return $this->hasMany(Part::class)->where('type', PartType::Topic);
     }
 
     public function nusqas(): HasMany
     {
-        return $this->hasMany(Nusqa::class);
+        return $this->hasMany(Part::class)->where('type', PartType::Nusqa);
     }
 
     public function questions(): HasMany

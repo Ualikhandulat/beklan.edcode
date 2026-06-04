@@ -3,8 +3,12 @@
 <form method="POST" action="{{ $storeRoutes['multi'] }}">
     @csrf
 
-    <x-form.textarea name="question" label="Текст вопроса" :rows="3"
-        placeholder="Введите вопрос..." :required="true" />
+    <div class="form-group">
+        <label>Текст вопроса <span class="text-danger">*</span></label>
+        <input type="hidden" name="question" data-wysiwyg-target="question" value="{{ old('question') }}">
+        <div data-wysiwyg="question" data-placeholder="Введите вопрос..."></div>
+        @error('question') <p class="form-error">{{ $message }}</p> @enderror
+    </div>
 
     @if ($errors->has('answers'))
         <x-alert type="danger" :message="$errors->first('answers')" />

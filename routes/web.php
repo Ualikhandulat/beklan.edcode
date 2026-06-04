@@ -1,16 +1,15 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GroupController as AdminGroupController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\Subject\PartController as AdminPartController;
+use App\Http\Controllers\Admin\Subject\PartQuestionController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
-use App\Http\Controllers\Admin\Subject\TopicController as AdminTopicController;
-use App\Http\Controllers\Admin\Subject\NusqaController as AdminNusqaController;
-use App\Http\Controllers\Admin\Subject\TopicQuestionController;
-use App\Http\Controllers\Admin\Subject\NusqaQuestionController;
-use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Admin\UploadController as AdminUploadController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use Illuminate\Support\Facades\Route;
 
 /* Public */
@@ -27,45 +26,27 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'])->group(function () {
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/uploads/image', [AdminUploadController::class, 'image'])->name('uploads.image');
     Route::resource('groups', AdminGroupController::class)->except(['show']);
     Route::resource('users', AdminUserController::class)->except(['show']);
 
     /* Subjects */
     Route::resource('subjects', AdminSubjectController::class);
 
-    /* Topics nested under subject */
-    Route::resource('subjects/{subject}/topics', AdminTopicController::class)
+    /* Parts nested under subject (replaces topics + nusqas) */
+    Route::resource('subjects/{subject}/parts', AdminPartController::class)
         ->except(['index'])
-        ->names('subjects.topics');
+        ->names('subjects.parts');
 
-    /* Nusqas nested under subject */
-    Route::resource('subjects/{subject}/nusqas', AdminNusqaController::class)
-        ->except(['index'])
-        ->names('subjects.nusqas');
-
-    /* Questions under topics */
-    Route::prefix('subjects/{subject}/topics/{topic}/questions')
-        ->name('subjects.topics.questions.')
+    /* Questions under parts */
+    Route::prefix('subjects/{subject}/parts/{part}/questions')
+        ->name('subjects.parts.questions.')
         ->group(function () {
-            Route::get('/',              [TopicQuestionController::class, 'index'])->name('index');
-            Route::get('/create',        [TopicQuestionController::class, 'create'])->name('create');
-            Route::post('/one',          [TopicQuestionController::class, 'storeOne'])->name('store.one');
-            Route::post('/multi',        [TopicQuestionController::class, 'storeMulti'])->name('store.multi');
-            Route::post('/match',        [TopicQuestionController::class, 'storeMatch'])->name('store.match');
-            Route::post('/group',        [TopicQuestionController::class, 'storeGroup'])->name('store.group');
-            Route::delete('/{question}', [TopicQuestionController::class, 'destroy'])->name('destroy');
-        });
-
-    Route::prefix('subjects/{subject}/nusqas/{nusqa}/questions')
-        ->name('subjects.nusqas.questions.')
-        ->group(function () {
-            Route::get('/',              [NusqaQuestionController::class, 'index'])->name('index');
-            Route::get('/create',        [NusqaQuestionController::class, 'create'])->name('create');
-            Route::post('/one',          [NusqaQuestionController::class, 'storeOne'])->name('store.one');
-            Route::post('/multi',        [NusqaQuestionController::class, 'storeMulti'])->name('store.multi');
-            Route::post('/match',        [NusqaQuestionController::class, 'storeMatch'])->name('store.match');
-            Route::post('/group',        [NusqaQuestionController::class, 'storeGroup'])->name('store.group');
-            Route::delete('/{question}', [NusqaQuestionController::class, 'destroy'])->name('destroy');
+            Route::post('/one', [PartQuestionController::class, 'storeOne'])->name('store.one');
+            Route::post('/multi', [PartQuestionController::class, 'storeMulti'])->name('store.multi');
+            Route::post('/match', [PartQuestionController::class, 'storeMatch'])->name('store.match');
+            Route::post('/group', [PartQuestionController::class, 'storeGroup'])->name('store.group');
+            Route::delete('/{question}', [PartQuestionController::class, 'destroy'])->name('destroy');
         });
 });
 

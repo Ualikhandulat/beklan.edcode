@@ -1,8 +1,12 @@
 <form method="POST" action="{{ $storeRoutes['match'] }}">
     @csrf
 
-    <x-form.textarea name="question" label="Текст вопроса (необязательно)" :rows="2"
-        placeholder="Необязательный вводный текст..." />
+    <div class="form-group">
+        <label>Текст вопроса (необязательно)</label>
+        <input type="hidden" name="question" data-wysiwyg-target="question" value="{{ old('question') }}">
+        <div data-wysiwyg="question" data-placeholder="Необязательный вводный текст..."></div>
+        @error('question') <p class="form-error">{{ $message }}</p> @enderror
+    </div>
 
     <div class="grid grid-cols-2 gap-5 mb-4">
         <div>
