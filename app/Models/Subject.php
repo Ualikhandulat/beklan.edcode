@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Subject extends Model
@@ -17,7 +18,22 @@ class Subject extends Model
     ];
 
     protected $casts = [
-        'is_ent_subject'    => 'boolean',
-        'is_active'         => 'boolean',
+        'is_ent_subject' => 'boolean',
+        'is_active'      => 'boolean',
     ];
+
+    public function topics(): HasMany
+    {
+        return $this->hasMany(Topic::class);
+    }
+
+    public function nusqas(): HasMany
+    {
+        return $this->hasMany(Nusqa::class);
+    }
+
+    public function questions(): HasMany
+    {
+        return $this->hasMany(Question::class);
+    }
 }

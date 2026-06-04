@@ -40,8 +40,8 @@
             </a>
 
             <a href="{{ route('admin.subjects.index') }}"
-               class="sidebar-nav-link {{ request()->routeIs('admin.subjects.*') ? 'active' : '' }}">
-                <x-icon name="book-open" class="w-5 h-5 shrink-0" />
+               class="sidebar-nav-link {{ request()->routeIs('admin.subjects*') ? 'active' : '' }}">
+                <x-icon name="academic-cap" class="w-5 h-5 shrink-0" />
                 Предметы
             </a>
         </nav>

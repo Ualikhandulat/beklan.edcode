@@ -31,13 +31,33 @@ enum QuestionType: int
         };
     }
 
+    public function label(): string
+    {
+        return match ($this) {
+            self::SELECT_ONE   => '1 ответ',
+            self::SELECT_MULTI => 'Несколько',
+            self::IS_GROUP     => 'Контекст',
+            self::IS_MATCH     => 'Соответствие',
+        };
+    }
+
+    public function badgeClass(): string
+    {
+        return match ($this) {
+            self::SELECT_ONE   => 'badge-info',
+            self::SELECT_MULTI => 'badge-primary',
+            self::IS_GROUP     => 'badge-danger',
+            self::IS_MATCH     => 'badge-success',
+        };
+    }
+
     public function url(): string
     {
         return match ($this) {
-            self::SELECT_ONE    => 'one',
-            self::SELECT_MULTI  => 'multi',
-            self::IS_GROUP      => 'group',
-            self::IS_MATCH      => 'match',
+            self::SELECT_ONE   => 'one',
+            self::SELECT_MULTI => 'multi',
+            self::IS_GROUP     => 'group',
+            self::IS_MATCH     => 'match',
         };
     }
 }
