@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::create('question_details', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Question::class)->constrained();
+            $table->longText('question')->nullable()->default(null);
 
             $table->longText('var1');
             $table->longText('var2');
