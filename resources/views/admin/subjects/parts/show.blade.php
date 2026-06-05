@@ -20,7 +20,7 @@
 
     {{-- Stats bar --}}
     @if ($questions->isNotEmpty())
-        <div class="card p-4 mb-5 flex flex-wrap items-center gap-x-8 gap-y-2">
+        <div class="card p-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2">
             <div>
                 <span class="text-2xl font-extrabold text-text">{{ $questions->count() }}</span>
                 <span class="text-xs font-bold text-text-muted ml-1.5 uppercase tracking-wide">вопросов</span>
@@ -29,6 +29,9 @@
             @foreach (QuestionType::cases() as $qt)
                 @php $cnt = $questions->where('type', $qt)->count(); @endphp
                 @if ($cnt > 0)
+                    <div class="flex items-center gap-2">
+                        <img src="" alt="">
+                    </div>
                     <div class="flex items-baseline gap-1.5">
                         <span class="text-lg font-extrabold" style="color: {{ $qt->color() }}">{{ $cnt }}</span>
                         <span class="text-xs text-text-muted font-semibold">{{ $qt->title() }}</span>

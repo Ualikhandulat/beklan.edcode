@@ -15,15 +15,8 @@
                 </span>
             </div>
             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                <a href="{{ $editRoute }}" class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light">
-                    <x-icon name="pencil" class="w-4 h-4" />
-                </a>
-                <form method="POST" action="{{ $destroyRoute }}" onsubmit="return confirm('Удалить?')">
-                    @csrf @method('DELETE')
-                    <button class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light">
-                        <x-icon name="trash" class="w-4 h-4" />
-                    </button>
-                </form>
+                <x-btn.edit :route="$editRoute" />
+                <x-btn.delete :route="$destroyRoute" />
             </div>
         </div>
 
@@ -42,18 +35,10 @@
                             {{ $index }}.{{ $j + 1 }}
                         </p>
                         <div class="flex items-center gap-1 opacity-0 group-hover/detail:opacity-100 transition-opacity shrink-0">
-                            <a href="{{ route('admin.subjects.parts.questions.details.edit', [$subject, $part, $question, $detail]) }}"
-                               class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light !px-1.5 !py-1">
-                                <x-icon name="pencil" class="w-3.5 h-3.5" />
-                            </a>
-                            <form method="POST"
-                                  action="{{ route('admin.subjects.parts.questions.details.destroy', [$subject, $part, $question, $detail]) }}"
-                                  onsubmit="return confirm('Удалить подвопрос?')">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light !px-1.5 !py-1">
-                                    <x-icon name="trash" class="w-3.5 h-3.5" />
-                                </button>
-                            </form>
+                            <x-btn.edit :route="route('admin.subjects.parts.questions.details.edit', [$subject, $part, $question, $detail])"
+                                        class="!px-1.5 !py-1" />
+                            <x-btn.delete :route="route('admin.subjects.parts.questions.details.destroy', [$subject, $part, $question, $detail])"
+                                          class="!px-1.5 !py-1" />
                         </div>
                     </div>
                     <p class="q-preview mb-2">

@@ -47,18 +47,8 @@
                     </td>
                     <td>
                         <div class="flex items-center gap-1.5">
-                            <a href="{{ route('admin.subjects.edit', $subject) }}"
-                               class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light">
-                                <x-icon name="pencil" class="w-4 h-4" />
-                            </a>
-                            <form method="POST" action="{{ route('admin.subjects.destroy', $subject) }}"
-                                  onsubmit="return confirm('Удалить предмет «{{ addslashes($subject->title) }}»?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light">
-                                    <x-icon name="trash" class="w-4 h-4" />
-                                </button>
-                            </form>
+                            <x-btn.edit :route="route('admin.subjects.edit', $subject)" />
+                            <x-btn.delete :route="route('admin.subjects.destroy', $subject)" />
                         </div>
                     </td>
                 </tr>

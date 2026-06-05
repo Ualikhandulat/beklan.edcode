@@ -68,23 +68,11 @@
                                         <x-icon name="arrow-top-right" class="w-3.5 h-3.5 shrink-0" />
                                     </a>
                                 </td>
-                                <td>
-                                    <span class="badge {{ $partType->badgeClass() }}">{{ $part->questions->count() }}</span>
-                                </td>
+                                <td>{{ $part->questions->count() }}</td>
                                 <td>
                                     <div class="flex items-center gap-1">
-                                        <a href="{{ route('admin.subjects.parts.edit', [$subject, $part]) }}"
-                                           class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light">
-                                            <x-icon name="pencil" class="w-4 h-4" />
-                                        </a>
-                                        <form method="POST"
-                                              action="{{ route('admin.subjects.parts.destroy', [$subject, $part]) }}"
-                                              onsubmit="return confirm('Удалить?')">
-                                            @csrf @method('DELETE')
-                                            <button class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light">
-                                                <x-icon name="trash" class="w-4 h-4" />
-                                            </button>
-                                        </form>
+                                        <x-btn.edit :route="route('admin.subjects.parts.edit', [$subject, $part])" />
+                                        <x-btn.delete :route="route('admin.subjects.parts.destroy', [$subject, $part])" />
                                     </div>
                                 </td>
                             </tr>

@@ -54,18 +54,8 @@
                     </td>
                     <td>
                         <div class="flex items-center gap-1.5">
-                            <a href="{{ route('admin.groups.edit', $group) }}"
-                               class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light">
-                                <x-icon name="pencil" class="w-4 h-4" />
-                            </a>
-                            <form method="POST" action="{{ route('admin.groups.destroy', $group) }}"
-                                  onsubmit="return confirm('Удалить группу «{{ addslashes($group->title) }}»?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light">
-                                    <x-icon name="trash" class="w-4 h-4" />
-                                </button>
-                            </form>
+                            <x-btn.edit :route="route('admin.groups.edit', $group)" />
+                            <x-btn.delete :route="route('admin.groups.destroy', $group)" />
                         </div>
                     </td>
                 </tr>
