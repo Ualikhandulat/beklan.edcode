@@ -55,11 +55,18 @@ class PartController extends Controller
             ? $part->questions()->where('type', QuestionType::IS_GROUP)->get()
             : collect();
 
-        $navigations = [
-            route('admin.subjects.index') => 'Предметы',
-            route('admin.subjects.show', $subject) => $subject->title,
-            '#' => $part->title,
-        ];
+        $navigations = $type !== null
+            ? [
+                route('admin.subjects.index') => 'Предметы',
+                route('admin.subjects.show', $subject) => $subject->title,
+                route('admin.subjects.parts.show', [$subject, $part]) => $part->title,
+                '#' => 'Добавить вопрос',
+            ]
+            : [
+                route('admin.subjects.index') => 'Предметы',
+                route('admin.subjects.show', $subject) => $subject->title,
+                '#' => $part->title,
+            ];
 
         return view('admin.subjects.parts.show',
             compact('subject', 'part', 'questions', 'type', 'showUrl', 'storeRoutes', 'contexts', 'navigations'));

@@ -9,11 +9,12 @@
 <form method="POST" action="{{ $storeRoutes['group'] }}" x-data="{ mode: '{{ $defaultMode }}' }">
     @csrf
 
-    <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">Контекст</p>
-    <div class="flex gap-2 mb-5">
+    <p class="q-section-label">Контекст (текст для чтения)</p>
+
+    <div class="flex gap-2 mb-4">
         <button type="button" @click="mode = 'new'"
                 :class="mode === 'new' ? 'btn-primary' : 'btn-outline'"
-                class="btn btn-sm">Новый контекст</button>
+                class="btn btn-sm">Новый текст</button>
         @if ($hasContexts)
             <button type="button" @click="mode = 'existing'"
                     :class="mode === 'existing' ? 'btn-primary' : 'btn-outline'"
@@ -23,13 +24,10 @@
 
     <input type="hidden" name="context_mode" x-model="mode">
 
-    <div x-show="mode === 'new'">
-        <div class="form-group">
-            <label>Текст контекста</label>
-            <input type="hidden" name="context_text" data-wysiwyg-target="context_text" value="{{ old('context_text') }}">
-            <div data-wysiwyg="context_text" data-wysiwyg-context data-placeholder="Прочитайте текст и ответьте на вопросы..."></div>
-            @error('context_text') <p class="form-error">{{ $message }}</p> @enderror
-        </div>
+    <div x-show="mode === 'new'" class="form-group">
+        <input type="hidden" name="context_text" data-wysiwyg-target="context_text" value="{{ old('context_text') }}">
+        <div data-wysiwyg="context_text" data-wysiwyg-context data-placeholder="Прочитайте текст и ответьте на вопросы..."></div>
+        @error('context_text') <p class="form-error">{{ $message }}</p> @enderror
     </div>
 
     @if ($hasContexts)
@@ -39,50 +37,47 @@
         </div>
     @endif
 
-    <hr class="border-border my-5">
+    <div class="border-t border-border my-6"></div>
 
-    <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">Подвопрос</p>
-
+    <p class="q-section-label">Подвопрос</p>
     <div class="form-group">
-        <label>Текст подвопроса <span class="text-danger">*</span></label>
         <input type="hidden" name="question" data-wysiwyg-target="question" value="{{ old('question') }}">
-        <div data-wysiwyg="question" data-placeholder="Вопрос к контексту..."></div>
+        <div data-wysiwyg="question" data-placeholder="Вопрос к тексту..."></div>
         @error('question') <p class="form-error">{{ $message }}</p> @enderror
     </div>
 
-    <div class="form-group">
-        <label class="text-success">Правильный ответ <span class="text-danger">*</span></label>
-        <input type="hidden" name="var1" data-wysiwyg-target="var1" value="{{ old('var1') }}">
-        <div data-wysiwyg="var1" data-wysiwyg-plain data-placeholder="Правильный ответ"></div>
-        @error('var1') <p class="form-error">{{ $message }}</p> @enderror
-    </div>
-    <div class="form-group">
-        <label>Вариант 2 <span class="text-danger">*</span></label>
-        <input type="hidden" name="var2" data-wysiwyg-target="var2" value="{{ old('var2') }}">
-        <div data-wysiwyg="var2" data-wysiwyg-plain data-placeholder="Неправильный вариант"></div>
-        @error('var2') <p class="form-error">{{ $message }}</p> @enderror
-    </div>
-    <div class="form-group">
-        <label>Вариант 3 <span class="text-danger">*</span></label>
-        <input type="hidden" name="var3" data-wysiwyg-target="var3" value="{{ old('var3') }}">
-        <div data-wysiwyg="var3" data-wysiwyg-plain data-placeholder="Неправильный вариант"></div>
-        @error('var3') <p class="form-error">{{ $message }}</p> @enderror
-    </div>
-    <div class="form-group">
-        <label>Вариант 4 <span class="text-text-muted text-xs font-normal">(необязательно)</span></label>
-        <input type="hidden" name="var4" data-wysiwyg-target="var4" value="{{ old('var4') }}">
-        <div data-wysiwyg="var4" data-wysiwyg-plain data-placeholder="Доп. вариант"></div>
-        @error('var4') <p class="form-error">{{ $message }}</p> @enderror
-    </div>
-    <div class="form-group">
-        <label>Вариант 5 <span class="text-text-muted text-xs font-normal">(необязательно)</span></label>
-        <input type="hidden" name="var5" data-wysiwyg-target="var5" value="{{ old('var5') }}">
-        <div data-wysiwyg="var5" data-wysiwyg-plain data-placeholder="Доп. вариант"></div>
-        @error('var5') <p class="form-error">{{ $message }}</p> @enderror
+    <p class="q-section-label mt-6">Варианты ответов</p>
+
+    @php
+        $variants = [
+            ['key' => 'var1', 'letter' => 'A', 'correct' => true,  'required' => true,  'placeholder' => 'Правильный ответ'],
+            ['key' => 'var2', 'letter' => 'B', 'correct' => false, 'required' => true,  'placeholder' => 'Неправильный вариант'],
+            ['key' => 'var3', 'letter' => 'C', 'correct' => false, 'required' => true,  'placeholder' => 'Неправильный вариант'],
+            ['key' => 'var4', 'letter' => 'D', 'correct' => false, 'required' => false, 'placeholder' => 'Доп. вариант (необязательно)'],
+            ['key' => 'var5', 'letter' => 'E', 'correct' => false, 'required' => false, 'placeholder' => 'Доп. вариант (необязательно)'],
+        ];
+    @endphp
+
+    <div class="space-y-3">
+        @foreach ($variants as $v)
+            <div class="q-var-row">
+                <div class="q-var-letter {{ $v['correct'] ? 'q-var-letter-correct' : ($v['required'] ? 'q-var-letter-wrong' : 'q-var-letter-opt') }}">
+                    {{ $v['letter'] }}
+                </div>
+                <div class="flex-1">
+                    <input type="hidden" name="{{ $v['key'] }}" data-wysiwyg-target="{{ $v['key'] }}" value="{{ old($v['key']) }}">
+                    <div data-wysiwyg="{{ $v['key'] }}" data-wysiwyg-plain data-placeholder="{{ $v['placeholder'] }}"></div>
+                    @error($v['key']) <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+                @if ($v['correct'])
+                    <span class="mt-2 text-xs font-extrabold text-success uppercase tracking-wide shrink-0">✓ верный</span>
+                @endif
+            </div>
+        @endforeach
     </div>
 
-    <div class="flex items-center justify-between mt-6">
-        <button type="submit" class="btn btn-success">Добавить подвопрос</button>
+    <div class="flex items-center justify-between mt-8 pt-6 border-t border-border">
+        <button type="submit" class="btn btn-success">Сохранить подвопрос</button>
         <a href="{{ $showUrl }}" class="btn btn-outline">Отмена</a>
     </div>
 </form>

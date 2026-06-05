@@ -2,7 +2,6 @@
 
 namespace App\Enums;
 
-
 /*
  * Типы вопросов
  *
@@ -14,50 +13,42 @@ namespace App\Enums;
  * var7: вариант 3
  * var8: вариант 4
  */
-enum QuestionType: int
+enum QuestionType: string
 {
-    case SELECT_ONE     = 0; // одно вариантный
-    case SELECT_MULTI   = 1; // многовариантный
-    case IS_GROUP       = 2; // контекст
-    case IS_MATCH       = 3; // соответствие
+    case SELECT_ONE = 'one';
+    case SELECT_MULTI = 'multi';
+    case IS_GROUP = 'group';
+    case IS_MATCH = 'match';
 
     public function title(): string
     {
         return match ($this) {
-            self::SELECT_ONE    => 'Одно вариантный',
-            self::SELECT_MULTI  => 'Многовариантный',
-            self::IS_GROUP      => 'Контекстный',
-            self::IS_MATCH      => 'Соответствие',
+            self::SELECT_ONE => 'Одно вариантный',
+            self::SELECT_MULTI => 'Многовариантный',
+            self::IS_GROUP => 'Контекстный',
+            self::IS_MATCH => 'Соответствие',
         };
     }
 
-    public function label(): string
+    public function color(): string
     {
         return match ($this) {
-            self::SELECT_ONE   => '1 ответ',
-            self::SELECT_MULTI => 'Несколько',
-            self::IS_GROUP     => 'Контекст',
-            self::IS_MATCH     => 'Соответствие',
+            self::SELECT_ONE => '#7C3AED',
+            self::SELECT_MULTI => '#C026D3',
+            self::IS_MATCH => '#0D9488',
+            self::IS_GROUP => '#0891B2',
         };
     }
 
-    public function badgeClass(): string
+    public function iconUrl(): string
     {
-        return match ($this) {
-            self::SELECT_ONE   => 'badge-info',
-            self::SELECT_MULTI => 'badge-primary',
-            self::IS_GROUP     => 'badge-danger',
-            self::IS_MATCH     => 'badge-success',
+        $icon = match ($this) {
+            self::SELECT_ONE => 'question-one',
+            self::SELECT_MULTI => 'question-multi',
+            self::IS_MATCH => 'question-match',
+            self::IS_GROUP => 'question-group',
         };
-    }
 
-    public function url(): string
-    {
-        return match ($this) {
-            self::SELECT_ONE   => 'one',
-            self::SELECT_MULTI => 'multi',
-            self::IS_GROUP     => 'group',
-            self::IS_MATCH     => 'match',
-        };
+        return "/images/icons/{$icon}.svg";
     }
 }

@@ -86,7 +86,7 @@ class PartQuestionController extends Controller
                 'count_answers' => 2,
             ]);
             $q->detail()->create([
-                'question' => $data['question'] ?? null,
+                'question' => $data['question'],
                 'answers' => [5, 6],
                 'var1' => $data['var1'],
                 'var2' => $data['var2'],

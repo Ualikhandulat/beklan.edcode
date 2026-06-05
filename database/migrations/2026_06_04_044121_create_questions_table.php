@@ -14,7 +14,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Subject::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Part::class)->constrained()->cascadeOnDelete();
-            $table->tinyInteger('type')->default(0);
+            $table->string('type');
             $table->integer('count_variants')->default(0);
             $table->integer('count_answers')->default(0);
             $table->longText('text')->nullable()->default(null);

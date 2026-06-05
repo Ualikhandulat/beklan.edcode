@@ -2,24 +2,54 @@
 
 @extends('layouts.admin')
 
-@php $addMode = $type !== null; @endphp
+@php
+    $addMode = $type !== null;
+@endphp
 
 @section('actions')
     @if (! $addMode)
-        <a href="{{ $showUrl }}?type={{ QuestionType::SELECT_ONE->url() }}" class="btn btn-primary btn-sm">
+        <a href="{{ $showUrl }}?type={{ QuestionType::SELECT_ONE->value }}" class="btn btn-primary btn-sm">
             + Добавить вопрос
         </a>
-    @else
-        <a href="{{ $showUrl }}" class="btn btn-outline btn-sm">← К вопросам</a>
     @endif
 @endsection
 
 @section('content')
 
 @if (! $addMode)
-    {{-- Список вопросов --}}
+
+    {{-- Stats bar --}}
+    @if ($questions->isNotEmpty())
+        <div class="card p-4 mb-5 flex flex-wrap items-center gap-x-8 gap-y-2">
+            <div>
+                <span class="text-2xl font-extrabold text-text">{{ $questions->count() }}</span>
+                <span class="text-xs font-bold text-text-muted ml-1.5 uppercase tracking-wide">вопросов</span>
+            </div>
+            <div class="w-px h-6 bg-border hidden sm:block"></div>
+            @foreach (QuestionType::cases() as $qt)
+                @php $cnt = $questions->where('type', $qt)->count(); @endphp
+                @if ($cnt > 0)
+                    <div class="flex items-baseline gap-1.5">
+                        <span class="text-lg font-extrabold" style="color: {{ $qt->color() }}">{{ $cnt }}</span>
+                        <span class="text-xs text-text-muted font-semibold">{{ $qt->title() }}</span>
+                    </div>
+                @endif
+            @endforeach
+        </div>
+    @endif
+
+    {{-- Question list --}}
     @if ($questions->isEmpty())
-        <div class="card text-center text-text-muted py-12">Вопросы не добавлены.</div>
+        <div class="card flex flex-col items-center justify-center py-16 text-center">
+            <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                <x-icon name="clipboard-list" class="w-7 h-7 text-text-muted" />
+            </div>
+            <p class="font-bold text-text mb-1">Вопросы не добавлены</p>
+            <p class="text-sm text-text-muted mb-5">Добавьте первый вопрос к этому разделу</p>
+            <a href="{{ $showUrl }}?type={{ QuestionType::SELECT_ONE->value }}" class="btn btn-primary btn-sm">
+                + Добавить вопрос
+            </a>
+        </div>
     @else
         <div class="space-y-3">
             @foreach ($questions as $i => $question)
@@ -33,25 +63,31 @@
     @endif
 
 @else
-    {{-- Форма добавления вопроса --}}
+
+    {{-- Add question form --}}
     <div class="space-y-4">
-        {{-- Тип вопроса — отдельный card --}}
+
+        {{-- Type selector --}}
         <div class="card">
-            <div class="flex justify-center flex-wrap gap-2">
+            <div class="flex flex-wrap gap-2">
                 @foreach (QuestionType::cases() as $qt)
-                    <a href="{{ $showUrl }}?type={{ $qt->url() }}"
-                       class="btn btn-sm {{ $type === $qt->url() ? 'btn-primary' : 'btn-outline' }}">
+                    <a href="{{ $showUrl }}?type={{ $qt->value }}"
+                       class="q-type-tab {{ $type === $qt->value ? 'q-type-tab-active' : '' }}"
+                       style="--tab-color: {{ $qt->color() }}">
+                        <x-icon :name="'question-' . $qt->value" class="q-type-tab-icon" />
                         {{ $qt->title() }}
                     </a>
                 @endforeach
             </div>
         </div>
 
-        {{-- Форма --}}
+        {{-- Form --}}
         <div class="card">
             @include("admin.subjects.questions.forms.{$type}")
         </div>
+
     </div>
+
 @endif
 
 @endsection

@@ -257,6 +257,61 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,.25); }
 
+    /* ── Question page ─────────────────────────────────────── */
+    .q-card {
+        @apply bg-card rounded-2xl border border-border overflow-hidden flex transition-all duration-200;
+        box-shadow: var(--shadow-card);
+    }
+    .q-card:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+    }
+    .q-card-accent {
+        @apply w-1.5 shrink-0;
+    }
+    .q-card-body {
+        @apply flex-1 p-5 min-w-0;
+    }
+    .q-num {
+        @apply text-xl font-extrabold tabular-nums leading-none;
+        color: var(--color-border);
+    }
+    .q-preview {
+        @apply text-sm font-semibold text-text leading-relaxed;
+    }
+    .q-chip {
+        @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold;
+    }
+    .q-chip-correct { @apply bg-success-light text-success; }
+    .q-chip-wrong   { @apply bg-gray-100 text-text-muted; }
+    .q-type-tab {
+        @apply inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-border bg-white text-text-muted font-bold text-sm cursor-pointer transition-all duration-200 select-none shrink-0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .q-type-tab:not(.q-type-tab-active):hover {
+        color: var(--tab-color);
+        border-color: var(--tab-color);
+        background: color-mix(in srgb, var(--tab-color) 8%, white);
+    }
+    .q-type-tab-active {
+        background: var(--tab-color) !important;
+        border-color: var(--tab-color) !important;
+        color: white !important;
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--tab-color) 40%, transparent) !important;
+    }
+    .q-type-tab-icon { @apply w-4 h-4 shrink-0; }
+    .q-section-label {
+        @apply text-[10px] font-extrabold text-text-muted uppercase tracking-widest mb-3;
+    }
+    .q-var-row {
+        @apply flex items-start gap-3;
+    }
+    .q-var-letter {
+        @apply w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-xs font-extrabold mt-1;
+    }
+    .q-var-letter-correct { @apply bg-success text-white; }
+    .q-var-letter-wrong   { @apply bg-gray-100 text-text-muted; }
+    .q-var-letter-opt     { @apply bg-gray-50 text-border border border-border; }
+
     /* Public navbar */
     .public-nav {
         @apply bg-white border-b border-border sticky top-0 z-40;

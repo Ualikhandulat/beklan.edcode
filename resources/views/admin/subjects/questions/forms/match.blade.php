@@ -1,62 +1,65 @@
 <form method="POST" action="{{ $storeRoutes['match'] }}">
     @csrf
 
+    <p class="q-section-label">Текст вопроса <span class="text-danger ml-0.5">*</span></p>
     <div class="form-group">
-        <label>Текст вопроса <span class="text-text-muted text-xs font-normal">(необязательно)</span></label>
         <input type="hidden" name="question" data-wysiwyg-target="question" value="{{ old('question') }}">
-        <div data-wysiwyg="question" data-placeholder="Необязательный вводный текст..."></div>
+        <div data-wysiwyg="question" data-placeholder="Введите текст вопроса..."></div>
         @error('question') <p class="form-error">{{ $message }}</p> @enderror
     </div>
 
-    <div class="grid grid-cols-2 gap-5 mb-4">
+    <div class="grid grid-cols-2 gap-6 mt-6">
+
         <div>
-            <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">Левый столбец</p>
-            <div class="form-group">
-                <label>Элемент 1 <span class="text-danger">*</span></label>
-                <input type="hidden" name="var1" data-wysiwyg-target="var1" value="{{ old('var1') }}">
-                <div data-wysiwyg="var1" data-wysiwyg-plain data-placeholder="Левый 1"></div>
-                @error('var1') <p class="form-error">{{ $message }}</p> @enderror
-            </div>
-            <div class="form-group">
-                <label>Элемент 2 <span class="text-danger">*</span></label>
-                <input type="hidden" name="var2" data-wysiwyg-target="var2" value="{{ old('var2') }}">
-                <div data-wysiwyg="var2" data-wysiwyg-plain data-placeholder="Левый 2"></div>
-                @error('var2') <p class="form-error">{{ $message }}</p> @enderror
+            <p class="q-section-label">Левый столбец</p>
+            <div class="space-y-3">
+                @foreach ([[1,'1-й элемент'],[2,'2-й элемент']] as [$n,$label])
+                    <div class="q-var-row">
+                        <div class="q-var-letter q-var-letter-wrong">{{ $n }}</div>
+                        <div class="flex-1">
+                            <input type="hidden" name="var{{ $n }}" data-wysiwyg-target="var{{ $n }}" value="{{ old("var{$n}") }}">
+                            <div data-wysiwyg="var{{ $n }}" data-wysiwyg-plain data-placeholder="{{ $label }}"></div>
+                            @error("var{$n}") <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
+
         <div>
-            <p class="text-xs font-extrabold text-success uppercase tracking-widest mb-3">Правый столбец (правильные)</p>
-            <div class="form-group">
-                <label class="text-success">Ответ для элемента 1 <span class="text-danger">*</span></label>
-                <input type="hidden" name="var5" data-wysiwyg-target="var5" value="{{ old('var5') }}">
-                <div data-wysiwyg="var5" data-wysiwyg-plain data-placeholder="Правильный для 1-го"></div>
-                @error('var5') <p class="form-error">{{ $message }}</p> @enderror
-            </div>
-            <div class="form-group">
-                <label class="text-success">Ответ для элемента 2 <span class="text-danger">*</span></label>
-                <input type="hidden" name="var6" data-wysiwyg-target="var6" value="{{ old('var6') }}">
-                <div data-wysiwyg="var6" data-wysiwyg-plain data-placeholder="Правильный для 2-го"></div>
-                @error('var6') <p class="form-error">{{ $message }}</p> @enderror
+            <p class="q-section-label text-success">Правый столбец <span class="normal-case font-semibold tracking-normal text-text-muted ml-1">(правильные)</span></p>
+            <div class="space-y-3">
+                @foreach ([[5,'Ответ для 1-го'],[6,'Ответ для 2-го']] as [$n,$label])
+                    <div class="q-var-row">
+                        <div class="q-var-letter q-var-letter-correct">{{ $n - 4 }}</div>
+                        <div class="flex-1">
+                            <input type="hidden" name="var{{ $n }}" data-wysiwyg-target="var{{ $n }}" value="{{ old("var{$n}") }}">
+                            <div data-wysiwyg="var{{ $n }}" data-wysiwyg-plain data-placeholder="{{ $label }}"></div>
+                            @error("var{$n}") <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
+
     </div>
 
-    <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">Дистракторы</p>
-    <div class="form-group">
-        <label>Дистрактор 1 <span class="text-danger">*</span></label>
-        <input type="hidden" name="var7" data-wysiwyg-target="var7" value="{{ old('var7') }}">
-        <div data-wysiwyg="var7" data-wysiwyg-plain data-placeholder="Лишний вариант"></div>
-        @error('var7') <p class="form-error">{{ $message }}</p> @enderror
-    </div>
-    <div class="form-group">
-        <label>Дистрактор 2 <span class="text-text-muted text-xs font-normal">(необязательно)</span></label>
-        <input type="hidden" name="var8" data-wysiwyg-target="var8" value="{{ old('var8') }}">
-        <div data-wysiwyg="var8" data-wysiwyg-plain data-placeholder="Лишний вариант"></div>
-        @error('var8') <p class="form-error">{{ $message }}</p> @enderror
+    <p class="q-section-label mt-6">Дистракторы <span class="normal-case font-semibold tracking-normal text-text-muted ml-1">(лишние варианты)</span></p>
+    <div class="space-y-3">
+        @foreach ([[7,'Лишний 1'],[8,'Лишний 2 (необязательно)']] as [$n,$label])
+            <div class="q-var-row">
+                <div class="q-var-letter q-var-letter-opt">×</div>
+                <div class="flex-1">
+                    <input type="hidden" name="var{{ $n }}" data-wysiwyg-target="var{{ $n }}" value="{{ old("var{$n}") }}">
+                    <div data-wysiwyg="var{{ $n }}" data-wysiwyg-plain data-placeholder="{{ $label }}"></div>
+                    @error("var{$n}") <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+            </div>
+        @endforeach
     </div>
 
-    <div class="flex items-center justify-between mt-6">
-        <button type="submit" class="btn btn-success">Добавить вопрос</button>
+    <div class="flex items-center justify-between mt-8 pt-6 border-t border-border">
+        <button type="submit" class="btn btn-success">Сохранить вопрос</button>
         <a href="{{ $showUrl }}" class="btn btn-outline">Отмена</a>
     </div>
 </form>
