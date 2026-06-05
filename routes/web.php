@@ -46,7 +46,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'
             Route::post('/multi', [PartQuestionController::class, 'storeMulti'])->name('store.multi');
             Route::post('/match', [PartQuestionController::class, 'storeMatch'])->name('store.match');
             Route::post('/group', [PartQuestionController::class, 'storeGroup'])->name('store.group');
+            Route::get('/{question}/edit', [PartQuestionController::class, 'edit'])->name('edit');
+            Route::put('/{question}', [PartQuestionController::class, 'update'])->name('update');
             Route::delete('/{question}', [PartQuestionController::class, 'destroy'])->name('destroy');
+            Route::get('/{question}/details/{detail}/edit', [PartQuestionController::class, 'editDetail'])->name('details.edit');
+            Route::put('/{question}/details/{detail}', [PartQuestionController::class, 'updateDetail'])->name('details.update');
+            Route::delete('/{question}/details/{detail}', [PartQuestionController::class, 'destroyDetail'])->name('details.destroy');
         });
 });
 

@@ -10,9 +10,12 @@ use App\Http\Requests\Admin\Questions\StoreMultiRequest;
 use App\Http\Requests\Admin\Questions\StoreOneRequest;
 use App\Models\Part;
 use App\Models\Question;
+use App\Models\QuestionDetail;
 use App\Models\Subject;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class PartQuestionController extends Controller
 {
@@ -131,10 +134,167 @@ class PartQuestionController extends Controller
         return redirect($this->back($subject, $part))->with('success', 'Подвопрос добавлен.');
     }
 
+    public function edit(Subject $subject, Part $part, Question $question): View
+    {
+        $question->load('detail', 'details');
+        $contexts = $question->type === QuestionType::IS_GROUP
+            ? collect()
+            : $part->questions()->where('type', QuestionType::IS_GROUP)->get();
+
+        $navigations = [
+            route('admin.subjects.index') => 'Предметы',
+            route('admin.subjects.show', $subject) => $subject->title,
+            route('admin.subjects.parts.show', [$subject, $part]) => $part->title,
+            '#' => 'Изменить вопрос',
+        ];
+
+        return view('admin.subjects.parts.edit-question', [
+            'subject' => $subject,
+            'part' => $part,
+            'question' => $question,
+            'contexts' => $contexts,
+            'updateRoute' => route('admin.subjects.parts.questions.update', [$subject, $part, $question]),
+            'showUrl' => $this->back($subject, $part),
+            'navigations' => $navigations,
+        ]);
+    }
+
+    public function update(Request $request, Subject $subject, Part $part, Question $question): RedirectResponse
+    {
+        DB::transaction(function () use ($request, $question) {
+            match ($question->type) {
+                QuestionType::SELECT_ONE => $this->applyOne($request, $question),
+                QuestionType::SELECT_MULTI => $this->applyMulti($request, $question),
+                QuestionType::IS_MATCH => $this->applyMatch($request, $question),
+                QuestionType::IS_GROUP => $this->applyGroup($request, $question),
+            };
+        });
+
+        return redirect($this->back($subject, $part))->with('success', 'Вопрос обновлён.');
+    }
+
+    private function applyOne(Request $request, Question $question): void
+    {
+        $data = $request->validate([
+            'question' => ['required', 'string'],
+            'var1' => ['required', 'string'],
+            'var2' => ['required', 'string'],
+            'var3' => ['required', 'string'],
+            'var4' => ['nullable', 'string'],
+            'var5' => ['nullable', 'string'],
+        ]);
+
+        $vars = [$data['var1'], $data['var2'], $data['var3'], $data['var4'] ?? null, $data['var5'] ?? null];
+        $question->update(['count_variants' => collect($vars)->filter()->count()]);
+        $question->detail()->updateOrCreate([], [
+            'question' => $data['question'],
+            'answers' => [1],
+            'var1' => $data['var1'], 'var2' => $data['var2'], 'var3' => $data['var3'],
+            'var4' => $data['var4'] ?? null, 'var5' => $data['var5'] ?? null,
+        ]);
+    }
+
+    private function applyMulti(Request $request, Question $question): void
+    {
+        $data = $request->validate([
+            'question' => ['required', 'string'],
+            'answers' => ['required', 'array', 'min:2'],
+            'answers.*' => ['integer'],
+            'var1' => ['required', 'string'], 'var2' => ['required', 'string'],
+            'var3' => ['required', 'string'], 'var4' => ['required', 'string'],
+            'var5' => ['required', 'string'], 'var6' => ['required', 'string'],
+            'var7' => ['nullable', 'string'], 'var8' => ['nullable', 'string'],
+        ]);
+
+        $countVariants = collect(range(1, 8))->filter(fn ($i) => ! empty($data["var{$i}"]))->count();
+        $question->update(['count_variants' => $countVariants, 'count_answers' => count($data['answers'])]);
+
+        $detail = ['question' => $data['question'], 'answers' => array_map('intval', $data['answers'])];
+        for ($i = 1; $i <= 8; $i++) {
+            $detail["var{$i}"] = $data["var{$i}"] ?? null;
+        }
+        $question->detail()->updateOrCreate([], $detail);
+    }
+
+    private function applyMatch(Request $request, Question $question): void
+    {
+        $data = $request->validate([
+            'question' => ['required', 'string'],
+            'var1' => ['required', 'string'], 'var2' => ['required', 'string'],
+            'var5' => ['required', 'string'], 'var6' => ['required', 'string'],
+            'var7' => ['required', 'string'], 'var8' => ['nullable', 'string'],
+        ]);
+
+        $question->detail()->updateOrCreate([], [
+            'question' => $data['question'],
+            'answers' => [5, 6],
+            'var1' => $data['var1'], 'var2' => $data['var2'],
+            'var5' => $data['var5'], 'var6' => $data['var6'],
+            'var7' => $data['var7'], 'var8' => $data['var8'] ?? null,
+        ]);
+    }
+
+    private function applyGroup(Request $request, Question $question): void
+    {
+        $data = $request->validate(['context_text' => ['required', 'string']]);
+        $question->update(['text' => $data['context_text']]);
+    }
+
     public function destroy(Subject $subject, Part $part, Question $question): RedirectResponse
     {
         $question->delete();
 
         return redirect($this->back($subject, $part))->with('success', 'Вопрос удалён.');
+    }
+
+    public function editDetail(Subject $subject, Part $part, Question $question, QuestionDetail $detail): View
+    {
+        $navigations = [
+            route('admin.subjects.index') => 'Предметы',
+            route('admin.subjects.show', $subject) => $subject->title,
+            route('admin.subjects.parts.show', [$subject, $part]) => $part->title,
+            '#' => 'Изменить подвопрос',
+        ];
+
+        return view('admin.subjects.parts.edit-detail', [
+            'subject' => $subject,
+            'part' => $part,
+            'question' => $question,
+            'detail' => $detail,
+            'updateRoute' => route('admin.subjects.parts.questions.details.update', [$subject, $part, $question, $detail]),
+            'showUrl' => $this->back($subject, $part),
+            'navigations' => $navigations,
+        ]);
+    }
+
+    public function updateDetail(Request $request, Subject $subject, Part $part, Question $question, QuestionDetail $detail): RedirectResponse
+    {
+        $data = $request->validate([
+            'question' => ['required', 'string'],
+            'var1' => ['required', 'string'],
+            'var2' => ['required', 'string'],
+            'var3' => ['required', 'string'],
+            'var4' => ['nullable', 'string'],
+            'var5' => ['nullable', 'string'],
+        ]);
+
+        $detail->update([
+            'question' => $data['question'],
+            'answers' => [1],
+            'var1' => $data['var1'],
+            'var2' => $data['var2'],
+            'var3' => $data['var3'],
+            'var4' => $data['var4'] ?? null,
+            'var5' => $data['var5'] ?? null,
+        ]);
+
+        return redirect($this->back($subject, $part))->with('success', 'Подвопрос обновлён.');
+    }
+
+    public function destroyDetail(Subject $subject, Part $part, Question $question, QuestionDetail $detail): RedirectResponse
+    {
+        $detail->delete();
+
+        return redirect($this->back($subject, $part))->with('success', 'Подвопрос удалён.');
     }
 }

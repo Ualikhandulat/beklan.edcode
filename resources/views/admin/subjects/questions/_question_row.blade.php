@@ -14,13 +14,17 @@
                     <x-icon :name="'question-' . $question->type->value" class="w-3 h-3 inline-block mr-0.5" />{{ $question->type->title() }}
                 </span>
             </div>
-            <form method="POST" action="{{ $destroyRoute }}"
-                  onsubmit="return confirm('Удалить?')">
-                @csrf @method('DELETE')
-                <button class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                    <x-icon name="trash" class="w-4 h-4" />
-                </button>
-            </form>
+            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                <a href="{{ $editRoute }}" class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light">
+                    <x-icon name="pencil" class="w-4 h-4" />
+                </a>
+                <form method="POST" action="{{ $destroyRoute }}" onsubmit="return confirm('Удалить?')">
+                    @csrf @method('DELETE')
+                    <button class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light">
+                        <x-icon name="trash" class="w-4 h-4" />
+                    </button>
+                </form>
+            </div>
         </div>
 
         @if ($question->type === QuestionType::IS_GROUP)
@@ -32,10 +36,26 @@
             @endif
 
             @forelse ($question->details as $j => $detail)
-                <div class="mt-3 pl-4 border-l-2 border-primary/25 first:mt-0">
-                    <p class="text-[10px] font-extrabold text-text-muted uppercase tracking-wider mb-1">
-                        {{ $index }}.{{ $j + 1 }}
-                    </p>
+                <div class="mt-3 pl-4 border-l-2 border-primary/25 first:mt-0 group/detail">
+                    <div class="flex items-start justify-between gap-2 mb-1">
+                        <p class="text-[10px] font-extrabold text-text-muted uppercase tracking-wider">
+                            {{ $index }}.{{ $j + 1 }}
+                        </p>
+                        <div class="flex items-center gap-1 opacity-0 group-hover/detail:opacity-100 transition-opacity shrink-0">
+                            <a href="{{ route('admin.subjects.parts.questions.details.edit', [$subject, $part, $question, $detail]) }}"
+                               class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light !px-1.5 !py-1">
+                                <x-icon name="pencil" class="w-3.5 h-3.5" />
+                            </a>
+                            <form method="POST"
+                                  action="{{ route('admin.subjects.parts.questions.details.destroy', [$subject, $part, $question, $detail]) }}"
+                                  onsubmit="return confirm('Удалить подвопрос?')">
+                                @csrf @method('DELETE')
+                                <button class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light !px-1.5 !py-1">
+                                    <x-icon name="trash" class="w-3.5 h-3.5" />
+                                </button>
+                            </form>
+                        </div>
+                    </div>
                     <p class="q-preview mb-2">
                         {{ Str::limit(strip_tags($detail->question ?? ''), 120) }}
                     </p>

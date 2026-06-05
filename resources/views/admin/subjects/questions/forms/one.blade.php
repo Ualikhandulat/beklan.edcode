@@ -1,9 +1,12 @@
-<form method="POST" action="{{ $storeRoutes['one'] }}">
+@php $d = $q->detail ?? null; @endphp
+
+<form method="POST" action="{{ $updateRoute ?? $storeRoutes['one'] }}">
     @csrf
+    @isset($updateRoute) @method('PUT') @endisset
 
     <p class="q-section-label">Текст вопроса</p>
     <div class="form-group">
-        <input type="hidden" name="question" data-wysiwyg-target="question" value="{{ old('question') }}">
+        <input type="hidden" name="question" data-wysiwyg-target="question" value="{{ old('question', $d?->question ?? '') }}">
         <div data-wysiwyg="question" data-placeholder="Введите вопрос..."></div>
         @error('question') <p class="form-error">{{ $message }}</p> @enderror
     </div>
@@ -27,7 +30,7 @@
                     {{ $v['letter'] }}
                 </div>
                 <div class="flex-1">
-                    <input type="hidden" name="{{ $v['key'] }}" data-wysiwyg-target="{{ $v['key'] }}" value="{{ old($v['key']) }}">
+                    <input type="hidden" name="{{ $v['key'] }}" data-wysiwyg-target="{{ $v['key'] }}" value="{{ old($v['key'], $d?->{$v['key']} ?? '') }}">
                     <div data-wysiwyg="{{ $v['key'] }}" data-wysiwyg-plain data-placeholder="{{ $v['placeholder'] }}"></div>
                     @error($v['key']) <p class="form-error">{{ $message }}</p> @enderror
                 </div>
@@ -39,7 +42,7 @@
     </div>
 
     <div class="flex items-center justify-between mt-8 pt-6 border-t border-border">
-        <button type="submit" class="btn btn-success">Сохранить вопрос</button>
+        <button type="submit" class="btn btn-success">{{ isset($updateRoute) ? 'Сохранить изменения' : 'Добавить вопрос' }}</button>
         <a href="{{ $showUrl }}" class="btn btn-outline">Отмена</a>
     </div>
 </form>

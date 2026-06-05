@@ -8,7 +8,7 @@
 
 @section('actions')
     @if (! $addMode)
-        <a href="{{ $showUrl }}?type={{ QuestionType::SELECT_ONE->value }}" class="btn btn-primary btn-sm">
+        <a href="{{ $showUrl }}?type={{ QuestionType::SELECT_ONE->value }}" class="btn btn-primary">
             + Добавить вопрос
         </a>
     @endif
@@ -46,7 +46,7 @@
             </div>
             <p class="font-bold text-text mb-1">Вопросы не добавлены</p>
             <p class="text-sm text-text-muted mb-5">Добавьте первый вопрос к этому разделу</p>
-            <a href="{{ $showUrl }}?type={{ QuestionType::SELECT_ONE->value }}" class="btn btn-primary btn-sm">
+            <a href="{{ $showUrl }}?type={{ QuestionType::SELECT_ONE->value }}" class="btn btn-primary">
                 + Добавить вопрос
             </a>
         </div>
@@ -54,8 +54,11 @@
         <div class="space-y-3">
             @foreach ($questions as $i => $question)
                 @include('admin.subjects.questions._question_row', [
+                    'subject'      => $subject,
+                    'part'         => $part,
                     'question'     => $question,
                     'index'        => $i + 1,
+                    'editRoute'    => route('admin.subjects.parts.questions.edit', [$subject, $part, $question]),
                     'destroyRoute' => route('admin.subjects.parts.questions.destroy', [$subject, $part, $question]),
                 ])
             @endforeach
