@@ -39,16 +39,4 @@ enum QuestionType: string
             self::IS_GROUP => '#0891B2',
         };
     }
-
-    public function iconUrl(): string
-    {
-        $icon = match ($this) {
-            self::SELECT_ONE => 'question-one',
-            self::SELECT_MULTI => 'question-multi',
-            self::IS_MATCH => 'question-match',
-            self::IS_GROUP => 'question-group',
-        };
-
-        return "/images/icons/{$icon}.svg";
-    }
 }

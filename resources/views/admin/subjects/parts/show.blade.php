@@ -19,8 +19,7 @@
 @if (! $addMode)
 
     {{-- Stats bar --}}
-    @if ($questions->isNotEmpty())
-        <div class="card p-4 mb-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+        <div class="card p-4 mb-5 flex flex-wrap items-center gap-x-3 gap-y-2">
             <div>
                 <span class="text-2xl font-extrabold text-text">{{ $questions->count() }}</span>
                 <span class="text-xs font-bold text-text-muted ml-1.5 uppercase tracking-wide">вопросов</span>
@@ -28,18 +27,14 @@
             <div class="w-px h-6 bg-border hidden sm:block"></div>
             @foreach (QuestionType::cases() as $qt)
                 @php $cnt = $questions->where('type', $qt)->count(); @endphp
-                @if ($cnt > 0)
-                    <div class="flex items-center gap-2">
-                        <img src="" alt="">
-                    </div>
-                    <div class="flex items-baseline gap-1.5">
-                        <span class="text-lg font-extrabold" style="color: {{ $qt->color() }}">{{ $cnt }}</span>
-                        <span class="text-xs text-text-muted font-semibold">{{ $qt->title() }}</span>
+                @if($cnt > 0)
+                    <div class="flex items-center gap-2 border rounded-2xl px-2.5 py-1 text-sm" style="border-color: {{ $qt->color() }}; color: {{ $qt->color() }}">
+                        <x-icon :name="'question-' . $qt->value" class="w-3.5 h-3.5 shrink-0" />
+                        <p>{{ $qt->title() }}: <b>{{ $cnt }}</b></p>
                     </div>
                 @endif
             @endforeach
         </div>
-    @endif
 
     {{-- Question list --}}
     @if ($questions->isEmpty())
