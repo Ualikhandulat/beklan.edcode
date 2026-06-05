@@ -15,7 +15,6 @@
     },
     "dependencies": {
         "alpinejs": "^3.15.12",
-        "katex": "^0.17.0",
-        "quill": "^2.0.3"
+        "ckeditor5": "^45.0.0"
     }
 }

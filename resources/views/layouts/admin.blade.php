@@ -80,20 +80,27 @@
 
             {{-- Breadcrumb --}}
             @if (count($navItems) > 0)
-                <nav class="flex items-center gap-1 mb-5 flex-wrap">
-                    <a href="{{ route('admin.dashboard') }}"
-                       class="btn btn-outline btn-sm shrink-0">
-                        <x-icon name="home" class="w-3.5 h-3.5" />
-                    </a>
-                    @foreach ($navItems as $url => $label)
-                        <x-icon name="chevron-right" class="w-4 h-4 text-text-muted shrink-0" />
-                        @if ($loop->last)
-                            <span class="btn btn-sm bg-gray-100 text-text border border-border cursor-default font-bold truncate">{{ $label }}</span>
-                        @else
-                            <a href="{{ $url }}" class="btn btn-outline btn-sm shrink-0">{{ $label }}</a>
-                        @endif
-                    @endforeach
-                </nav>
+                <div class="flex items-center justify-between gap-3 mb-5 flex-wrap">
+                    <nav class="flex items-center gap-1 flex-wrap">
+                        <a href="{{ route('admin.dashboard') }}"
+                           class="btn btn-outline btn-sm shrink-0">
+                            <x-icon name="home" class="w-3.5 h-3.5" />
+                        </a>
+                        @foreach ($navItems as $url => $label)
+                            <x-icon name="chevron-right" class="w-4 h-4 text-text-muted shrink-0" />
+                            @if ($loop->last)
+                                <span class="btn btn-sm bg-gray-100 text-text border border-border cursor-default font-bold truncate">{{ $label }}</span>
+                            @else
+                                <a href="{{ $url }}" class="btn btn-outline btn-sm shrink-0">{{ $label }}</a>
+                            @endif
+                        @endforeach
+                    </nav>
+                    @hasSection('actions')
+                        <div class="flex items-center gap-2 shrink-0">
+                            @yield('actions')
+                        </div>
+                    @endif
+                </div>
             @endif
 
             {{-- Flash messages --}}

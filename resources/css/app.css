@@ -250,27 +250,6 @@
         @apply bg-primary-light text-primary;
     }
 
-    /* WYSIWYG Editor */
-    .wysiwyg-wrapper {
-        @apply rounded-2xl border border-border overflow-hidden transition-colors;
-    }
-    .wysiwyg-wrapper:focus-within {
-        @apply border-primary ring-2 ring-primary/20;
-    }
-    .wysiwyg-wrapper .ql-toolbar {
-        @apply border-0 border-b border-border bg-gray-50 rounded-t-2xl;
-    }
-    .wysiwyg-wrapper .ql-container {
-        @apply border-0 text-sm font-sans;
-        min-height: 120px;
-    }
-    .wysiwyg-wrapper .ql-editor {
-        @apply text-sm text-text;
-        min-height: 120px;
-    }
-    .wysiwyg-wrapper .ql-editor.ql-blank::before {
-        @apply text-text-muted not-italic;
-    }
 
     /* Scrollbar */
     .custom-scrollbar::-webkit-scrollbar       { width: 4px; }
@@ -288,3 +267,47 @@
 }
 
 [x-cloak] { display: none !important; }
+
+/* ── CKEditor 5 overrides ────────────────────────────────────────── */
+.ck.ck-editor {
+    border-radius: 1rem !important;
+    border: 1px solid var(--color-border) !important;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ck.ck-editor:has(.ck-focused) {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px rgb(242 153 74 / 0.2) !important;
+}
+.ck.ck-toolbar {
+    border: none !important;
+    border-bottom: 1px solid var(--color-border) !important;
+    border-radius: 0 !important;
+    background: #f9fafb !important;
+}
+.ck.ck-editor__main > .ck-editor__editable {
+    border: none !important;
+    border-radius: 0 0 1rem 1rem !important;
+    font-family: var(--font-sans) !important;
+    font-size: 0.875rem !important;
+    color: var(--color-text) !important;
+    min-height: 5lh;
+}
+.ck.ck-editor__main > .ck-editor__editable.ck-focused {
+    box-shadow: none !important;
+}
+.ck.ck-editor__editable .ck-placeholder::before {
+    color: var(--color-text-muted) !important;
+}
+/* Plain mode — no toolbar */
+.ck-editor--plain .ck-editor__top {
+    display: none !important;
+}
+.ck-editor--plain .ck-editor__main > .ck-editor__editable {
+    border-radius: 1rem !important;
+    padding: 8px 12px !important;
+    min-height: 3lh !important;
+}
+.ck-editor--context .ck-editor__main > .ck-editor__editable {
+    min-height: 10lh !important;
+}

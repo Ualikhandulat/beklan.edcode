@@ -2,9 +2,19 @@
 
 @extends('layouts.admin')
 
-@section('content')
-
 @php $addMode = $type !== null; @endphp
+
+@section('actions')
+    @if (! $addMode)
+        <a href="{{ $showUrl }}?type={{ QuestionType::SELECT_ONE->url() }}" class="btn btn-primary btn-sm">
+            + Добавить вопрос
+        </a>
+    @else
+        <a href="{{ $showUrl }}" class="btn btn-outline btn-sm">← К вопросам</a>
+    @endif
+@endsection
+
+@section('content')
 
 @if (! $addMode)
     {{-- Список вопросов --}}
@@ -24,10 +34,10 @@
 
 @else
     {{-- Форма добавления вопроса --}}
-    <div class="max-w-3xl mx-auto">
+    <div class="space-y-4">
+        {{-- Тип вопроса — отдельный card --}}
         <div class="card">
-            {{-- Тип вопроса — центрированные вкладки --}}
-            <div class="flex justify-center flex-wrap gap-2 pb-5 mb-5 border-b border-border">
+            <div class="flex justify-center flex-wrap gap-2">
                 @foreach (QuestionType::cases() as $qt)
                     <a href="{{ $showUrl }}?type={{ $qt->url() }}"
                        class="btn btn-sm {{ $type === $qt->url() ? 'btn-primary' : 'btn-outline' }}">
@@ -35,7 +45,10 @@
                     </a>
                 @endforeach
             </div>
+        </div>
 
+        {{-- Форма --}}
+        <div class="card">
             @include("admin.subjects.questions.forms.{$type}")
         </div>
     </div>

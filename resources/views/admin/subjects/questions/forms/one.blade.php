@@ -8,18 +8,35 @@
         @error('question') <p class="form-error">{{ $message }}</p> @enderror
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
-        <div class="form-group">
-            <label class="text-success">Правильный ответ <span class="text-danger">*</span></label>
-            <input type="text" name="var1" value="{{ old('var1') }}"
-                   placeholder="Правильный ответ"
-                   class="border-success/50 focus:border-success focus:ring-success/20" required>
-            @error('var1') <p class="form-error">{{ $message }}</p> @enderror
-        </div>
-        <x-form.input name="var2" label="Вариант 2" placeholder="Неправильный вариант" :required="true" />
-        <x-form.input name="var3" label="Вариант 3" placeholder="Неправильный вариант" :required="true" />
-        <x-form.input name="var4" label="Вариант 4 (необязательно)" placeholder="Доп. вариант" />
-        <x-form.input name="var5" label="Вариант 5 (необязательно)" placeholder="Доп. вариант" />
+    <div class="form-group">
+        <label class="text-success">Правильный ответ <span class="text-danger">*</span></label>
+        <input type="hidden" name="var1" data-wysiwyg-target="var1" value="{{ old('var1') }}">
+        <div data-wysiwyg="var1" data-wysiwyg-plain data-placeholder="Правильный ответ"></div>
+        @error('var1') <p class="form-error">{{ $message }}</p> @enderror
+    </div>
+    <div class="form-group">
+        <label>Вариант 2 <span class="text-danger">*</span></label>
+        <input type="hidden" name="var2" data-wysiwyg-target="var2" value="{{ old('var2') }}">
+        <div data-wysiwyg="var2" data-wysiwyg-plain data-placeholder="Неправильный вариант"></div>
+        @error('var2') <p class="form-error">{{ $message }}</p> @enderror
+    </div>
+    <div class="form-group">
+        <label>Вариант 3 <span class="text-danger">*</span></label>
+        <input type="hidden" name="var3" data-wysiwyg-target="var3" value="{{ old('var3') }}">
+        <div data-wysiwyg="var3" data-wysiwyg-plain data-placeholder="Неправильный вариант"></div>
+        @error('var3') <p class="form-error">{{ $message }}</p> @enderror
+    </div>
+    <div class="form-group">
+        <label>Вариант 4 <span class="text-text-muted text-xs font-normal">(необязательно)</span></label>
+        <input type="hidden" name="var4" data-wysiwyg-target="var4" value="{{ old('var4') }}">
+        <div data-wysiwyg="var4" data-wysiwyg-plain data-placeholder="Доп. вариант"></div>
+        @error('var4') <p class="form-error">{{ $message }}</p> @enderror
+    </div>
+    <div class="form-group">
+        <label>Вариант 5 <span class="text-text-muted text-xs font-normal">(необязательно)</span></label>
+        <input type="hidden" name="var5" data-wysiwyg-target="var5" value="{{ old('var5') }}">
+        <div data-wysiwyg="var5" data-wysiwyg-plain data-placeholder="Доп. вариант"></div>
+        @error('var5') <p class="form-error">{{ $message }}</p> @enderror
     </div>
 
     <div class="flex items-center justify-between mt-6">

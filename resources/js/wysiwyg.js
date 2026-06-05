@@ -1,77 +1,87 @@
-import Quill from 'quill';
-import katex from 'katex';
+import {
+    ClassicEditor,
+    Autoformat,
+    Bold,
+    Italic,
+    Underline,
+    Essentials,
+    Heading,
+    Image,
+    ImageCaption,
+    ImageStyle,
+    ImageToolbar,
+    ImageUpload,
+    FileRepository,
+    List,
+    Paragraph,
+    SpecialCharacters,
+    SpecialCharactersMathematical,
+} from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 
-window.katex = katex;
-
-const TOOLBAR = [
-    [{ header: [1, 2, false] }],
-    ['bold', 'italic', 'underline'],
-    [{ list: 'ordered' }, { list: 'bullet' }],
-    ['formula'],
-    ['image'],
-    ['clean'],
+const PLUGINS = [
+    Essentials, Autoformat,
+    Bold, Italic, Underline,
+    Heading, List, Paragraph,
+    Image, ImageCaption, ImageStyle, ImageToolbar, ImageUpload, FileRepository,
+    SpecialCharacters, SpecialCharactersMathematical,
 ];
 
-/**
- * Convert all [data-wysiwyg] elements to Quill editors.
- * Each element must have a corresponding hidden <input data-wysiwyg-target="name">.
- */
-export function initWysiwyg() {
-    document.querySelectorAll('[data-wysiwyg]').forEach((el) => {
-        if (el._quillInit) return;
-        el._quillInit = true;
+const TOOLBAR = [
+    'heading', '|',
+    'bold', 'italic', 'underline', '|',
+    'bulletedList', 'numberedList', '|',
+    'specialCharacters', '|',
+    'uploadImage', '|',
+    'undo', 'redo',
+];
 
+function uploadAdapterPlugin(editor) {
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader) => ({
+        upload: () =>
+            loader.file.then((file) => {
+                const data = new FormData();
+                data.append('image', file);
+                data.append('_token', document.querySelector('meta[name="csrf-token"]')?.content ?? '');
+                return fetch('/admin/uploads/image', { method: 'POST', body: data })
+                    .then((r) => r.json())
+                    .then((d) => ({ default: d.url }));
+            }),
+        abort: () => {},
+    });
+}
+
+export function initWysiwyg() {
+    document.querySelectorAll('[data-wysiwyg]').forEach(async (el) => {
+        if (el._ckInit) return;
+        el._ckInit = true;
+
+        const plain      = 'wysiwygPlain' in el.dataset;
         const targetName = el.dataset.wysiwyg;
         const form       = el.closest('form');
         const hidden     = form?.querySelector(`[data-wysiwyg-target="${targetName}"]`);
 
-        const wrapper = document.createElement('div');
-        wrapper.className = 'wysiwyg-wrapper mb-4';
-
-        const container = document.createElement('div');
-        wrapper.appendChild(container);
-        el.parentNode.insertBefore(wrapper, el);
-        el.remove();
-
-        const quill = new Quill(container, {
-            theme: 'snow',
-            modules: { toolbar: TOOLBAR },
-            placeholder: el.dataset.placeholder || 'Введите текст...',
+        const editor = await ClassicEditor.create(el, {
+            licenseKey: 'GPL',
+            plugins:    [...PLUGINS, uploadAdapterPlugin],
+            toolbar:    plain ? { items: [] } : { items: TOOLBAR },
+            image: {
+                toolbar: ['imageStyle:inline', 'imageStyle:block', '|', 'imageTextAlternative'],
+            },
+            placeholder: el.dataset.placeholder ?? 'Введите текст...',
         });
 
-        const initial = hidden?.value || '';
-        if (initial) {
-            quill.root.innerHTML = initial;
+        if (plain) editor.ui.element?.classList.add('ck-editor--plain');
+        if ('wysiwygContext' in el.dataset) editor.ui.element?.classList.add('ck-editor--context');
+
+        if (hidden?.value) {
+            editor.setData(hidden.value);
         }
 
-        quill.on('text-change', () => {
+        editor.model.document.on('change:data', () => {
             if (hidden) {
-                hidden.value = quill.root.innerHTML === '<p><br></p>' ? '' : quill.root.innerHTML;
+                hidden.value = editor.getData();
             }
-        });
-
-        // Image handler — upload to /admin/uploads/image
-        const toolbar = quill.getModule('toolbar');
-        toolbar.addHandler('image', () => {
-            const input = document.createElement('input');
-            input.type    = 'file';
-            input.accept  = 'image/*';
-            input.onchange = async () => {
-                const file = input.files[0];
-                if (!file) return;
-
-                const formData = new FormData();
-                formData.append('image', file);
-                formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.content || '');
-
-                const res  = await fetch('/admin/uploads/image', { method: 'POST', body: formData });
-                const json = await res.json();
-                if (json.url) {
-                    const range = quill.getSelection(true);
-                    quill.insertEmbed(range.index, 'image', json.url);
-                }
-            };
-            input.click();
         });
     });
 }
