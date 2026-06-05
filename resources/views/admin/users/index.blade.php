@@ -1,8 +1,15 @@
 @extends('layouts.admin')
 
+@section('actions')
+    <a href="{{ route('admin.users.create') }}" class="btn btn-success btn-sm">
+        <x-icon name="plus" class="w-4 h-4 shrink-0" />
+        Добавить пользователя
+    </a>
+@endsection
+
 @section('content')
 
-<div class="flex items-center justify-between gap-4 mb-5">
+<div class="flex items-center gap-4 mb-5">
     <form method="GET" action="{{ route('admin.users.index') }}" class="flex-1 max-w-sm">
         <div class="relative flex items-center gap-2">
             <div class="relative flex-1">
@@ -23,10 +30,6 @@
         </div>
     </form>
 
-    <a href="{{ route('admin.users.create') }}" class="btn btn-success shrink-0">
-        <x-icon name="plus" class="w-4 h-4 shrink-0" />
-        Добавить пользователя
-    </a>
 </div>
 
 <div class="table-container">

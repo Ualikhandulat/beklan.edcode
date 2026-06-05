@@ -1,14 +1,13 @@
 @extends('layouts.admin')
 
-@section('content')
-
-<div class="flex items-center justify-between mb-5">
-    <div></div>
-    <a href="{{ route('admin.subjects.create') }}" class="btn btn-success shrink-0">
+@section('actions')
+    <a href="{{ route('admin.subjects.create') }}" class="btn btn-success">
         <x-icon name="plus" class="w-4 h-4 shrink-0" />
         Добавить предмет
     </a>
-</div>
+@endsection
+
+@section('content')
 
 <div class="table-container">
     <table>
@@ -35,16 +34,10 @@
                             <x-icon name="arrow-top-right" class="w-3.5 h-3.5 shrink-0" />
                         </a>
                     </td>
-                    <td><span class="badge badge-info">{{ $subject->topics_count }}</span></td>
-                    <td><span class="badge badge-primary">{{ $subject->nusqas_count }}</span></td>
-                    <td><span class="badge badge-success">{{ $subject->questions_count }}</span></td>
-                    <td>
-                        @if ($subject->is_ent_subject)
-                            <span class="badge badge-primary">ЕНТ</span>
-                        @else
-                            <span class="text-text-muted text-xs">—</span>
-                        @endif
-                    </td>
+                    <td>{{ $subject->topics_count }}</td>
+                    <td>{{ $subject->nusqas_count }}</td>
+                    <td>{{ $subject->questions_count }}</td>
+                    <td>@if ($subject->is_ent_subject) ✅ @endif</td>
                     <td>
                         @if ($subject->is_active)
                             <span class="badge badge-success">Активен</span>
