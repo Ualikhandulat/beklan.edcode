@@ -20,6 +20,7 @@ class TestAccess extends Model
         'question_count',
         'attempts_limit',
         'expires_at',
+        'duration_minutes',
     ];
 
     protected $casts = [

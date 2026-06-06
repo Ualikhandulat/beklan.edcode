@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('head')
 </head>
 <body class="bg-bg">
 
@@ -42,13 +43,17 @@
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+    <main id="main-content" class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         @if (session('success'))
             <x-alert type="success" :message="session('success')" />
+        @endif
+        @if (session('error'))
+            <x-alert type="danger" :message="session('error')" />
         @endif
 
         @yield('content')
     </main>
 
+    @stack('scripts')
 </body>
 </html>

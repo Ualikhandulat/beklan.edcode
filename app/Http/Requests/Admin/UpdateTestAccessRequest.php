@@ -30,6 +30,7 @@ class UpdateTestAccessRequest extends FormRequest
             'question_count' => ['integer', 'min:0', 'max:500'],
             'attempts_limit' => ['integer', 'min:0', 'max:100'],
             'expires_at' => ['nullable', 'date'],
+            'duration_minutes' => ['nullable', 'integer', 'min:1', 'max:480'],
 
             'elective' => ['nullable', 'array', 'max:2'],
             'elective.*.subject_id' => ['nullable', 'exists:subjects,id'],

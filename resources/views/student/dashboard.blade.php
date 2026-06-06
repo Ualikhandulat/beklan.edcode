@@ -247,7 +247,7 @@
 
                             {{-- CTA --}}
                             <div class="ml-auto">
-                                <a href="#"
+                                <a href="{{ route('student.test.start', $access) }}"
                                    class="inline-flex items-center gap-1.5 text-xs font-extrabold px-4 py-2 rounded-xl text-white transition-all duration-200 hover:shadow-md active:scale-95"
                                    style="background: {{ $color }}; box-shadow: 0 2px 8px color-mix(in srgb, {{ $color }} 30%, transparent)">
                                     Начать тест

@@ -7,9 +7,10 @@
     $oldTarget  = old('user_id') || ($isEdit && $access->user_id) ? 'user' : 'group';
     $oldType    = old('type', $access->type?->value ?? '');
     $oldSCS     = (bool) old('student_chooses_subject', $access->student_chooses_subject ?? false);
-    $oldQCount  = old('question_count',  $access->question_count  ?? 0);
-    $oldTries   = old('attempts_limit',  $access->attempts_limit  ?? 1);
-    $oldExpiry  = old('expires_at',      $access->expires_at?->format('Y-m-d\TH:i') ?? '');
+    $oldQCount    = old('question_count',    $access->question_count    ?? 0);
+    $oldTries     = old('attempts_limit',   $access->attempts_limit    ?? 1);
+    $oldExpiry    = old('expires_at',       $access->expires_at?->format('Y-m-d\TH:i') ?? '');
+    $oldDuration  = old('duration_minutes', $access->duration_minutes  ?? '');
     $oldNusqaMode   = old('nusqa_mode',   $nusqaMode);
     $oldNusqaNumber = old('nusqa_number', $access->nusqa_number ?? '');
 @endphp
@@ -173,10 +174,12 @@
                         <input x-show="accessType !== 'subject'" type="hidden" name="question_count" value="0">
                         <x-form.input name="attempts_limit" label="Попыток"
                             type="number" placeholder="1" :value="$oldTries" />
+                        <x-form.input name="duration_minutes" label="Время (мин.)"
+                            type="number" placeholder="Без ограничения" :value="$oldDuration" />
                         <x-form.input name="expires_at" label="Срок доступа"
                             type="datetime-local" :value="$oldExpiry" />
                     </div>
-                    <p class="text-xs text-text-muted mt-3">Попыток: 0 = без ограничений.</p>
+                    <p class="text-xs text-text-muted mt-3">Попыток: 0 = без ограничений. Время: 0 или пусто = без ограничения.</p>
                 </div>
 
             </div>
