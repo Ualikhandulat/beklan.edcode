@@ -19,7 +19,7 @@ class GroupController extends Controller
         $groups = Group::withCount('users')
             ->when($request->search, fn ($q) => $q->where('title', 'like', "%{$request->search}%"))
             ->latest('id')
-            ->paginate(20)
+            ->paginate()
             ->withQueryString();
 
         $navigations = [

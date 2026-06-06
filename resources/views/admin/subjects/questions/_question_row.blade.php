@@ -2,8 +2,8 @@
 
 <tr class="cursor-pointer" onclick="window.location='{{ $editRoute }}'">
 
-    <td class="text-text-muted text-xs w-10">
-        {{ str_pad($index, 2, '0', STR_PAD_LEFT) }}
+    <td class="text-text-muted text-xs font-mono w-10">
+        {{ $index }}
     </td>
 
     <td class="w-36">
@@ -54,9 +54,9 @@
         @endphp
         <tr class="cursor-pointer bg-gray-50" onclick="window.location='{{ $detailEditRoute }}'">
 
-            <td class="text-text-muted text-xs">
+            <td class="text-text-muted text-xs font-mono">
                 <span class="pl-3 border-l-2 border-primary/40 block">
-                    {{ str_pad($index, 2, '0', STR_PAD_LEFT) }}.{{ $j + 1 }}
+                    {{ $detail->id }}
                 </span>
             </td>
 

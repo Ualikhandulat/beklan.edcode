@@ -13,7 +13,7 @@
     <table>
         <thead>
             <tr>
-                <th class="w-12">#</th>
+                <th class="w-12 text-text-muted">ID</th>
                 <th>Название</th>
                 <th>Тем</th>
                 <th>Нұсқалар</th>
@@ -26,7 +26,7 @@
         <tbody>
             @forelse ($subjects as $i => $subject)
                 <tr class="cursor-pointer" onclick="window.location='{{ route('admin.subjects.show', $subject) }}'">
-                    <td class="text-text-muted">{{ $i + 1 }}</td>
+                    <td class="text-text-muted text-xs font-mono">{{ $subject->id }}</td>
                     <td>
                         <span class="inline-flex items-center gap-1.5 font-semibold text-info">
                             {{ $subject->title }}

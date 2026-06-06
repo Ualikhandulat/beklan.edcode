@@ -53,7 +53,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th class="w-10">#</th>
+                        <th class="w-10 text-text-muted">ID</th>
                         <th class="w-36">Тип</th>
                         <th>Вопрос</th>
                         <th class="w-20 text-center">Вар / Отв</th>
@@ -66,7 +66,7 @@
                             'subject'      => $subject,
                             'part'         => $part,
                             'question'     => $question,
-                            'index'        => $i + 1,
+                            'index'        => $question->id,
                             'editRoute'    => route('admin.subjects.parts.questions.edit', [$subject, $part, $question]),
                             'destroyRoute' => route('admin.subjects.parts.questions.destroy', [$subject, $part, $question]),
                         ])

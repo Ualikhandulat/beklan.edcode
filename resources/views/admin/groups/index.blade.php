@@ -36,7 +36,7 @@
     <table>
         <thead>
             <tr>
-                <th class="w-12">#</th>
+                <th class="w-12 text-text-muted">ID</th>
                 <th>Название</th>
                 <th>Описание</th>
                 <th>Студентов</th>
@@ -46,7 +46,7 @@
         <tbody>
             @forelse ($groups as $group)
                 <tr class="cursor-pointer" onclick="window.location='{{ route('admin.groups.show', $group) }}'">
-                    <td class="text-text-muted">{{ $loop->iteration + ($groups->currentPage() - 1) * $groups->perPage() }}</td>
+                    <td class="text-text-muted text-xs font-mono">{{ $group->id }}</td>
                     <td>
                         <div class="flex items-center gap-3">
                             <x-avatar :name="$group->title" size="sm" :singleLetter="true" />

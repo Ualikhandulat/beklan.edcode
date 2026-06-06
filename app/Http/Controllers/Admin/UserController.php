@@ -25,7 +25,7 @@ class UserController extends Controller
                 });
             })
             ->latest()
-            ->paginate(20)
+            ->paginate()
             ->withQueryString();
 
         $navigations = [

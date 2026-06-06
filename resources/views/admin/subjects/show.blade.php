@@ -51,7 +51,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th class="w-10">#</th>
+                            <th class="w-10 text-text-muted">ID</th>
                             <th>Название</th>
                             <th>Вопросов</th>
                             <th class="w-20"></th>
@@ -60,7 +60,7 @@
                     <tbody>
                         @foreach ($parts as $i => $part)
                             <tr class="cursor-pointer" onclick="window.location='{{ route('admin.subjects.parts.show', [$subject, $part]) }}'">
-                                <td class="text-text-muted text-xs">{{ $i + 1 }}</td>
+                                <td class="text-text-muted text-xs font-mono">{{ $part->id }}</td>
                                 <td>
                                     <span class="inline-flex items-center gap-1.5 font-semibold text-info">
                                         {{ $part->title }}
