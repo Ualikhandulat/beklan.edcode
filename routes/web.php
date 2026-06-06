@@ -27,7 +27,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::post('/uploads/image', [AdminUploadController::class, 'image'])->name('uploads.image');
-    Route::resource('groups', AdminGroupController::class)->except(['show']);
+    Route::resource('groups', AdminGroupController::class);
+    Route::post('groups/{group}/students', [AdminGroupController::class, 'addStudent'])->name('groups.students.add');
+    Route::delete('groups/{group}/students/{user}', [AdminGroupController::class, 'removeStudent'])->name('groups.students.remove');
     Route::resource('users', AdminUserController::class)->except(['show']);
 
     /* Subjects */

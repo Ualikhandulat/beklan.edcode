@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Enums\Role;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use Notifiable;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'role',
@@ -26,7 +27,7 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'role'     => Role::class,
+        'role' => Role::class,
         'password' => 'hashed',
     ];
 

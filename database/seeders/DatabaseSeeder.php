@@ -17,14 +17,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if ( User::doesntExist() ) {
+        if (User::doesntExist()) {
             User::create([
                 'role' => Role::Admin,
-                'name' => "Dulat",
-                'login' => "87074432113",
-                'iin' => "000000000000",
-                'password' => Hash::make("123456"),
+                'name' => 'Dulat',
+                'login' => '87074432113',
+                'iin' => '000000000000',
+                'password' => Hash::make('123456'),
             ]);
         }
+
+        $this->call(EntDataSeeder::class);
     }
 }

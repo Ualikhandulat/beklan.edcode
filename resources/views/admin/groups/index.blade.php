@@ -47,13 +47,21 @@
             @forelse ($groups as $group)
                 <tr>
                     <td class="text-text-muted">{{ $loop->iteration + ($groups->currentPage() - 1) * $groups->perPage() }}</td>
-                    <td class="font-semibold">{{ $group->title }}</td>
+                    <td>
+                        <a href="{{ route('admin.groups.show', $group) }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                            <x-avatar :name="$group->title" size="sm" :singleLetter="true" />
+                            <span class="font-bold text-text">{{ $group->title }}</span>
+                        </a>
+                    </td>
                     <td class="text-text-muted max-w-xs truncate">{{ $group->description }}</td>
                     <td>
                         <span class="badge badge-info">{{ $group->users_count }}</span>
                     </td>
                     <td>
                         <div class="flex items-center gap-1.5">
+                            <a href="{{ route('admin.groups.show', $group) }}" class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light">
+                                <x-icon name="users" class="w-4 h-4" />
+                            </a>
                             <x-btn.edit :route="route('admin.groups.edit', $group)" />
                             <x-btn.delete :route="route('admin.groups.destroy', $group)" />
                         </div>
