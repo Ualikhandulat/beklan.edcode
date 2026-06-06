@@ -45,23 +45,20 @@
         </thead>
         <tbody>
             @forelse ($groups as $group)
-                <tr>
+                <tr class="cursor-pointer" onclick="window.location='{{ route('admin.groups.show', $group) }}'">
                     <td class="text-text-muted">{{ $loop->iteration + ($groups->currentPage() - 1) * $groups->perPage() }}</td>
                     <td>
-                        <a href="{{ route('admin.groups.show', $group) }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                        <div class="flex items-center gap-3">
                             <x-avatar :name="$group->title" size="sm" :singleLetter="true" />
                             <span class="font-bold text-text">{{ $group->title }}</span>
-                        </a>
+                        </div>
                     </td>
                     <td class="text-text-muted max-w-xs truncate">{{ $group->description }}</td>
                     <td>
                         <span class="badge badge-info">{{ $group->users_count }}</span>
                     </td>
-                    <td>
+                    <td onclick="event.stopPropagation()">
                         <div class="flex items-center gap-1.5">
-                            <a href="{{ route('admin.groups.show', $group) }}" class="btn btn-ghost btn-sm text-text-muted hover:text-info hover:bg-info-light">
-                                <x-icon name="users" class="w-4 h-4" />
-                            </a>
                             <x-btn.edit :route="route('admin.groups.edit', $group)" />
                             <x-btn.delete :route="route('admin.groups.destroy', $group)" />
                         </div>

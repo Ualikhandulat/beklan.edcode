@@ -47,7 +47,7 @@
         </thead>
         <tbody>
             @forelse ($users as $user)
-                <tr>
+                <tr class="cursor-pointer" onclick="window.location='{{ route('admin.users.edit', $user) }}'">
                     <td class="text-text-muted">{{ $loop->iteration + ($users->currentPage() - 1) * $users->perPage() }}</td>
                     <td class="font-semibold">{{ $user->name }}</td>
                     <td class="font-mono">{{ $user->login }}</td>
@@ -60,7 +60,7 @@
                         @endif
                     </td>
                     <td class="text-text-muted">{{ $user->group?->title ?? '—' }}</td>
-                    <td>
+                    <td onclick="event.stopPropagation()">
                         <div class="flex items-center gap-1.5">
                             <x-btn.edit :route="route('admin.users.edit', $user)" />
                             <x-btn.delete :route="route('admin.users.destroy', $user)" />

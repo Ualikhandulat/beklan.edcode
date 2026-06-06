@@ -181,7 +181,7 @@
         @apply px-5 py-3.5 text-sm text-text;
     }
     tbody tr {
-        @apply border-b border-border last:border-b-0 hover:bg-gray-50 transition-colors;
+        @apply border-b border-border last:border-b-0 hover:bg-yellow-100 transition-colors;
     }
 
     /* Admin sidebar */

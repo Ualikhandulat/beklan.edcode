@@ -25,14 +25,13 @@
         </thead>
         <tbody>
             @forelse ($subjects as $i => $subject)
-                <tr>
+                <tr class="cursor-pointer" onclick="window.location='{{ route('admin.subjects.show', $subject) }}'">
                     <td class="text-text-muted">{{ $i + 1 }}</td>
                     <td>
-                        <a href="{{ route('admin.subjects.show', $subject) }}"
-                           class="inline-flex items-center gap-1.5 font-semibold text-info hover:text-info-hover transition-colors">
+                        <span class="inline-flex items-center gap-1.5 font-semibold text-info">
                             {{ $subject->title }}
                             <x-icon name="arrow-top-right" class="w-3.5 h-3.5 shrink-0" />
-                        </a>
+                        </span>
                     </td>
                     <td>{{ $subject->topics_count }}</td>
                     <td>{{ $subject->nusqas_count }}</td>
@@ -45,7 +44,7 @@
                             <span class="badge badge-danger">Скрыт</span>
                         @endif
                     </td>
-                    <td>
+                    <td onclick="event.stopPropagation()">
                         <div class="flex items-center gap-1.5">
                             <x-btn.edit :route="route('admin.subjects.edit', $subject)" />
                             <x-btn.delete :route="route('admin.subjects.destroy', $subject)" />

@@ -2,7 +2,7 @@
 
 @php $letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']; @endphp
 
-<div class="q-card group">
+<div class="q-card group cursor-pointer" onclick="window.location='{{ $editRoute }}'">
     <div class="q-card-accent" style="background-color: {{ $question->type->color() }}"></div>
     <div class="q-card-body">
 
@@ -16,7 +16,9 @@
             </div>
             <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                 <x-btn.edit :route="$editRoute" />
-                <x-btn.delete :route="$destroyRoute" />
+                <span onclick="event.stopPropagation()">
+                    <x-btn.delete :route="$destroyRoute" />
+                </span>
             </div>
         </div>
 
@@ -37,8 +39,10 @@
                         <div class="flex items-center gap-1 opacity-0 group-hover/detail:opacity-100 transition-opacity shrink-0">
                             <x-btn.edit :route="route('admin.subjects.parts.questions.details.edit', [$subject, $part, $question, $detail])"
                                         class="!px-1.5 !py-1" />
-                            <x-btn.delete :route="route('admin.subjects.parts.questions.details.destroy', [$subject, $part, $question, $detail])"
-                                          class="!px-1.5 !py-1" />
+                            <span onclick="event.stopPropagation()">
+                                <x-btn.delete :route="route('admin.subjects.parts.questions.details.destroy', [$subject, $part, $question, $detail])"
+                                              class="!px-1.5 !py-1" />
+                            </span>
                         </div>
                     </div>
                     <p class="q-preview mb-2">
