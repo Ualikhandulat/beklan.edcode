@@ -199,115 +199,131 @@
     style="min-height: calc(100vh - 3.5rem)"
 >
 
-    {{-- ── Top bar: timer + progress ────────────────────────────────────── --}}
-    <div class="bg-white border-b border-border sticky top-14 z-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-4">
-
-            {{-- Left: progress --}}
-            <div class="flex items-center gap-2 min-w-0 flex-1">
-                <div class="hidden sm:block w-28 h-2 bg-gray-100 rounded-full overflow-hidden shrink-0">
-                    <div class="h-full bg-primary rounded-full transition-all duration-500"
-                         :style="`width: ${totalQuestions > 0 ? Math.round(totalAnswered/totalQuestions*100) : 0}%`"></div>
-                </div>
-                <span class="text-xs font-bold text-text-muted shrink-0">
-                    <span x-text="totalAnswered" class="text-text font-extrabold"></span>/<span x-text="totalQuestions"></span> отв.
-                </span>
-            </div>
-
-            {{-- Center: timer --}}
-            <div class="flex items-center gap-2 shrink-0">
-                <template x-if="timerStr !== null">
-                    <div class="flex items-center gap-1.5 px-4 py-1.5 rounded-full border transition-all duration-300"
-                         :class="timerUrgent ? 'border-danger/40 bg-danger/8 text-danger' : 'border-border bg-gray-50 text-text'">
-                        <x-icon name="clock" class="w-3.5 h-3.5 shrink-0" />
-                        <span class="font-mono text-sm font-extrabold tabular-nums" x-text="timerStr"></span>
-                    </div>
-                </template>
-                <template x-if="timerStr === null">
-                    <span class="text-xs text-text-muted font-semibold px-3 py-1.5 bg-gray-50 rounded-full border border-border">
-                        Без лимита
-                    </span>
-                </template>
-            </div>
-
-            {{-- Right: finish --}}
-            <div class="flex-1 flex justify-end">
-                <button @click="confirmFinish = true" class="btn btn-danger btn-sm">
-                    <x-icon name="check" class="w-4 h-4" />
-                    <span class="hidden sm:inline">Завершить тест</span>
-                    <span class="sm:hidden">Завершить</span>
+    {{-- ── Subject tabs — mobile only, horizontal scroll ────────────────── --}}
+    @if (count($subjectsData) > 1)
+    <div class="lg:hidden bg-white border-b border-border overflow-x-auto">
+        <div class="flex gap-2 px-4 py-2.5" style="width: max-content; min-width: 100%">
+            <template x-for="(subject, si) in subjects" :key="si">
+                <button type="button"
+                        @click="activeSubject = si; activeQuestion = 0"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all border cursor-pointer"
+                        :class="si === activeSubject
+                            ? 'border-primary bg-primary text-white shadow-sm'
+                            : 'border-border bg-white text-text-muted hover:border-primary/40'">
+                    <span x-text="subject.subject.title"></span>
                 </button>
-            </div>
+            </template>
+        </div>
+    </div>
+    @endif
+
+    {{-- ── Question pills — mobile horizontal scroll ───────────────────── --}}
+    <div class="lg:hidden bg-white border-b border-border overflow-x-auto mt-3 border-y">
+        <div class="flex gap-2 px-4 py-2.5" style="width: max-content; min-width: 100%">
+            <template x-for="(q, qi) in currentSubject?.questions ?? []" :key="qi">
+                <button type="button"
+                        @click="goTo(activeSubject, qi)"
+                        class="w-9 h-9 rounded-xl text-xs font-extrabold shrink-0 transition-all duration-150 cursor-pointer"
+                        :class="qi === activeQuestion
+                            ? 'bg-primary text-white shadow-sm scale-110'
+                            : (isAnswered(q)
+                                ? 'bg-success/20 text-success border border-success/30'
+                                : 'bg-gray-100 text-text-muted hover:bg-gray-200')"
+                        x-text="qi + 1">
+                </button>
+            </template>
         </div>
     </div>
 
     {{-- ── Main area ────────────────────────────────────────────────────── --}}
-    <div class="flex-1 max-w-7xl mx-auto w-full px-0 sm:px-4 lg:px-6 py-0 sm:py-5 flex flex-col lg:flex-row gap-0 sm:gap-4">
+    <div class="flex-1 max-w-7xl mx-auto w-full px-0 lg:px-6 lg:py-5 flex flex-col lg:flex-row gap-0 lg:gap-4 mt-3 shadow-xl">
 
-        {{-- ── Left sidebar ──────────────────────────────────────────────── --}}
-        <div class="lg:w-72 xl:w-80 shrink-0">
+        {{-- ── Desktop sidebar: subjects + pills + finish ──────────────── --}}
+        <div class="hidden lg:flex lg:flex-col gap-3 lg:w-72 xl:w-80 shrink-0"
+             style="position: sticky; top: 4.5rem; align-self: start; max-height: calc(100vh - 5.5rem); overflow-y: auto">
 
-            {{-- Mobile: accordion --}}
-            <div class="lg:hidden bg-white border-b border-border" x-data="{ open: false }">
-                <button @click="open = !open"
-                        class="w-full flex items-center justify-between px-4 py-3 text-sm font-bold text-text">
-                    <span>
-                        Вопрос <span x-text="activeQuestion + 1"></span> из
-                        <span x-text="currentSubject?.questions.length"></span>
-                        — <span x-text="currentSubject?.subject.title" class="text-primary"></span>
-                    </span>
-                    <span :class="open ? 'rotate-180' : ''" class="transition-transform duration-200 inline-block">
-                        <x-icon name="chevron-down" class="w-4 h-4" />
-                    </span>
-                </button>
-                <div x-show="open" x-transition class="border-t border-border">
-                    @include('student.test._sidebar')
+            {{-- Subject list — vertical block --}}
+            @if (count($subjectsData) > 1)
+            <div class="bg-white rounded-2xl border border-border overflow-hidden" style="box-shadow: var(--shadow-card)">
+                <template x-for="(subject, si) in subjects" :key="si">
+                    <button type="button"
+                            @click="activeSubject = si; activeQuestion = 0"
+                            class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left transition-colors border-b border-border last:border-b-0 cursor-pointer"
+                            :class="si === activeSubject
+                                ? 'bg-primary text-white'
+                                : 'text-text hover:bg-gray-50'">
+                        <span class="w-2 h-2 rounded-full shrink-0 transition-all"
+                              :class="si === activeSubject ? 'bg-white' : 'bg-border'"></span>
+                        <span x-text="subject.subject.title" class="flex-1 truncate"></span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                              :class="si === activeSubject
+                                  ? 'bg-white/25 text-white'
+                                  : (subject.answered > 0 ? 'bg-success/15 text-success' : 'bg-gray-100 text-text-muted')"
+                              x-text="`${subject.answered}/${subject.questions.length}`"></span>
+                    </button>
+                </template>
+            </div>
+            @endif
+
+            {{-- Question pills --}}
+            <div class="bg-white rounded-2xl border border-border p-3" style="box-shadow: var(--shadow-card)">
+                <div class="grid gap-1.5" style="grid-template-columns: repeat(auto-fill, minmax(2rem, 1fr))">
+                    <template x-for="(q, qi) in currentSubject?.questions ?? []" :key="qi">
+                        <button type="button"
+                                @click="goTo(activeSubject, qi)"
+                                class="aspect-square rounded-lg text-xs font-extrabold transition-all duration-150 cursor-pointer"
+                                :class="qi === activeQuestion
+                                    ? 'bg-primary text-white shadow-sm scale-110'
+                                    : (isAnswered(q)
+                                        ? 'bg-success/20 text-success border border-success/30 hover:bg-success/30'
+                                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200')"
+                                x-text="qi + 1">
+                        </button>
+                    </template>
                 </div>
             </div>
 
-            {{-- Desktop: sticky --}}
-            <div class="hidden lg:block bg-white rounded-2xl border border-border overflow-hidden"
-                 style="box-shadow: var(--shadow-card); position: sticky; top: 7rem; max-height: calc(100vh - 8rem); overflow-y: auto">
-                @include('student.test._sidebar')
+            <div class="bg-white rounded-2xl border border-border p-4" style="box-shadow: var(--shadow-card)">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-text-muted">
+                        <span x-text="totalAnswered" class="text-text font-extrabold text-sm"></span> / <span x-text="totalQuestions"></span> отв.
+                    </span>
+                    <template x-if="timerStr !== null">
+                        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs transition-all duration-300"
+                             :class="timerUrgent ? 'border-danger/40 bg-danger/8 text-danger' : 'border-border bg-gray-50 text-text'">
+                            <x-icon name="clock" class="w-3 h-3 shrink-0" />
+                            <span class="font-mono font-extrabold tabular-nums" x-text="timerStr"></span>
+                        </div>
+                    </template>
+                </div>
+                <button @click="confirmFinish = true" class="w-full btn btn-danger">
+                    <x-icon name="check" class="w-4 h-4" />
+                    Завершить тест
+                </button>
             </div>
+
         </div>
 
-        {{-- ── Right: question ────────────────────────────────────────────── --}}
-        <div class="flex-1 min-w-0">
-            <div class="bg-white sm:rounded-2xl border-t sm:border border-border min-h-full"
+        {{-- ── Question card ───────────────────────────────────────────── --}}
+        <div class="flex-1 min-w-0 pb-24 lg:pb-0">
+            <div class="bg-white rounded-none lg:rounded-2xl border-t lg:border border-border min-h-full"
                  style="box-shadow: var(--shadow-card)">
 
                 <template x-if="currentQuestion">
                     <div class="p-5 sm:p-7">
 
-                        {{-- Question header --}}
-                        <div class="flex items-center gap-3 mb-6">
-                            <span class="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-extrabold text-white shrink-0"
-                                  style="background: var(--color-primary)">
-                                <span x-text="activeQuestion + 1"></span>
-                            </span>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-xs font-bold text-text-muted uppercase tracking-widest truncate"
-                                   x-text="currentSubject?.subject.title"></p>
-                            </div>
-                            <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg border shrink-0"
-                                  :class="{
-                                      'bg-purple-50 text-purple-600 border-purple-200': currentQuestion.type === 'multi',
-                                      'bg-teal-50 text-teal-600 border-teal-200': currentQuestion.type === 'match',
-                                      'bg-amber-50 text-amber-700 border-amber-200': currentQuestion.type === 'group',
-                                      'bg-blue-50 text-blue-600 border-blue-200': currentQuestion.type === 'one'
-                                  }"
-                                  x-text="currentQuestion.type === 'multi'
-                                      ? 'Несколько ответов (' + currentQuestion.count_answers + ')'
-                                      : currentQuestion.type === 'match' ? 'Соответствие'
-                                      : currentQuestion.type === 'group' ? 'Контекстный'
-                                      : 'Один ответ'">
-                            </span>
-                        </div>
-
                         {{-- Question text --}}
-                        <div class="text-base font-semibold text-text leading-relaxed mb-7"
+                        <div class="text-base font-semibold text-text leading-relaxed mb-3"
                              x-html="currentQuestion.text || ''"></div>
+
+                        {{-- Question type label --}}
+                        <p class="text-xs font-semibold text-text-muted mb-5"
+                           x-text="currentQuestion.type === 'multi'
+                               ? 'Выберите ' + currentQuestion.count_answers + ' варианта'
+                               : currentQuestion.type === 'match' ? 'Соответствие'
+                               : currentQuestion.type === 'group' ? 'Контекстный вопрос'
+                               : 'Один верный ответ'">
+                        </p>
 
                         {{-- SELECT_ONE / IS_GROUP --}}
                         <template x-if="currentQuestion.type === 'one' || currentQuestion.type === 'group'">
@@ -489,6 +505,27 @@
             </div>
         </div>
 
+    </div>
+
+    {{-- ── Mobile sticky bottom bar ────────────────────────────────────── --}}
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-30"
+         style="box-shadow: 0 -4px 16px rgba(0,0,0,0.08)">
+        <div class="flex items-center gap-3 px-4 py-3">
+            <span class="text-xs font-semibold text-text-muted shrink-0">
+                <span x-text="totalAnswered" class="text-text font-extrabold"></span>/<span x-text="totalQuestions"></span>
+            </span>
+            <template x-if="timerStr !== null">
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs transition-all shrink-0"
+                     :class="timerUrgent ? 'border-danger/40 bg-danger/8 text-danger' : 'border-border bg-gray-50 text-text'">
+                    <x-icon name="clock" class="w-3 h-3 shrink-0" />
+                    <span class="font-mono font-extrabold tabular-nums" x-text="timerStr"></span>
+                </div>
+            </template>
+            <button @click="confirmFinish = true" class="ml-auto btn btn-danger btn-sm">
+                <x-icon name="check" class="w-4 h-4" />
+                Завершить
+            </button>
+        </div>
     </div>
 
     {{-- ── Confirm finish modal ─────────────────────────────────────────── --}}

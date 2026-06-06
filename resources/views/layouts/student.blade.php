@@ -43,7 +43,7 @@
 
                 {{-- Hamburger button --}}
                 <button @click="menuOpen = !menuOpen"
-                        class="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-xl transition-colors hover:bg-gray-100"
+                        class="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-xl transition-colors hover:bg-gray-100 cursor-pointer"
                         :class="menuOpen ? 'bg-gray-100' : ''"
                         aria-label="Меню">
                     <span class="w-5 h-0.5 bg-text-muted rounded-full transition-all duration-200"
@@ -57,7 +57,7 @@
         </div>
 
         {{-- Dropdown menu --}}
-        <div x-show="menuOpen"
+        <div x-cloak x-show="menuOpen"
              x-transition:enter="transition ease-out duration-150"
              x-transition:enter-start="opacity-0 -translate-y-2"
              x-transition:enter-end="opacity-100 translate-y-0"
