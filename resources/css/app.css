@@ -167,7 +167,7 @@
 
     /* Tables */
     .table-container {
-        @apply bg-card rounded-2xl border border-border overflow-hidden;
+        @apply bg-card rounded-2xl border border-border overflow-x-auto;
         box-shadow: var(--shadow-card);
     }
     table {
@@ -188,7 +188,7 @@
 
     /* Admin sidebar */
     .sidebar {
-        @apply fixed inset-y-0 left-0 w-64 bg-white border-r border-border flex flex-col z-40;
+        @apply fixed inset-y-0 left-0 w-64 bg-white border-r border-border flex flex-col z-40 transition-transform duration-300;
     }
     .sidebar-brand {
         @apply flex items-center gap-3 px-6 h-16 border-b border-border shrink-0;
@@ -215,13 +215,13 @@
 
     /* Admin wrapper */
     .admin-wrapper {
-        @apply ml-64 min-h-screen flex flex-col;
+        @apply lg:ml-64 min-h-screen flex flex-col;
     }
     .admin-topbar {
         @apply h-16 bg-white border-b border-border flex items-center justify-between px-6 shrink-0 sticky top-0 z-30;
     }
     .admin-content {
-        @apply flex-1 p-6;
+        @apply flex-1 p-4 lg:p-6;
     }
     .page-header {
         @apply mb-6;

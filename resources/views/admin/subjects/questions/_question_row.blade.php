@@ -2,7 +2,7 @@
 
 <tr class="cursor-pointer" onclick="window.location='{{ $editRoute }}'">
 
-    <td class="text-text-muted text-xs font-mono w-10">
+    <td class="text-text-muted text-xs font-mono w-10 hidden sm:table-cell">
         {{ $index }}
     </td>
 
@@ -54,7 +54,7 @@
         @endphp
         <tr class="cursor-pointer bg-gray-50" onclick="window.location='{{ $detailEditRoute }}'">
 
-            <td class="text-text-muted text-xs font-mono">
+            <td class="text-text-muted text-xs font-mono hidden sm:table-cell">
                 <span class="pl-3 border-l-2 border-primary/40 block">
                     {{ $detail->id }}
                 </span>

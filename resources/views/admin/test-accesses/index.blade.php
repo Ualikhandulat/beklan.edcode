@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('actions')
-    <a href="{{ route('admin.test-accesses.create') }}" class="btn btn-success">
+    <a href="{{ route('admin.test-accesses.create') }}" class="btn btn-success btn-sm sm:px-5 sm:py-2.5 sm:text-sm">
         <x-icon name="plus" class="w-4 h-4 shrink-0" />
         Выдать доступ
     </a>
@@ -10,16 +10,16 @@
 @section('content')
 
 {{-- Filters --}}
-<form method="GET" action="{{ route('admin.test-accesses.index') }}" class="flex items-center gap-3 mb-5">
+<form method="GET" action="{{ route('admin.test-accesses.index') }}" class="flex flex-wrap items-center gap-2 sm:gap-3 mb-5">
 
-    <div class="relative w-64 shrink-0">
+    <div class="relative w-full sm:w-64 sm:shrink-0">
         <x-icon name="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
         <input type="search" name="search" value="{{ request('search') }}"
                placeholder="Студент или группа..."
                class="pl-10">
     </div>
 
-    <div class="w-40 shrink-0">
+    <div class="flex-1 sm:flex-none sm:w-40">
         <select name="type" onchange="this.form.submit()">
             <option value="">Все типы</option>
             @foreach (\App\Enums\TestAccessType::cases() as $t)
@@ -28,7 +28,7 @@
         </select>
     </div>
 
-    <div class="w-48 shrink-0">
+    <div class="flex-1 sm:flex-none sm:w-48">
         <select name="target" onchange="this.form.submit()">
             <option value="">Студент и группы</option>
             <option value="user"  @selected(request('target') === 'user')>Только студенты</option>
@@ -49,7 +49,7 @@
     <table>
         <thead>
             <tr>
-                <th class="w-12 text-text-muted">ID</th>
+                <th class="w-12 text-text-muted hidden sm:table-cell">ID</th>
                 <th>Кому</th>
                 <th class="w-28">Тип</th>
                 <th>Предметы</th>
@@ -69,7 +69,7 @@
                 @endphp
                 <tr class="cursor-pointer" onclick="window.location='{{ route('admin.test-accesses.edit', $access) }}'">
 
-                    <td class="text-text-muted text-xs font-mono">{{ $access->id }}</td>
+                    <td class="text-text-muted text-xs font-mono hidden sm:table-cell">{{ $access->id }}</td>
 
                     {{-- Target --}}
                     <td>

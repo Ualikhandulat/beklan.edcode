@@ -8,7 +8,7 @@
 
 @section('actions')
     @if (! $addMode)
-        <a href="{{ $showUrl }}?type={{ QuestionType::SELECT_ONE->value }}" class="btn btn-primary">
+        <a href="{{ $showUrl }}?type={{ QuestionType::SELECT_ONE->value }}" class="btn btn-primary btn-sm sm:px-5 sm:py-2.5 sm:text-sm">
             + Добавить вопрос
         </a>
     @endif
@@ -53,7 +53,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th class="w-10 text-text-muted">ID</th>
+                        <th class="w-10 text-text-muted hidden sm:table-cell">ID</th>
                         <th class="w-36">Тип</th>
                         <th>Вопрос</th>
                         <th class="w-20 text-center">Вар / Отв</th>

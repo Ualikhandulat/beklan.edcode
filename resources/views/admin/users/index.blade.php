@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('actions')
-    <a href="{{ route('admin.users.create') }}" class="btn btn-success">
+    <a href="{{ route('admin.users.create') }}" class="btn btn-success btn-sm sm:px-5 sm:py-2.5 sm:text-sm">
         <x-icon name="plus" class="w-4 h-4 shrink-0" />
         Добавить пользователя
     </a>
@@ -36,7 +36,7 @@
     <table>
         <thead>
             <tr>
-                <th class="w-12 text-text-muted">ID</th>
+                <th class="w-12 text-text-muted hidden sm:table-cell">ID</th>
                 <th>Имя</th>
                 <th>Телефон</th>
                 <th>ИИН</th>
@@ -48,7 +48,7 @@
         <tbody>
             @forelse ($users as $user)
                 <tr class="cursor-pointer" onclick="window.location='{{ route('admin.users.edit', $user) }}'">
-                    <td class="text-text-muted text-xs font-mono">{{ $user->id }}</td>
+                    <td class="text-text-muted text-xs font-mono hidden sm:table-cell">{{ $user->id }}</td>
                     <td class="font-semibold">{{ $user->name }}</td>
                     <td class="font-mono">{{ $user->login }}</td>
                     <td class="font-mono text-text-muted">{{ $user->iin }}</td>

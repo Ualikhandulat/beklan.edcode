@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('actions')
-    <a href="{{ route('admin.subjects.create') }}" class="btn btn-success">
+    <a href="{{ route('admin.subjects.create') }}" class="btn btn-success btn-sm sm:px-5 sm:py-2.5 sm:text-sm">
         <x-icon name="plus" class="w-4 h-4 shrink-0" />
         Добавить предмет
     </a>
@@ -13,7 +13,7 @@
     <table>
         <thead>
             <tr>
-                <th class="w-12 text-text-muted">ID</th>
+                <th class="w-12 text-text-muted hidden sm:table-cell">ID</th>
                 <th>Название</th>
                 <th>Тем</th>
                 <th>Нұсқалар</th>
@@ -26,7 +26,7 @@
         <tbody>
             @forelse ($subjects as $i => $subject)
                 <tr class="cursor-pointer" onclick="window.location='{{ route('admin.subjects.show', $subject) }}'">
-                    <td class="text-text-muted text-xs font-mono">{{ $subject->id }}</td>
+                    <td class="text-text-muted text-xs font-mono hidden sm:table-cell">{{ $subject->id }}</td>
                     <td>
                         <span class="inline-flex items-center gap-1.5 font-semibold text-info">
                             {{ $subject->title }}

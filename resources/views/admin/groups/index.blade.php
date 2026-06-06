@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('actions')
-    <a href="{{ route('admin.groups.create') }}" class="btn btn-success">
+    <a href="{{ route('admin.groups.create') }}" class="btn btn-success btn-sm sm:px-5 sm:py-2.5 sm:text-sm">
         <x-icon name="plus" class="w-4 h-4 shrink-0" />
         Добавить группу
     </a>
@@ -33,10 +33,10 @@
 </div>
 
 <div class="table-container">
-    <table>
+    <table class="whitespace-nowrap">
         <thead>
             <tr>
-                <th class="w-12 text-text-muted">ID</th>
+                <th class="w-12 text-text-muted hidden sm:table-cell">ID</th>
                 <th>Название</th>
                 <th>Описание</th>
                 <th>Студентов</th>
@@ -46,14 +46,14 @@
         <tbody>
             @forelse ($groups as $group)
                 <tr class="cursor-pointer" onclick="window.location='{{ route('admin.groups.show', $group) }}'">
-                    <td class="text-text-muted text-xs font-mono">{{ $group->id }}</td>
+                    <td class="text-text-muted text-xs font-mono hidden sm:table-cell">{{ $group->id }}</td>
                     <td>
                         <div class="flex items-center gap-3">
                             <x-avatar :name="$group->title" size="sm" :singleLetter="true" />
                             <span class="font-bold text-text">{{ $group->title }}</span>
                         </div>
                     </td>
-                    <td class="text-text-muted max-w-xs truncate">{{ $group->description }}</td>
+                    <td class="text-text-muted">{{ $group->description }}</td>
                     <td>
                         <span class="badge badge-info">{{ $group->users_count }}</span>
                     </td>

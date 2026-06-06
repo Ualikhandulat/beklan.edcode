@@ -49,7 +49,7 @@
      }">
 
     {{-- ── Left: All Groups (1/3) ─────────────────────────────────────── --}}
-    <div class="w-1/3 bg-white rounded-2xl border border-border flex flex-col overflow-hidden"
+    <div class="hidden lg:flex lg:w-1/3 bg-white rounded-2xl border border-border flex-col overflow-hidden"
          style="box-shadow: var(--shadow-card)">
 
         <div class="px-4 py-3.5 border-b border-border shrink-0 flex items-center justify-between">
@@ -87,7 +87,7 @@
          style="box-shadow: var(--shadow-card)">
 
         {{-- Header --}}
-        <div class="px-5 py-3.5 border-b border-border flex items-center gap-3 shrink-0">
+        <div class="px-5 py-3.5 border-b border-border flex flex-wrap sm:flex-nowrap items-center gap-3 shrink-0">
             <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                  style="background: {{ \App\Helpers\AvatarHelper::color($group->title) }}">
                 <x-icon name="user-group" class="w-5 h-5 text-white" />
@@ -96,20 +96,22 @@
                 <div class="flex items-center gap-1">
                     <p class="font-extrabold text-text truncate">{{ $group->title }}</p>
                     <a href="{{ route('admin.groups.edit', $group) }}"
-                       class="btn btn-ghost btn-sm text-text-muted hover:text-primary shrink-0 p-1">
-                        <x-icon name="pencil" class="w-3.5 h-3.5" />
+                       class="btn btn-ghost btn-sm text-text-muted hover:text-primary shrink-0 ml-auto sm:ml-0">
+                        <x-icon name="pencil" class="w-4 h-4" />
                     </a>
                 </div>
                 @if ($group->description)
                     <p class="text-xs text-text-muted truncate">{{ $group->description }}</p>
                 @endif
             </div>
-            <span class="badge badge-info shrink-0">{{ $students->count() }} студ.</span>
-            <button @click="openSearch()"
-                    class="btn btn-success btn-sm shrink-0">
-                <x-icon name="plus" class="w-4 h-4" />
-                Добавить
-            </button>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <span class="badge badge-info">{{ $students->count() }} студ.</span>
+                <button @click="openSearch()"
+                        class="btn btn-success btn-sm ml-auto sm:ml-0">
+                    <x-icon name="plus" class="w-4 h-4" />
+                    Добавить
+                </button>
+            </div>
         </div>
 
         {{-- Student search --}}

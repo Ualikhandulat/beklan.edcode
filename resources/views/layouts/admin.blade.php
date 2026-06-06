@@ -17,10 +17,39 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body x-data="{ nav: false }">
 
-    {{-- Sidebar --}}
-    <aside class="sidebar">
+    {{-- Mobile topbar ─────────────────────────────────────────────────── --}}
+    <div class="lg:hidden sticky top-0 z-20 h-14 bg-white border-b border-border flex items-center px-4 gap-3 shrink-0">
+        <button type="button" @click="nav = !nav"
+                class="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-xl hover:bg-gray-100 transition-colors shrink-0">
+            <span :class="nav ? 'rotate-45 translate-y-2' : ''"
+                  class="block w-5 h-0.5 bg-text rounded-full transition-all duration-300 origin-center"></span>
+            <span :class="nav ? 'opacity-0' : 'opacity-100'"
+                  class="block w-5 h-0.5 bg-text rounded-full transition-all duration-300"></span>
+            <span :class="nav ? '-rotate-45 -translate-y-2' : ''"
+                  class="block w-5 h-0.5 bg-text rounded-full transition-all duration-300 origin-center"></span>
+        </button>
+        <span class="font-extrabold text-base">
+            <span class="text-primary">Ed</span><span class="text-text">Code</span>
+        </span>
+        <span class="text-[10px] font-bold text-text-muted bg-gray-100 px-2 py-0.5 rounded-full">Admin</span>
+    </div>
+
+    {{-- Overlay ────────────────────────────────────────────────────────── --}}
+    <div x-show="nav"
+         x-cloak
+         x-transition:enter="transition duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="nav = false"
+         class="lg:hidden fixed inset-0 bg-black/40 z-30"></div>
+
+    {{-- Sidebar ─────────────────────────────────────────────────────────── --}}
+    <aside :class="nav ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" class="sidebar">
         <div class="sidebar-brand">
             <span class="text-lg font-extrabold text-primary">Ed</span><span class="text-lg font-extrabold text-text">Code</span>
             <span class="text-xs font-bold text-text-muted bg-gray-100 px-2 py-0.5 rounded-full ml-auto">Admin</span>
@@ -29,31 +58,31 @@
         <nav class="sidebar-nav">
             <p class="sidebar-section-title">Меню</p>
 
-            <a href="{{ route('admin.dashboard') }}"
+            <a href="{{ route('admin.dashboard') }}" @click="nav = false"
                class="sidebar-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <x-icon name="home" class="w-5 h-5 shrink-0" />
                 Главная
             </a>
 
-            <a href="{{ route('admin.groups.index') }}"
+            <a href="{{ route('admin.groups.index') }}" @click="nav = false"
                class="sidebar-nav-link {{ request()->routeIs('admin.groups.*') ? 'active' : '' }}">
                 <x-icon name="user-group" class="w-5 h-5 shrink-0" />
                 Группы
             </a>
 
-            <a href="{{ route('admin.users.index') }}"
+            <a href="{{ route('admin.users.index') }}" @click="nav = false"
                class="sidebar-nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <x-icon name="users" class="w-5 h-5 shrink-0" />
                 Пользователи
             </a>
 
-            <a href="{{ route('admin.subjects.index') }}"
+            <a href="{{ route('admin.subjects.index') }}" @click="nav = false"
                class="sidebar-nav-link {{ request()->routeIs('admin.subjects*') ? 'active' : '' }}">
                 <x-icon name="academic-cap" class="w-5 h-5 shrink-0" />
                 Предметы
             </a>
 
-            <a href="{{ route('admin.test-accesses.index') }}"
+            <a href="{{ route('admin.test-accesses.index') }}" @click="nav = false"
                class="sidebar-nav-link {{ request()->routeIs('admin.test-accesses*') ? 'active' : '' }}">
                 <x-icon name="shield-check" class="w-5 h-5 shrink-0" />
                 Доступы
@@ -80,7 +109,7 @@
         </div>
     </aside>
 
-    {{-- Main --}}
+    {{-- Main ───────────────────────────────────────────────────────────── --}}
     <div class="admin-wrapper">
         <main class="admin-content">
 
