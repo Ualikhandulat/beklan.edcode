@@ -1,12 +1,5 @@
 @extends('layouts.admin')
 
-@section('actions')
-    <a href="{{ route('admin.groups.edit', $group) }}" class="btn btn-outline btn-sm">
-        <x-icon name="pencil" class="w-4 h-4" />
-        Редактировать
-    </a>
-@endsection
-
 @section('content')
 
 <div class="flex gap-4"
@@ -20,9 +13,9 @@
          available: {{ Js::from($available->map(fn($u) => ['id' => $u->id, 'name' => $u->name])) }},
 
          avatarColor(name) {
-             const p = ['#E53E3E','#DD6B20','#D69E2E','#38A169','#3182CE','#805AD5','#D53F8C','#319795','#2F855A','#2B6CB0','#6B46C1','#C05621'];
+             const p = ['#EF4444','#F97316','#F59E0B','#EAB308','#84CC16','#22C55E','#10B981','#14B8A6','#06B6D4','#0EA5E9','#3B82F6','#6366F1','#8B5CF6','#A855F7','#D946EF','#EC4899','#F43F5E','#DC2626','#EA580C','#D97706','#CA8A04','#65A30D','#16A34A','#059669','#0D9488','#0891B2','#0284C7','#2563EB','#7C3AED','#9333EA'];
              let s = 0; for (const c of String(name)) s += c.codePointAt(0);
-             return p[s % p.length];
+             return `linear-gradient(135deg, ${p[s % 30]}, ${p[(s + 15) % 30]})`;
          },
          avatarInitials(name) {
              const w = String(name).trim().split(/\s+/);
@@ -70,7 +63,7 @@
                    class="flex items-center gap-3 px-4 py-3 transition-colors {{ $g->id === $group->id ? 'bg-primary-light' : 'hover:bg-gray-50' }}">
 
                     <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-                         style="background-color: {{ \App\Helpers\AvatarHelper::color($g->title) }}">
+                         style="background: {{ \App\Helpers\AvatarHelper::color($g->title) }}">
                         <x-icon name="user-group" class="w-4 h-4 text-white" />
                     </div>
 
@@ -96,11 +89,17 @@
         {{-- Header --}}
         <div class="px-5 py-3.5 border-b border-border flex items-center gap-3 shrink-0">
             <div class="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-                 style="background-color: {{ \App\Helpers\AvatarHelper::color($group->title) }}">
+                 style="background: {{ \App\Helpers\AvatarHelper::color($group->title) }}">
                 <x-icon name="user-group" class="w-5 h-5 text-white" />
             </div>
             <div class="flex-1 min-w-0">
-                <p class="font-extrabold text-text truncate">{{ $group->title }}</p>
+                <div class="flex items-center gap-1">
+                    <p class="font-extrabold text-text truncate">{{ $group->title }}</p>
+                    <a href="{{ route('admin.groups.edit', $group) }}"
+                       class="btn btn-ghost btn-sm text-text-muted hover:text-primary shrink-0 p-1">
+                        <x-icon name="pencil" class="w-3.5 h-3.5" />
+                    </a>
+                </div>
                 @if ($group->description)
                     <p class="text-xs text-text-muted truncate">{{ $group->description }}</p>
                 @endif
@@ -188,7 +187,7 @@
                         @click="pickUser(u)"
                         class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left">
                     <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-extrabold text-white text-[11px]"
-                         :style="{ backgroundColor: avatarColor(u.name) }">
+                         :style="{ background: avatarColor(u.name) }">
                         <span x-text="avatarInitials(u.name)"></span>
                     </div>
                     <span class="flex-1 text-sm font-semibold text-text" x-text="u.name"></span>
@@ -206,7 +205,7 @@
             <template x-if="selectedUser">
                 <div class="flex flex-col items-center gap-3">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center font-extrabold text-white text-xl"
-                         :style="{ backgroundColor: avatarColor(selectedUser.name) }">
+                         :style="{ background: avatarColor(selectedUser.name) }">
                         <span x-text="avatarInitials(selectedUser.name)"></span>
                     </div>
                     <div>

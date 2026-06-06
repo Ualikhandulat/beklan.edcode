@@ -10,6 +10,6 @@
     };
 @endphp
 <div {{ $attributes->class([$sizeClass, 'rounded-full flex items-center justify-center shrink-0 font-extrabold text-white']) }}
-     style="background-color: {{ $color }}">
+     style="background: {{ $color }}">
     {{ $initials }}
 </div>
