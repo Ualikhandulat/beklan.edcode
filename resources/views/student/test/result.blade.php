@@ -19,6 +19,14 @@
     $duration = $test->started_at
         ? $test->started_at->diffInSeconds($test->completed_at)
         : null;
+
+    $durationStr = null;
+    if ($duration !== null) {
+        $h = intdiv($duration, 3600);
+        $m = intdiv($duration % 3600, 60);
+        $s = $duration % 60;
+        $durationStr = $h > 0 ? "{$h}ч {$m}м" : ($m > 0 ? "{$m}м {$s}с" : "{$s}с");
+    }
 @endphp
 
 @push('head')
@@ -71,10 +79,10 @@
 
         {{-- Meta --}}
         <div class="flex flex-wrap items-center justify-center gap-4 mt-5 pt-4 border-t border-border text-xs text-text-muted">
-            @if ($duration !== null)
+            @if ($durationStr !== null)
                 <div class="flex items-center gap-1.5">
                     <x-icon name="clock" class="w-3.5 h-3.5 shrink-0" />
-                    {{ intdiv($duration, 60) }}м {{ $duration % 60 }}с
+                    {{ $durationStr }}
                 </div>
             @endif
             <div class="flex items-center gap-1.5">
@@ -100,26 +108,15 @@
                 $sColor = $sGood ? 'var(--color-success)' : ($sMid ? 'var(--color-primary)' : 'var(--color-danger)');
             @endphp
             <div class="card fade-up" style="animation-delay: {{ 120 + $i * 50 }}ms">
-                <div class="flex items-start justify-between gap-3 mb-3">
-                    <div class="min-w-0">
-                        <p class="text-sm font-extrabold text-text leading-snug">{{ $subject['subject']->title }}</p>
-                        @if ($subject['part'])
-                            <p class="text-xs text-text-muted mt-0.5">{{ $subject['part']->title }}</p>
-                        @endif
-                    </div>
-                    <div class="text-right shrink-0">
-                        <span class="text-xl font-black tabular-nums leading-none" style="color: {{ $sColor }}">{{ $subject['score'] }}</span>
-                        <span class="text-xs text-text-muted font-semibold"> / {{ $subject['max_score'] }}</span>
-                    </div>
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    <p class="text-sm font-extrabold text-text leading-snug truncate">{{ $subject['subject']->title }}</p>
+                    <span class="text-sm font-black tabular-nums shrink-0" style="color: {{ $sColor }}">
+                        {{ $subject['score'] }}<span class="text-xs text-text-muted font-semibold">/{{ $subject['max_score'] }}</span>
+                    </span>
                 </div>
                 <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                     <div class="h-full rounded-full bar-fill"
                          style="--bar-target: {{ $sPct }}%; background: {{ $sColor }}; width: 0%; animation-delay: {{ 400 + $i * 80 }}ms"></div>
-                </div>
-                <div class="flex items-center justify-between mt-1">
-                    <span class="text-[10px] text-text-muted font-semibold">0</span>
-                    <span class="text-[11px] font-extrabold" style="color: {{ $sColor }}">{{ $sPct }}%</span>
-                    <span class="text-[10px] text-text-muted font-semibold">{{ $subject['max_score'] }}</span>
                 </div>
             </div>
         @endforeach
@@ -135,14 +132,10 @@
     @if ($s['part'])
         <div class="card mb-4 fade-up" style="animation-delay: 120ms">
             <div class="flex items-center justify-between gap-3 mb-3">
-                <div class="min-w-0">
-                    <p class="text-sm font-extrabold text-text leading-snug">{{ $s['subject']->title }}</p>
-                    <p class="text-xs text-text-muted mt-0.5">{{ $s['part']->title }}</p>
-                </div>
-                <div class="shrink-0 text-right">
-                    <span class="text-xl font-black tabular-nums" style="color: {{ $sColor }}">{{ $s['score'] }}</span>
-                    <span class="text-xs text-text-muted"> / {{ $s['max_score'] }}</span>
-                </div>
+                <p class="text-sm font-extrabold text-text leading-snug truncate">{{ $s['subject']->title }}</p>
+                <span class="text-sm font-black tabular-nums shrink-0" style="color: {{ $sColor }}">
+                    {{ $s['score'] }}<span class="text-xs text-text-muted font-semibold">/{{ $s['max_score'] }}</span>
+                </span>
             </div>
             <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                 <div class="h-full rounded-full bar-fill"

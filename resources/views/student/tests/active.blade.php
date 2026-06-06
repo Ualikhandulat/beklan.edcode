@@ -173,7 +173,7 @@
         @if ($hasActiveTest)
             <div class="alert alert-warning mb-4 fade-up" style="animation-delay: 60ms">
                 <x-icon name="information-circle" class="w-4 h-4 shrink-0 mt-0.5" />
-                <span>Завершите текущий тест, чтобы начать новый.</span>
+                <span>Завершите активный тест, чтобы начать новый.</span>
             </div>
         @endif
 

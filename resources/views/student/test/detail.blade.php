@@ -3,6 +3,12 @@
 
 @section('content')
 
+@php
+    $wrongCount = collect($subjectsData)->sum(fn($s) => collect($s['questions'])->filter(fn($q) => $q['is_right'] === false)->count());
+    $totalCount = collect($subjectsData)->sum(fn($s) => count($s['questions']));
+    $rightCount  = $totalCount - $wrongCount;
+@endphp
+
 @push('head')
 <style>
     body { background: #F4F6F9; }
@@ -25,93 +31,179 @@
                 this.activeQuestion = qi;
             },
 
-            isRight(q) {
-                return q.is_right === true;
-            },
-
-            isWrong(q) {
-                return q.is_right === false;
-            },
+            isRight(q) { return q.is_right === true; },
+            isWrong(q) { return q.is_right === false; },
         }));
     });
 </script>
 
 <div x-data="detailApp" class="flex flex-col" style="min-height: calc(100vh - 3.5rem)">
 
-    {{-- ── Top bar ──────────────────────────────────────────────────────────── --}}
-    <div class="bg-white border-b border-border sticky top-14 z-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-4">
-
-            <a href="{{ route('student.test.result', $test) }}"
-               class="flex items-center gap-1.5 text-sm font-bold text-text-muted hover:text-text transition-colors shrink-0">
-                <x-icon name="arrow-left" class="w-4 h-4" />
-                <span class="hidden sm:inline">К результатам</span>
-            </a>
-
-            <div class="flex-1 flex items-center justify-center gap-2">
-                <span class="text-xs font-extrabold uppercase tracking-widest text-text-muted">Разбор ответов</span>
+    {{-- ── Subject — mobile only ─────────────────────────────── --}}
+    @if (count($subjectsData) === 1)
+    <div class="lg:hidden bg-white border-b border-border px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+            <span class="text-sm font-bold text-text truncate">{{ $subjectsData[0]['subject']->title }}</span>
+        </div>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
+              :class="subjects[0]?.questions.filter(q => q.is_right).length === subjects[0]?.questions.length
+                  ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'"
+              x-text="`${subjects[0]?.questions.filter(q => q.is_right).length}/${subjects[0]?.questions.length}`"></span>
+    </div>
+    @else
+    <div class="lg:hidden bg-white border-b border-border" x-data="{ subjectOpen: false }">
+        <button type="button"
+                @click="subjectOpen = !subjectOpen"
+                class="w-full flex items-center justify-between px-4 py-3 cursor-pointer">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+                <span class="text-sm font-bold text-text truncate" x-text="currentSubject?.subject.title"></span>
             </div>
-
-            <div class="shrink-0 flex items-center gap-3">
-                @php
-                    $wrongCount = collect($subjectsData)->sum(fn($s) => collect($s['questions'])->filter(fn($q) => $q['is_right'] === false)->count());
-                    $totalCount = collect($subjectsData)->sum(fn($s) => count($s['questions']));
-                    $rightCount = $totalCount - $wrongCount;
-                @endphp
-                <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-success/15 text-success">
-                    {{ $rightCount }} верно
-                </span>
-                @if ($wrongCount > 0)
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-danger/15 text-danger">
-                        {{ $wrongCount }} ошибок
-                    </span>
-                @endif
+            <div class="flex items-center gap-2 shrink-0 ml-3">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                      :class="subjects[activeSubject]?.questions.filter(q => q.is_right).length === subjects[activeSubject]?.questions.length
+                          ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'"
+                      x-text="`${subjects[activeSubject]?.questions.filter(q => q.is_right).length}/${subjects[activeSubject]?.questions.length}`"></span>
+                <svg class="w-4 h-4 text-text-muted transition-transform duration-200"
+                     :class="subjectOpen ? 'rotate-180' : ''"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
             </div>
+        </button>
+        <div x-show="subjectOpen" x-cloak
+             x-transition:enter="transition ease-out duration-150"
+             x-transition:enter-start="opacity-0 -translate-y-1"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-100"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-1"
+             @click.outside="subjectOpen = false"
+             class="border-t border-border">
+            <template x-for="(subject, si) in subjects" :key="si">
+                <button type="button"
+                        @click="activeSubject = si; activeQuestion = 0; subjectOpen = false"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left transition-colors border-b border-border/50 last:border-b-0 cursor-pointer"
+                        :class="si === activeSubject ? 'bg-primary/8 text-primary' : 'text-text hover:bg-gray-50'">
+                    <span class="w-2 h-2 rounded-full shrink-0"
+                          :class="si === activeSubject ? 'bg-primary' : 'bg-border'"></span>
+                    <span x-text="subject.subject.title" class="flex-1 truncate"></span>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                          :class="si === activeSubject ? 'bg-primary/15 text-primary'
+                              : (subject.questions.filter(q => q.is_right).length === subject.questions.length
+                                  ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger')"
+                          x-text="`${subject.questions.filter(q => q.is_right).length}/${subject.questions.length}`"></span>
+                </button>
+            </template>
+        </div>
+    </div>
+    @endif
+
+    {{-- ── Question pills — mobile horizontal scroll ───────────────────── --}}
+    <div class="lg:hidden bg-white border-b border-border overflow-x-auto">
+        <div class="flex gap-2 px-4 py-2.5" style="width: max-content; min-width: 100%">
+            <template x-for="(q, qi) in currentSubject?.questions ?? []" :key="qi">
+                <button type="button"
+                        @click="goTo(activeSubject, qi)"
+                        class="w-9 h-9 rounded-xl text-xs font-extrabold shrink-0 transition-all duration-150 cursor-pointer"
+                        :class="qi === activeQuestion
+                            ? 'bg-primary text-white shadow-sm scale-110'
+                            : (q.is_right
+                                ? 'bg-success/20 text-success border border-success/30'
+                                : 'bg-danger/15 text-danger border border-danger/20')"
+                        x-text="qi + 1">
+                </button>
+            </template>
         </div>
     </div>
 
-    {{-- ── Main area ────────────────────────────────────────────────────────── --}}
-    <div class="flex-1 max-w-7xl mx-auto w-full px-0 sm:px-4 lg:px-6 py-0 sm:py-5 flex flex-col lg:flex-row gap-0 sm:gap-4">
+    {{-- ── Main area ────────────────────────────────────────────────────── --}}
+    <div class="flex-1 max-w-7xl mx-auto w-full px-0 lg:px-6 lg:py-5 flex flex-col lg:flex-row gap-0 lg:gap-4">
 
-        {{-- ── Left sidebar ──────────────────────────────────────────────────── --}}
-        <div class="lg:w-72 xl:w-80 shrink-0">
+        {{-- ── Desktop sidebar: subjects + pills + back ────────────────── --}}
+        <div class="hidden lg:flex lg:flex-col gap-3 lg:w-72 xl:w-80 shrink-0"
+             style="position: sticky; top: 4.5rem; align-self: start; max-height: calc(100vh - 5.5rem); overflow-y: auto">
 
-            {{-- Mobile accordion --}}
-            <div class="lg:hidden bg-white border-b border-border" x-data="{ open: false }">
-                <button @click="open = !open"
-                        class="w-full flex items-center justify-between px-4 py-3 text-sm font-bold text-text">
-                    <span>
-                        Вопрос <span x-text="activeQuestion + 1"></span> из
-                        <span x-text="currentSubject?.questions.length"></span>
-                        — <span x-text="currentSubject?.subject.title" class="text-primary"></span>
-                    </span>
-                    <span :class="open ? 'rotate-180' : ''" class="transition-transform duration-200 inline-block">
-                        <x-icon name="chevron-down" class="w-4 h-4" />
-                    </span>
-                </button>
-                <div x-show="open" x-transition class="border-t border-border">
-                    @include('student.test._sidebar_detail')
+            {{-- Subject list --}}
+            @if (count($subjectsData) === 1)
+            <div class="bg-white rounded-2xl border border-border px-4 py-3 flex items-center gap-3" style="box-shadow: var(--shadow-card)">
+                <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+                <span class="text-sm font-bold text-text flex-1 truncate">{{ $subjectsData[0]['subject']->title }}</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                      :class="subjects[0]?.questions.filter(q => q.is_right).length === subjects[0]?.questions.length
+                          ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'"
+                      x-text="`${subjects[0]?.questions.filter(q => q.is_right).length}/${subjects[0]?.questions.length}`"></span>
+            </div>
+            @else
+            <div class="bg-white rounded-2xl border border-border overflow-hidden" style="box-shadow: var(--shadow-card)">
+                <template x-for="(subject, si) in subjects" :key="si">
+                    <button type="button"
+                            @click="activeSubject = si; activeQuestion = 0"
+                            class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left transition-colors border-b border-border last:border-b-0 cursor-pointer"
+                            :class="si === activeSubject ? 'bg-primary text-white' : 'text-text hover:bg-gray-50'">
+                        <span class="w-2 h-2 rounded-full shrink-0"
+                              :class="si === activeSubject ? 'bg-white' : 'bg-border'"></span>
+                        <span x-text="subject.subject.title" class="flex-1 truncate"></span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                              :class="si === activeSubject ? 'bg-white/25 text-white'
+                                  : (subject.questions.filter(q => q.is_right).length === subject.questions.length
+                                      ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger')"
+                              x-text="`${subject.questions.filter(q => q.is_right).length}/${subject.questions.length}`"></span>
+                    </button>
+                </template>
+            </div>
+            @endif
+
+            {{-- Question pills --}}
+            <div class="bg-white rounded-2xl border border-border p-3" style="box-shadow: var(--shadow-card)">
+                <div class="grid gap-1.5" style="grid-template-columns: repeat(auto-fill, minmax(2rem, 1fr))">
+                    <template x-for="(q, qi) in currentSubject?.questions ?? []" :key="qi">
+                        <button type="button"
+                                @click="goTo(activeSubject, qi)"
+                                class="aspect-square rounded-lg text-xs font-extrabold transition-all duration-150 cursor-pointer"
+                                :class="qi === activeQuestion
+                                    ? 'bg-primary text-white shadow-sm scale-110'
+                                    : (q.is_right
+                                        ? 'bg-success/20 text-success border border-success/30 hover:bg-success/30'
+                                        : 'bg-danger/15 text-danger border border-danger/20 hover:bg-danger/25')"
+                                x-text="qi + 1">
+                        </button>
+                    </template>
                 </div>
             </div>
 
-            {{-- Desktop sidebar --}}
-            <div class="hidden lg:block bg-white rounded-2xl border border-border overflow-hidden"
-                 style="box-shadow: var(--shadow-card); position: sticky; top: 7rem; max-height: calc(100vh - 8rem); overflow-y: auto">
-                @include('student.test._sidebar_detail')
+            {{-- Back card --}}
+            <div class="bg-white rounded-2xl border border-border p-4" style="box-shadow: var(--shadow-card)">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-success/15 text-success">
+                        {{ $rightCount }} верно
+                    </span>
+                    @if ($wrongCount > 0)
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-danger/15 text-danger">
+                            {{ $wrongCount }} ошибок
+                        </span>
+                    @endif
+                </div>
+                <a href="{{ route('student.test.result', $test) }}" class="w-full btn btn-outline">
+                    <x-icon name="arrow-left" class="w-4 h-4" />
+                    К результатам
+                </a>
             </div>
+
         </div>
 
-        {{-- ── Right: question ────────────────────────────────────────────────── --}}
-        <div class="flex-1 min-w-0">
-            <div class="bg-white sm:rounded-2xl border-t sm:border border-border min-h-full"
+        {{-- ── Question card ───────────────────────────────────────────── --}}
+        <div class="flex-1 min-w-0 pb-20 lg:pb-0">
+            <div class="bg-white rounded-none lg:rounded-2xl border-t lg:border border-border min-h-full"
                  style="box-shadow: var(--shadow-card)">
 
                 <template x-if="currentQuestion">
                     <div class="p-5 sm:p-7">
 
-                        {{-- Question header --}}
-                        <div class="flex items-center gap-3 mb-6">
-                            <span class="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-extrabold text-white shrink-0"
+                        {{-- Status icon + question text --}}
+                        <div class="flex items-start gap-3 mb-3">
+                            <span class="w-7 h-7 rounded-xl flex items-center justify-center text-sm font-extrabold text-white shrink-0 mt-0.5"
                                   :class="isRight(currentQuestion) ? 'bg-success' : 'bg-danger'">
                                 <template x-if="isRight(currentQuestion)">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
@@ -120,49 +212,35 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </template>
                             </span>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-xs font-bold text-text-muted uppercase tracking-widest truncate"
-                                   x-text="currentSubject?.subject.title"></p>
-                            </div>
-                            <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg border shrink-0"
-                                  :class="{
-                                      'bg-purple-50 text-purple-600 border-purple-200': currentQuestion.type === 'multi',
-                                      'bg-teal-50 text-teal-600 border-teal-200': currentQuestion.type === 'match',
-                                      'bg-amber-50 text-amber-700 border-amber-200': currentQuestion.type === 'group',
-                                      'bg-blue-50 text-blue-600 border-blue-200': currentQuestion.type === 'one'
-                                  }"
-                                  x-text="currentQuestion.type === 'multi'
-                                      ? 'Несколько ответов (' + currentQuestion.count_answers + ')'
-                                      : currentQuestion.type === 'match' ? 'Соответствие'
-                                      : currentQuestion.type === 'group' ? 'Контекстный'
-                                      : 'Один ответ'">
-                            </span>
+                            <div class="text-base font-semibold text-text leading-relaxed flex-1"
+                                 x-html="currentQuestion.text || ''"></div>
                         </div>
 
-                        {{-- Question text --}}
-                        <div class="text-base font-semibold text-text leading-relaxed mb-7"
-                             x-html="currentQuestion.text || ''"></div>
+                        {{-- Question type --}}
+                        <p class="text-xs font-semibold text-text-muted mb-5"
+                           x-text="currentQuestion.type === 'multi'
+                               ? 'Выберите ' + currentQuestion.count_answers + ' варианта'
+                               : currentQuestion.type === 'match' ? 'Соответствие'
+                               : currentQuestion.type === 'group' ? 'Контекстный вопрос'
+                               : 'Один верный ответ'">
+                        </p>
 
                         {{-- SELECT_ONE / IS_GROUP --}}
                         <template x-if="currentQuestion.type === 'one' || currentQuestion.type === 'group'">
                             <div class="space-y-2">
                                 <template x-for="(v, i) in currentQuestion.vars" :key="i">
                                     <div class="w-full flex items-center gap-3 p-3 rounded-2xl border-2"
-                                         :class="
-                                             (currentQuestion.correct || []).includes(i)
-                                                 ? 'border-success bg-success/8'
-                                                 : ((currentQuestion.user_answers || []).includes(i) && !(currentQuestion.correct || []).includes(i)
-                                                     ? 'border-danger bg-danger/8'
-                                                     : 'border-border bg-gray-50/50')
-                                         ">
+                                         :class="(currentQuestion.correct || []).includes(i)
+                                             ? 'border-success bg-success/8'
+                                             : ((currentQuestion.user_answers || []).includes(i) && !(currentQuestion.correct || []).includes(i)
+                                                 ? 'border-danger bg-danger/8'
+                                                 : 'border-border bg-gray-50/50')">
                                         <span class="w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-extrabold shrink-0"
-                                              :class="
-                                                  (currentQuestion.correct || []).includes(i)
-                                                      ? 'border-success bg-success text-white'
-                                                      : ((currentQuestion.user_answers || []).includes(i)
-                                                          ? 'border-danger bg-danger text-white'
-                                                          : 'border-border text-text-muted')
-                                              "
+                                              :class="(currentQuestion.correct || []).includes(i)
+                                                  ? 'border-success bg-success text-white'
+                                                  : ((currentQuestion.user_answers || []).includes(i)
+                                                      ? 'border-danger bg-danger text-white'
+                                                      : 'border-border text-text-muted')"
                                               x-text="String.fromCharCode(65 + i)"></span>
                                         <span class="flex-1 text-sm font-semibold text-gray-900 leading-snug" x-html="v"></span>
                                         <template x-if="(currentQuestion.correct || []).includes(i)">
@@ -181,21 +259,17 @@
                             <div class="space-y-2">
                                 <template x-for="(v, i) in currentQuestion.vars" :key="i">
                                     <div class="w-full flex items-center gap-3 p-3 rounded-2xl border-2"
-                                         :class="
-                                             (currentQuestion.correct || []).includes(i)
-                                                 ? 'border-success bg-success/8'
-                                                 : ((currentQuestion.user_answers || []).includes(i) && !(currentQuestion.correct || []).includes(i)
-                                                     ? 'border-danger bg-danger/8'
-                                                     : 'border-border bg-gray-50/50')
-                                         ">
+                                         :class="(currentQuestion.correct || []).includes(i)
+                                             ? 'border-success bg-success/8'
+                                             : ((currentQuestion.user_answers || []).includes(i) && !(currentQuestion.correct || []).includes(i)
+                                                 ? 'border-danger bg-danger/8'
+                                                 : 'border-border bg-gray-50/50')">
                                         <span class="w-7 h-7 rounded-lg border-2 flex items-center justify-center shrink-0"
-                                              :class="
-                                                  (currentQuestion.correct || []).includes(i)
-                                                      ? 'border-success bg-success text-white'
-                                                      : ((currentQuestion.user_answers || []).includes(i)
-                                                          ? 'border-danger bg-danger text-white'
-                                                          : 'border-border text-text-muted')
-                                              ">
+                                              :class="(currentQuestion.correct || []).includes(i)
+                                                  ? 'border-success bg-success text-white'
+                                                  : ((currentQuestion.user_answers || []).includes(i)
+                                                      ? 'border-danger bg-danger text-white'
+                                                      : 'border-border text-text-muted')">
                                             <template x-if="(currentQuestion.correct || []).includes(i)">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                             </template>
@@ -212,8 +286,6 @@
                         {{-- IS_MATCH --}}
                         <template x-if="currentQuestion.type === 'match'">
                             <div class="space-y-3">
-
-                                {{-- Options reference --}}
                                 <div class="rounded-xl bg-gray-50 border border-border p-4">
                                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-text-muted mb-3">Варианты ответов</p>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
@@ -227,44 +299,30 @@
                                         </template>
                                     </div>
                                 </div>
-
-                                {{-- Pair rows --}}
                                 <template x-for="pairIdx in [0, 1]" :key="pairIdx">
                                     <div class="rounded-2xl border-2 p-4"
-                                         :class="
-                                             (currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
-                                                 ? 'border-success/40 bg-success/4'
-                                                 : 'border-danger/40 bg-danger/4'
-                                         ">
+                                         :class="(currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
+                                             ? 'border-success/40 bg-success/4'
+                                             : 'border-danger/40 bg-danger/4'">
                                         <div class="flex items-start gap-2.5 mb-3">
                                             <span class="w-6 h-6 rounded-lg bg-gray-100 text-gray-700 text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5"
                                                   x-text="pairIdx + 1"></span>
                                             <div class="text-sm font-bold text-gray-900 leading-snug flex-1"
                                                  x-html="currentQuestion.vars[pairIdx] || ''"></div>
                                         </div>
-
                                         <div class="flex flex-col sm:flex-row gap-2">
-                                            {{-- User answer --}}
                                             <div class="flex-1 rounded-xl p-3 border"
-                                                 :class="
-                                                     (currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
-                                                         ? 'border-success/40 bg-success/8'
-                                                         : 'border-danger/40 bg-danger/8'
-                                                 ">
+                                                 :class="(currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
+                                                     ? 'border-success/40 bg-success/8'
+                                                     : 'border-danger/40 bg-danger/8'">
                                                 <p class="text-[10px] font-extrabold uppercase tracking-widest mb-1.5"
-                                                   :class="
-                                                       (currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
-                                                           ? 'text-success'
-                                                           : 'text-danger'
-                                                   ">Ваш ответ</p>
+                                                   :class="(currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
+                                                       ? 'text-success' : 'text-danger'">Ваш ответ</p>
                                                 <template x-if="(currentQuestion.user_answers ?? [])[pairIdx] != null">
                                                     <div class="flex items-center gap-2">
                                                         <span class="w-5 h-5 rounded-md text-xs font-extrabold flex items-center justify-center shrink-0"
-                                                              :class="
-                                                                  (currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
-                                                                      ? 'bg-success/20 text-success'
-                                                                      : 'bg-danger/20 text-danger'
-                                                              "
+                                                              :class="(currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
+                                                                  ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'"
                                                               x-text="['А','Б','В','Г'][(currentQuestion.user_answers ?? [])[pairIdx]] ?? '?'"></span>
                                                         <span class="text-sm font-semibold text-gray-900 leading-snug"
                                                               x-html="currentQuestion.vars[4 + (currentQuestion.user_answers ?? [])[pairIdx]] || ''"></span>
@@ -274,8 +332,6 @@
                                                     <span class="text-sm text-danger font-semibold">Нет ответа</span>
                                                 </template>
                                             </div>
-
-                                            {{-- Correct answer (only if wrong) --}}
                                             <template x-if="(currentQuestion.correct || [])[pairIdx] !== (currentQuestion.user_answers || [])[pairIdx]">
                                                 <div class="flex-1 rounded-xl p-3 border border-success/40 bg-success/8">
                                                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-success mb-1.5">Верный ответ</p>
@@ -302,11 +358,9 @@
                                 <x-icon name="arrow-left" class="w-4 h-4" />
                                 Назад
                             </button>
-
                             <span class="text-xs font-bold text-text-muted">
                                 <span x-text="activeQuestion + 1"></span> / <span x-text="currentSubject?.questions.length"></span>
                             </span>
-
                             <button type="button"
                                     @click="activeQuestion < currentSubject.questions.length - 1
                                         ? activeQuestion++
@@ -326,7 +380,26 @@
         </div>
 
     </div>
-</div>
 
+    {{-- ── Mobile sticky bottom bar ────────────────────────────────────── --}}
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-30"
+         style="box-shadow: 0 -4px 16px rgba(0,0,0,0.08)">
+        <div class="flex items-center gap-3 px-4 py-3">
+            <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-success/15 text-success shrink-0">
+                {{ $rightCount }} верно
+            </span>
+            @if ($wrongCount > 0)
+                <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-danger/15 text-danger shrink-0">
+                    {{ $wrongCount }} ошибок
+                </span>
+            @endif
+            <a href="{{ route('student.test.result', $test) }}" class="ml-auto btn btn-outline btn-sm">
+                <x-icon name="arrow-left" class="w-4 h-4" />
+                К результатам
+            </a>
+        </div>
+    </div>
+
+</div>
 
 @endsection

@@ -55,6 +55,13 @@
                 $duration = $test->started_at
                     ? $test->started_at->diffInSeconds($test->completed_at)
                     : null;
+                $durationStr = null;
+                if ($duration !== null) {
+                    $h = intdiv($duration, 3600);
+                    $m = intdiv($duration % 3600, 60);
+                    $s = $duration % 60;
+                    $durationStr = $h > 0 ? "{$h}ч {$m}м" : ($m > 0 ? "{$m}м {$s}с" : "{$s}с");
+                }
             @endphp
 
             <div class="fade-up bg-white rounded-2xl border border-border overflow-hidden flex"
@@ -97,10 +104,10 @@
                             </div>
 
                             <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border/60">
-                                @if ($duration !== null)
+                                @if ($durationStr !== null)
                                     <span class="text-xs text-text-muted flex items-center gap-1">
                                         <x-icon name="clock" class="w-3 h-3" />
-                                        {{ intdiv($duration, 60) }}м {{ $duration % 60 }}с
+                                        {{ $durationStr }}
                                     </span>
                                 @endif
                                 <div class="ml-auto flex items-center gap-2">

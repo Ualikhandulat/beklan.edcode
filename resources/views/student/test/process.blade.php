@@ -199,8 +199,17 @@
     style="min-height: calc(100vh - 3.5rem)"
 >
 
-    {{-- ── Subject dropdown — mobile only ────────────────────────────────── --}}
-    @if (count($subjectsData) > 1)
+    {{-- ── Subject — mobile only ────────────────────────────────── --}}
+    @if (count($subjectsData) === 1)
+    <div class="lg:hidden bg-white border-b border-border px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+            <span class="text-sm font-bold text-text truncate">{{ $subjectsData[0]['subject']->title }}</span>
+        </div>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0"
+              x-text="`${currentSubject?.answered ?? 0}/${currentSubject?.questions.length ?? 0}`"></span>
+    </div>
+    @else
     <div class="lg:hidden bg-white border-b border-border" x-data="{ subjectOpen: false }">
         <button type="button"
                 @click="subjectOpen = !subjectOpen"
@@ -219,7 +228,6 @@
                 </svg>
             </div>
         </button>
-
         <div x-show="subjectOpen" x-cloak
              x-transition:enter="transition ease-out duration-150"
              x-transition:enter-start="opacity-0 -translate-y-1"
@@ -272,7 +280,14 @@
              style="position: sticky; top: 4.5rem; align-self: start; max-height: calc(100vh - 5.5rem); overflow-y: auto">
 
             {{-- Subject list — vertical block --}}
-            @if (count($subjectsData) > 1)
+            @if (count($subjectsData) === 1)
+            <div class="bg-white rounded-2xl border border-border px-4 py-3 flex items-center gap-3" style="box-shadow: var(--shadow-card)">
+                <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+                <span class="text-sm font-bold text-text flex-1 truncate">{{ $subjectsData[0]['subject']->title }}</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary shrink-0"
+                      x-text="`${currentSubject?.answered ?? 0}/${currentSubject?.questions.length ?? 0}`"></span>
+            </div>
+            @else
             <div class="bg-white rounded-2xl border border-border overflow-hidden" style="box-shadow: var(--shadow-card)">
                 <template x-for="(subject, si) in subjects" :key="si">
                     <button type="button"
