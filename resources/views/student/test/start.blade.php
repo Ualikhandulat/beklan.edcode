@@ -126,7 +126,7 @@
     @endif
 
     {{-- Form --}}
-    <form method="POST" action="{{ route('student.test.begin', $access) }}">
+    <form method="POST" action="{{ route('student.test.start', $access) }}">
         @csrf
 
         {{-- ENT: Student chooses elective subjects --}}

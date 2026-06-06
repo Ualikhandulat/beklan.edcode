@@ -119,8 +119,10 @@
                         <span class="absolute inset-0 flex items-center justify-center text-[10px] font-extrabold"
                               style="color: {{ $sColor }}">{{ $sPct }}%</span>
                     </div>
-                    <x-icon name="chevron-down" class="w-4 h-4 text-text-muted transition-transform duration-200 shrink-0"
-                            :class="open ? 'rotate-180' : ''" />
+                    <span class="w-4 h-4 text-text-muted transition-transform duration-200 shrink-0 flex items-center"
+                          :class="open ? 'rotate-180' : ''">
+                        <x-icon name="chevron-down" class="w-4 h-4" />
+                    </span>
                 </div>
             </button>
 
@@ -189,7 +191,7 @@
     @endphp
 
     @if ($canRetry)
-        <a href="{{ route('student.test.start', $access) }}"
+        <a href="{{ route('student.test.index', $access) }}"
            class="flex-1 btn text-white text-center font-extrabold py-3 rounded-2xl"
            style="background: var(--color-primary)">
             <x-icon name="refresh" class="w-4 h-4" />

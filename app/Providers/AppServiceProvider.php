@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Enums\Role;
+use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +22,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        RedirectIfAuthenticated::redirectUsing(function () {
+            return match (Auth::user()->role) {
+                Role::Admin => route('admin.dashboard'),
+                Role::Student => route('student.dashboard'),
+            };
+        });
     }
 }

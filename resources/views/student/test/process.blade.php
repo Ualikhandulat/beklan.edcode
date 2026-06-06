@@ -24,6 +24,7 @@
             activeQuestion: 0,
             finishing: false,
             confirmFinish: false,
+            pendingSave: false,
             totalAnswered: {{ $answered }},
             totalQuestions: {{ $totalQuestions }},
             secondsLeft: {{ $secondsLeft ?? 'null' }},
@@ -42,6 +43,9 @@
             },
 
             startTimer() {
+                // Auto-save every 60 seconds if there are pending changes
+                setInterval(() => { this.bulkSave(); }, 60000);
+
                 if (this.secondsLeft === null) return;
                 const tick = () => {
                     if (this.secondsLeft <= 0) { this.autoFinish(); return; }
@@ -51,25 +55,37 @@
                 setTimeout(tick, 1000);
             },
 
-            autoFinish() {
+            async autoFinish() {
                 if (this.finishing) return;
                 this.finishing = true;
+                await this.bulkSave(true);
                 fetch('{{ route('student.test.finish', $test) }}', {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
                 }).then(r => r.json()).then(d => { window.location = d.redirect; });
             },
 
-            saveAnswer(subjectIdx, detailId, answers) {
-                const testSubjectId = this.subjects[subjectIdx].test_subject_id;
-                fetch('{{ route('student.test.answer', $test) }}', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ test_subject_id: testSubjectId, detail_id: detailId, user_answers: answers }),
-                });
+            async bulkSave(force = false) {
+                if (!force && !this.pendingSave) return;
+                this.pendingSave = false;
+                const payload = {
+                    subjects: this.subjects.map(s => ({
+                        test_subject_id: s.test_subject_id,
+                        questions: s.questions.map(q => ({
+                            detail_id: q.detail_id,
+                            user_answers: (q.user_answers || []).filter(a => a !== null),
+                        })),
+                    })),
+                };
+                try {
+                    await fetch('{{ route('student.test.save', $test) }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    });
+                } catch {
+                    this.pendingSave = true;
+                }
             },
 
             subjects: @json($subjectsData),
@@ -114,7 +130,7 @@
                     this.totalAnswered--;
                 }
 
-                this.saveAnswer(this.activeSubject, q.detail_id, answers.filter(a => a !== null));
+                this.pendingSave = true;
             },
 
             isAnswered(q) {
@@ -222,16 +238,19 @@
                                 <p class="text-xs font-bold text-text-muted uppercase tracking-widest truncate"
                                    x-text="currentSubject?.subject.title"></p>
                             </div>
-                            <template x-if="currentQuestion.type === 'multi'">
-                                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg bg-purple-50 text-purple-600 border border-purple-200">
-                                    Несколько ответов (<span x-text="currentQuestion.count_answers"></span>)
-                                </span>
-                            </template>
-                            <template x-if="currentQuestion.type === 'match'">
-                                <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg bg-teal-50 text-teal-600 border border-teal-200">
-                                    Соответствие
-                                </span>
-                            </template>
+                            <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-lg border shrink-0"
+                                  :class="{
+                                      'bg-purple-50 text-purple-600 border-purple-200': currentQuestion.type === 'multi',
+                                      'bg-teal-50 text-teal-600 border-teal-200': currentQuestion.type === 'match',
+                                      'bg-amber-50 text-amber-700 border-amber-200': currentQuestion.type === 'group',
+                                      'bg-blue-50 text-blue-600 border-blue-200': currentQuestion.type === 'one'
+                                  }"
+                                  x-text="currentQuestion.type === 'multi'
+                                      ? 'Несколько ответов (' + currentQuestion.count_answers + ')'
+                                      : currentQuestion.type === 'match' ? 'Соответствие'
+                                      : currentQuestion.type === 'group' ? 'Контекстный'
+                                      : 'Один ответ'">
+                            </span>
                         </div>
 
                         {{-- Question text --}}
@@ -240,19 +259,19 @@
 
                         {{-- SELECT_ONE / IS_GROUP --}}
                         <template x-if="currentQuestion.type === 'one' || currentQuestion.type === 'group'">
-                            <div class="space-y-2.5">
+                            <div class="space-y-2">
                                 <template x-for="(v, i) in currentQuestion.vars" :key="i">
                                     <button type="button" @click="answerQuestion(i)"
-                                            class="w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all duration-150 cursor-pointer"
+                                            class="w-full flex items-center gap-3 p-3 rounded-2xl border-2 text-left transition-all duration-150 cursor-pointer"
                                             :class="(currentQuestion.user_answers || []).includes(i)
-                                                ? 'border-primary bg-primary/8 text-primary'
-                                                : 'border-border hover:border-primary/40 hover:bg-gray-50 text-text'">
+                                                ? 'border-primary bg-primary/8'
+                                                : 'border-border hover:border-primary/40 hover:bg-gray-50'">
                                         <span class="w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-extrabold shrink-0 transition-all"
                                               :class="(currentQuestion.user_answers || []).includes(i)
                                                   ? 'border-primary bg-primary text-white'
                                                   : 'border-border text-text-muted'"
                                               x-text="String.fromCharCode(65 + i)"></span>
-                                        <span class="flex-1 text-sm font-semibold leading-snug" x-html="v"></span>
+                                        <span class="flex-1 text-sm font-semibold text-gray-900 leading-snug" x-html="v"></span>
                                     </button>
                                 </template>
                             </div>
@@ -260,13 +279,13 @@
 
                         {{-- SELECT_MULTI --}}
                         <template x-if="currentQuestion.type === 'multi'">
-                            <div class="space-y-2.5">
+                            <div class="space-y-2">
                                 <template x-for="(v, i) in currentQuestion.vars" :key="i">
                                     <button type="button" @click="answerQuestion(i)"
-                                            class="w-full flex items-center gap-3 p-4 rounded-2xl border-2 text-left transition-all duration-150 cursor-pointer"
+                                            class="w-full flex items-center gap-3 p-3 rounded-2xl border-2 text-left transition-all duration-150 cursor-pointer"
                                             :class="(currentQuestion.user_answers || []).includes(i)
-                                                ? 'border-primary bg-primary/8 text-primary'
-                                                : 'border-border hover:border-primary/40 hover:bg-gray-50 text-text'">
+                                                ? 'border-primary bg-primary/8'
+                                                : 'border-border hover:border-primary/40 hover:bg-gray-50'">
                                         <span class="w-7 h-7 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all"
                                               :class="(currentQuestion.user_answers || []).includes(i)
                                                   ? 'border-primary bg-primary text-white'
@@ -275,7 +294,7 @@
                                                 <x-icon name="check" class="w-3.5 h-3.5" />
                                             </template>
                                         </span>
-                                        <span class="flex-1 text-sm font-semibold leading-snug" x-html="v"></span>
+                                        <span class="flex-1 text-sm font-semibold text-gray-900 leading-snug" x-html="v"></span>
                                     </button>
                                 </template>
                             </div>
@@ -284,30 +303,73 @@
                         {{-- IS_MATCH --}}
                         <template x-if="currentQuestion.type === 'match'">
                             <div class="space-y-4">
-                                <p class="text-xs font-bold text-text-muted uppercase tracking-widest">Сопоставьте:</p>
-                                <template x-for="pairIdx in [0, 1]" :key="pairIdx">
-                                    <div class="flex items-start gap-3">
-                                        <div class="flex-1 p-3 rounded-xl bg-gray-50 border border-border text-sm font-semibold text-text"
-                                             x-html="currentQuestion.vars[pairIdx] || ''"></div>
-                                        <span class="text-text-muted mt-3 shrink-0">→</span>
-                                        <div class="flex-1 flex flex-col gap-1.5">
-                                            <template x-for="optIdx in [4, 5, 6, 7]" :key="optIdx">
-                                                <template x-if="currentQuestion.vars[optIdx]">
-                                                    <button type="button"
-                                                            @click="answerQuestion({ pair: pairIdx, val: optIdx - 4 })"
-                                                            class="w-full p-2.5 rounded-xl border-2 text-sm text-left font-semibold transition-all cursor-pointer"
-                                                            :class="(currentQuestion.user_answers || [])[pairIdx] === (optIdx - 4)
-                                                                ? 'border-info bg-info-light text-info'
-                                                                : 'border-border hover:border-info/40 text-text'">
-                                                        <span class="font-mono text-xs mr-1.5 opacity-60"
-                                                              x-text="String.fromCharCode(49 + (optIdx - 4))"></span>
-                                                        <span x-html="currentQuestion.vars[optIdx] || ''"></span>
-                                                    </button>
-                                                </template>
-                                            </template>
+
+                                {{-- Options reference card --}}
+                                <div class="rounded-xl bg-gray-50 border border-border p-4">
+                                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-text-muted mb-3">Варианты ответов</p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
+                                        <div class="flex items-start gap-2">
+                                            <span class="w-5 h-5 rounded-md bg-primary/10 text-primary text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5">А</span>
+                                            <span class="text-sm font-semibold text-gray-900 leading-snug" x-html="currentQuestion.vars[4] || ''"></span>
+                                        </div>
+                                        <div class="flex items-start gap-2">
+                                            <span class="w-5 h-5 rounded-md bg-primary/10 text-primary text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5">Б</span>
+                                            <span class="text-sm font-semibold text-gray-900 leading-snug" x-html="currentQuestion.vars[5] || ''"></span>
+                                        </div>
+                                        <div class="flex items-start gap-2">
+                                            <span class="w-5 h-5 rounded-md bg-primary/10 text-primary text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5">В</span>
+                                            <span class="text-sm font-semibold text-gray-900 leading-snug" x-html="currentQuestion.vars[6] || ''"></span>
+                                        </div>
+                                        <div class="flex items-start gap-2">
+                                            <span class="w-5 h-5 rounded-md bg-primary/10 text-primary text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5">Г</span>
+                                            <span class="text-sm font-semibold text-gray-900 leading-snug" x-html="currentQuestion.vars[7] || ''"></span>
                                         </div>
                                     </div>
-                                </template>
+                                </div>
+
+                                {{-- Match rows: left item → select --}}
+                                <div class="space-y-3">
+                                    <template x-for="pairIdx in [0, 1]" :key="pairIdx">
+                                        <div class="rounded-2xl border-2 p-4 transition-all"
+                                             :class="(currentQuestion.user_answers ?? [])[pairIdx] != null
+                                                 ? 'border-primary/40 bg-primary/4'
+                                                 : 'border-border bg-white'">
+
+                                            {{-- Pair number + left question text --}}
+                                            <div class="flex items-start gap-2.5 mb-3">
+                                                <span class="w-6 h-6 rounded-lg bg-gray-100 text-gray-700 text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5"
+                                                      x-text="pairIdx + 1"></span>
+                                                <div class="text-sm font-bold text-gray-900 leading-snug flex-1"
+                                                     x-html="currentQuestion.vars[pairIdx] || ''"></div>
+                                            </div>
+
+                                            {{-- Styled select --}}
+                                            <div class="relative">
+                                                <select class="w-full appearance-none pl-3.5 pr-9 py-2.5 text-sm font-semibold text-gray-900 bg-white border-2 rounded-xl cursor-pointer outline-none transition-colors"
+                                                        :class="(currentQuestion.user_answers ?? [])[pairIdx] != null
+                                                            ? 'border-primary'
+                                                            : 'border-border hover:border-primary/60 focus:border-primary'"
+                                                        x-effect="$el.value = (currentQuestion.user_answers ?? [])[pairIdx] ?? ''"
+                                                        @change="answerQuestion({ pair: pairIdx, val: $event.target.value !== '' ? parseInt($event.target.value) : null })">
+                                                    <option value="">— Выберите ответ —</option>
+                                                    <option value="0">А</option>
+                                                    <option value="1">Б</option>
+                                                    <option value="2">В</option>
+                                                    <option value="3">Г</option>
+                                                </select>
+                                                <div class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-muted">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <p class="text-xs text-center text-text-muted font-semibold">
+                                    Для каждого пункта выберите соответствующий вариант (А, Б, В или Г)
+                                </p>
                             </div>
                         </template>
 
@@ -318,7 +380,7 @@
                                     class="btn btn-outline btn-sm"
                                     :disabled="activeSubject === 0 && activeQuestion === 0">
                                 <x-icon name="arrow-left" class="w-4 h-4" />
-                                Назад
+                                Предыдущий
                             </button>
 
                             <span class="text-xs font-bold text-text-muted">
@@ -332,7 +394,7 @@
                                     class="btn btn-sm text-white"
                                     style="background: var(--color-primary)"
                                     :disabled="activeSubject === subjects.length - 1 && activeQuestion === currentSubject.questions.length - 1">
-                                Далее
+                                Следующий
                                 <x-icon name="arrow-right" class="w-4 h-4" />
                             </button>
                         </div>
@@ -374,7 +436,7 @@
 
             <div class="flex gap-3 mt-2">
                 <button @click="confirmFinish = false" class="flex-1 btn btn-outline btn-sm">Продолжить</button>
-                <button @click="finishing = true; confirmFinish = false; autoFinish()"
+                <button @click="confirmFinish = false; autoFinish()"
                         :disabled="finishing"
                         class="flex-1 btn btn-danger btn-sm">
                     <template x-if="!finishing"><span>Завершить</span></template>

@@ -21,10 +21,18 @@ class TestController extends Controller
     public function __construct(private TestAssemblyService $assembly) {}
 
     /** Show the start/configure screen for a test access. */
-    public function start(TestAccess $access): View|RedirectResponse
+    public function index(TestAccess $access): View|RedirectResponse
     {
         $user = auth()->user();
         $this->authorizeAccess($access, $user);
+
+        // Auto-finish expired incomplete tests so they count as used attempts
+        Test::where('test_access_id', $access->id)
+            ->where('user_id', $user->id)
+            ->whereNull('completed_at')
+            ->where('expires_at', '<', now())
+            ->get()
+            ->each(fn ($expiredTest) => $this->assembly->score($expiredTest));
 
         // Check attempt limit
         if ($access->attempts_limit > 0) {
@@ -47,7 +55,7 @@ class TestController extends Controller
             ->first();
 
         if ($active && ! $active->isExpired()) {
-            return redirect()->route('student.test.show', $active);
+            return redirect()->route('student.test.process', $active);
         }
 
         $access->load('accessSubjects.subject');
@@ -88,7 +96,7 @@ class TestController extends Controller
     }
 
     /** POST: Create the test session and redirect to the test UI. */
-    public function begin(Request $request, TestAccess $access): RedirectResponse
+    public function start(Request $request, TestAccess $access): RedirectResponse
     {
         $user = auth()->user();
         $this->authorizeAccess($access, $user);
@@ -97,22 +105,22 @@ class TestController extends Controller
 
         $test = $this->assembly->build($access, $user, $choices);
 
-        return redirect()->route('student.test.show', $test);
+        return redirect()->route('student.test.process', $test);
     }
 
     /** Show the test UI. */
-    public function show(Test $test): View|RedirectResponse
+    public function process(Test $test): View|RedirectResponse
     {
         $this->authorizeTest($test);
 
         if ($test->isCompleted()) {
-            return redirect()->route('student.test.results', $test);
+            return redirect()->route('student.test.result', $test);
         }
 
         if ($test->isExpired()) {
             $this->assembly->score($test);
 
-            return redirect()->route('student.test.results', $test);
+            return redirect()->route('student.test.result', $test);
         }
 
         $test->load(['subjects.subject', 'subjects.part', 'access']);
@@ -120,38 +128,51 @@ class TestController extends Controller
         // Build question details for the view
         $subjectsData = $this->buildSubjectsData($test);
 
-        return view('student.test.show', compact('test', 'subjectsData'));
+        return view('student.test.process', compact('test', 'subjectsData'));
     }
 
-    /** AJAX: Save answer for a single question. */
-    public function answer(Request $request, Test $test): JsonResponse
+    /** AJAX: Bulk-save all subject answers (called every 60 s and before finish). */
+    public function save(Request $request, Test $test): JsonResponse
     {
         $this->authorizeTest($test);
 
-        if ($test->isCompleted() || $test->isExpired()) {
-            return response()->json(['error' => 'Test is already finished.'], 422);
+        if ($test->isCompleted()) {
+            return response()->json(['ok' => true]);
         }
 
         $request->validate([
-            'test_subject_id' => ['required', 'integer'],
-            'detail_id' => ['required', 'integer'],
-            'user_answers' => ['required', 'array'],
-            'user_answers.*' => ['integer'],
+            'subjects' => ['required', 'array'],
+            'subjects.*.test_subject_id' => ['required', 'integer'],
+            'subjects.*.questions' => ['required', 'array'],
+            'subjects.*.questions.*.detail_id' => ['required', 'integer'],
+            'subjects.*.questions.*.user_answers' => ['required', 'array'],
+            'subjects.*.questions.*.user_answers.*' => ['nullable', 'integer'],
         ]);
 
-        $testSubject = $test->subjects()->findOrFail($request->test_subject_id);
-        $questions = $testSubject->questions;
+        foreach ($request->subjects as $subjectData) {
+            $testSubject = $test->subjects()->find($subjectData['test_subject_id']);
 
-        foreach ($questions as &$q) {
-            if ((int) $q['detail_id'] === (int) $request->detail_id) {
-                $q['user_answers'] = array_values(array_map('intval', $request->user_answers));
-                break;
+            if (! $testSubject) {
+                continue;
             }
+
+            $questions = $testSubject->questions;
+            $incoming = collect($subjectData['questions'])->keyBy('detail_id');
+
+            foreach ($questions as &$q) {
+                $entry = $incoming->get($q['detail_id']);
+
+                if ($entry !== null) {
+                    $q['user_answers'] = array_values(
+                        array_map('intval', array_filter($entry['user_answers'], fn ($a) => $a !== null))
+                    );
+                }
+            }
+
+            unset($q);
+
+            $testSubject->update(['questions' => $questions]);
         }
-
-        unset($q);
-
-        $testSubject->update(['questions' => $questions]);
 
         return response()->json(['ok' => true]);
     }
@@ -162,28 +183,28 @@ class TestController extends Controller
         $this->authorizeTest($test);
 
         if ($test->isCompleted()) {
-            return response()->json(['redirect' => route('student.test.results', $test)]);
+            return response()->json(['redirect' => route('student.test.result', $test)]);
         }
 
         $this->assembly->score($test);
 
-        return response()->json(['redirect' => route('student.test.results', $test)]);
+        return response()->json(['redirect' => route('student.test.result', $test)]);
     }
 
     /** Show test results. */
-    public function results(Test $test): View|RedirectResponse
+    public function result(Test $test): View|RedirectResponse
     {
         $this->authorizeTest($test);
 
         if (! $test->isCompleted()) {
-            return redirect()->route('student.test.show', $test);
+            return redirect()->route('student.test.process', $test);
         }
 
         $test->load(['subjects.subject', 'subjects.part', 'access']);
 
         $subjectsData = $this->buildSubjectsData($test, withCorrect: true);
 
-        return view('student.test.results', compact('test', 'subjectsData'));
+        return view('student.test.result', compact('test', 'subjectsData'));
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -237,6 +258,16 @@ class TestController extends Controller
                     if ($val !== null && $val !== '') {
                         $vars[] = $val;
                     }
+                }
+
+                // Apply the stored shuffle order so each student sees options in a unique order
+                $varOrder = $q['var_order'] ?? null;
+                if ($varOrder !== null && count($varOrder) === count($vars)) {
+                    $shuffledVars = [];
+                    foreach ($varOrder as $originalIdx) {
+                        $shuffledVars[] = $vars[$originalIdx] ?? null;
+                    }
+                    $vars = $shuffledVars;
                 }
 
                 $questions[] = [

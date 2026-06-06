@@ -210,18 +210,60 @@ class TestAssemblyService
     }
 
     /**
-     * Initialise the questions JSON array with empty user_answers.
+     * Initialise the questions JSON with a randomised var_order per question.
+     * This ensures answer options are shuffled differently on every attempt.
      *
      * @param  int[]  $detailIds
-     * @return array<int, array{detail_id: int, user_answers: array, is_right: null}>
+     * @return array<int, array{detail_id: int, user_answers: array, is_right: null, var_order: int[]}>
      */
     private function initQuestions(array $detailIds): array
     {
-        return array_map(fn ($id) => [
-            'detail_id' => $id,
-            'user_answers' => [],
-            'is_right' => null,
-        ], $detailIds);
+        if (empty($detailIds)) {
+            return [];
+        }
+
+        $details = QuestionDetail::whereIn('id', $detailIds)->get()->keyBy('id');
+        $questionModels = Question::whereIn('id', $details->pluck('question_id'))->get()->keyBy('id');
+
+        return array_map(function ($id) use ($details, $questionModels) {
+            $detail = $details->get($id);
+            $qModel = $detail ? $questionModels->get($detail->question_id) : null;
+
+            $varCount = 0;
+            if ($detail) {
+                for ($i = 1; $i <= 10; $i++) {
+                    if ($detail->{"var{$i}"} !== null && $detail->{"var{$i}"} !== '') {
+                        $varCount++;
+                    }
+                }
+            }
+
+            return [
+                'detail_id' => $id,
+                'user_answers' => [],
+                'is_right' => null,
+                'var_order' => $this->generateVarOrder($qModel?->type, $varCount),
+            ];
+        }, $detailIds);
+    }
+
+    /**
+     * Generate a shuffled order for answer option vars.
+     * IS_MATCH keeps its original order; all other types are fully shuffled.
+     *
+     * @return int[]
+     */
+    private function generateVarOrder(?QuestionType $type, int $varCount): array
+    {
+        $order = range(0, max(0, $varCount - 1));
+
+        if ($varCount < 2 || $type === null || $type === QuestionType::IS_MATCH) {
+            return $order;
+        }
+
+        shuffle($order);
+
+        return $order;
     }
 
     // ── Scoring ───────────────────────────────────────────────────────────────
@@ -252,6 +294,16 @@ class TestAssemblyService
                     $correct = $detail->answers;
                     $userAnswers = (array) ($q['user_answers'] ?? []);
                     $type = $questionModel->type;
+                    $varOrder = $q['var_order'] ?? null;
+
+                    // Remap display-order indices back to original var indices before scoring
+                    if ($varOrder !== null && $type !== QuestionType::IS_MATCH && ! empty($userAnswers)) {
+                        $userAnswers = array_values(array_filter(
+                            array_map(fn ($displayIdx) => $varOrder[$displayIdx] ?? null, $userAnswers),
+                            fn ($v) => $v !== null
+                        ));
+                    }
+
                     $pts = $this->calculatePoints($type, $userAnswers, $correct, $questionModel);
                     $subjectScore += $pts;
                     $q['is_right'] = $pts > 0;
