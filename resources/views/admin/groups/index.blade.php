@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('actions')
-    <a href="{{ route('admin.groups.create') }}" class="btn btn-success btn-sm">
+    <a href="{{ route('admin.groups.create') }}" class="btn btn-success">
         <x-icon name="plus" class="w-4 h-4 shrink-0" />
         Добавить группу
     </a>

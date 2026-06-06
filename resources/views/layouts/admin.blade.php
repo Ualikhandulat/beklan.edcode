@@ -52,6 +52,12 @@
                 <x-icon name="academic-cap" class="w-5 h-5 shrink-0" />
                 Предметы
             </a>
+
+            <a href="{{ route('admin.test-accesses.index') }}"
+               class="sidebar-nav-link {{ request()->routeIs('admin.test-accesses*') ? 'active' : '' }}">
+                <x-icon name="shield-check" class="w-5 h-5 shrink-0" />
+                Доступы
+            </a>
         </nav>
 
         <div class="sidebar-footer">

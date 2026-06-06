@@ -9,8 +9,13 @@
 
             <input type="hidden" name="type" value="{{ $part->type?->value ?? request('type', 'topic') }}">
 
-            <x-form.input name="title" label="Название" :value="$part->title" :required="true"
-                placeholder="{{ $part->type?->label() ?? 'Название' }}" />
+            @if ($part->type === \App\Enums\PartType::Nusqa)
+                <x-form.input name="title" label="Нұсқа (номер)" :value="$part->title" :required="true"
+                    type="number" placeholder="1" />
+            @else
+                <x-form.input name="title" label="Название" :value="$part->title" :required="true"
+                    placeholder="{{ $part->type?->label() ?? 'Название' }}" />
+            @endif
 
             <div class="flex items-center justify-between mt-6">
                 <button type="submit" class="btn btn-success">

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\GroupController as AdminGroupController;
 use App\Http\Controllers\Admin\Subject\PartController as AdminPartController;
 use App\Http\Controllers\Admin\Subject\PartQuestionController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
+use App\Http\Controllers\Admin\TestAccessController as AdminTestAccessController;
 use App\Http\Controllers\Admin\UploadController as AdminUploadController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
@@ -31,6 +32,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'
     Route::post('groups/{group}/students', [AdminGroupController::class, 'addStudent'])->name('groups.students.add');
     Route::delete('groups/{group}/students/{user}', [AdminGroupController::class, 'removeStudent'])->name('groups.students.remove');
     Route::resource('users', AdminUserController::class)->except(['show']);
+    Route::resource('test-accesses', AdminTestAccessController::class)->except(['show']);
 
     /* Subjects */
     Route::resource('subjects', AdminSubjectController::class);
