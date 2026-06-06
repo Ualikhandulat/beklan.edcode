@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Enums\QuestionType;
 use App\Http\Controllers\Controller;
 use App\Models\Part;
 use App\Models\Question;
@@ -27,12 +28,15 @@ class TestController extends Controller
         $this->authorizeAccess($access, $user);
 
         // Auto-finish expired incomplete tests so they count as used attempts
-        Test::where('test_access_id', $access->id)
-            ->where('user_id', $user->id)
-            ->whereNull('completed_at')
-            ->where('expires_at', '<', now())
-            ->get()
-            ->each(fn ($expiredTest) => $this->assembly->score($expiredTest));
+        if ($access->duration_minutes) {
+            $expiryThreshold = now()->subMinutes($access->duration_minutes);
+            Test::where('test_access_id', $access->id)
+                ->where('user_id', $user->id)
+                ->whereNull('completed_at')
+                ->where('started_at', '<', $expiryThreshold)
+                ->get()
+                ->each(fn (Test $expiredTest) => $this->assembly->score($expiredTest));
+        }
 
         // Check attempt limit
         if ($access->attempts_limit > 0) {
@@ -54,8 +58,14 @@ class TestController extends Controller
             ->latest()
             ->first();
 
-        if ($active && ! $active->isExpired()) {
-            return redirect()->route('student.test.process', $active);
+        if ($active) {
+            $active->setRelation('access', $access);
+
+            if (! $active->isExpired()) {
+                return redirect()->route('student.test.process', $active);
+            }
+
+            $this->assembly->score($active);
         }
 
         $access->load('accessSubjects.subject');
@@ -117,13 +127,13 @@ class TestController extends Controller
             return redirect()->route('student.test.result', $test);
         }
 
+        $test->load(['subjects.subject', 'subjects.part', 'access']);
+
         if ($test->isExpired()) {
             $this->assembly->score($test);
 
             return redirect()->route('student.test.result', $test);
         }
-
-        $test->load(['subjects.subject', 'subjects.part', 'access']);
 
         // Build question details for the view
         $subjectsData = $this->buildSubjectsData($test);
@@ -191,6 +201,22 @@ class TestController extends Controller
         return response()->json(['redirect' => route('student.test.result', $test)]);
     }
 
+    /** Show detailed review of all questions with correct answers. */
+    public function detail(Test $test): View|RedirectResponse
+    {
+        $this->authorizeTest($test);
+
+        if (! $test->isCompleted()) {
+            return redirect()->route('student.test.result', $test);
+        }
+
+        $test->load(['subjects.subject', 'subjects.part', 'access']);
+
+        $subjectsData = $this->buildSubjectsData($test, withCorrect: true);
+
+        return view('student.test.detail', compact('test', 'subjectsData'));
+    }
+
     /** Show test results. */
     public function result(Test $test): View|RedirectResponse
     {
@@ -202,7 +228,7 @@ class TestController extends Controller
 
         $test->load(['subjects.subject', 'subjects.part', 'access']);
 
-        $subjectsData = $this->buildSubjectsData($test, withCorrect: true);
+        $subjectsData = $this->buildSubjectsData($test);
 
         return view('student.test.result', compact('test', 'subjectsData'));
     }
@@ -270,6 +296,23 @@ class TestController extends Controller
                     $vars = $shuffledVars;
                 }
 
+                // Remap correct answer original-indices to display-indices so they align
+                // with user_answers (which are stored in display order after shuffling).
+                // IS_MATCH is never shuffled so its indices are already consistent.
+                $correct = null;
+                if ($withCorrect) {
+                    $originalCorrect = $detail->answers ?? [];
+                    if ($varOrder !== null && $questionModel->type !== QuestionType::IS_MATCH) {
+                        $reverseOrder = array_flip($varOrder);
+                        $correct = array_values(array_filter(
+                            array_map(fn ($origIdx) => $reverseOrder[$origIdx] ?? null, $originalCorrect),
+                            fn ($v) => $v !== null
+                        ));
+                    } else {
+                        $correct = $originalCorrect;
+                    }
+                }
+
                 $questions[] = [
                     'index' => $idx,
                     'detail_id' => $detail->id,
@@ -279,7 +322,7 @@ class TestController extends Controller
                     'vars' => $vars,
                     'user_answers' => $q['user_answers'],
                     'is_right' => $q['is_right'],
-                    'correct' => $withCorrect ? $detail->answers : null,
+                    'correct' => $correct,
                 ];
             }
 

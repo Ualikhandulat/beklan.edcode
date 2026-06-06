@@ -13,7 +13,6 @@ class Test extends Model
         'user_id',
         'attempt_number',
         'started_at',
-        'expires_at',
         'completed_at',
         'total_score',
         'max_score',
@@ -21,7 +20,6 @@ class Test extends Model
 
     protected $casts = [
         'started_at' => 'datetime',
-        'expires_at' => 'datetime',
         'completed_at' => 'datetime',
     ];
 
@@ -47,16 +45,24 @@ class Test extends Model
 
     public function isExpired(): bool
     {
-        return $this->expires_at !== null && $this->expires_at->isPast();
+        $duration = $this->relationLoaded('access') ? $this->access?->duration_minutes : null;
+
+        if (! $duration || ! $this->started_at) {
+            return false;
+        }
+
+        return $this->started_at->addMinutes($duration)->isPast();
     }
 
     /** Seconds remaining before time runs out (null = no limit). */
     public function secondsRemaining(): ?int
     {
-        if (! $this->expires_at) {
+        $duration = $this->relationLoaded('access') ? $this->access?->duration_minutes : null;
+
+        if (! $duration || ! $this->started_at) {
             return null;
         }
 
-        return max(0, (int) now()->diffInSeconds($this->expires_at, false));
+        return max(0, (int) now()->diffInSeconds($this->started_at->addMinutes($duration), false));
     }
 }

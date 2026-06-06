@@ -63,6 +63,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'
 /* Student */
 Route::prefix('student')->name('student.')->middleware(['auth', 'role:student'])->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/tests/active', [StudentDashboardController::class, 'active'])->name('tests.active');
+    Route::get('/tests/history', [StudentDashboardController::class, 'history'])->name('tests.history');
+    Route::get('/info', [StudentDashboardController::class, 'info'])->name('info');
 
     Route::get('/test/{access}', [StudentTestController::class, 'index'])->name('test.index');
     Route::post('/test/{access}/start', [StudentTestController::class, 'start'])->name('test.start');
@@ -70,4 +73,5 @@ Route::prefix('student')->name('student.')->middleware(['auth', 'role:student'])
     Route::post('/test/{test}/save', [StudentTestController::class, 'save'])->name('test.save');
     Route::post('/test/{test}/finish', [StudentTestController::class, 'finish'])->name('test.finish');
     Route::get('/test/{test}/result', [StudentTestController::class, 'result'])->name('test.result');
+    Route::get('/test/{test}/detail', [StudentTestController::class, 'detail'])->name('test.detail');
 });

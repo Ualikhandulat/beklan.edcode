@@ -30,15 +30,10 @@ class TestAssemblyService
                 ->where('user_id', $user->id)
                 ->count() + 1;
 
-            $expiresAt = $access->duration_minutes
-                ? now()->addMinutes($access->duration_minutes)
-                : null;
-
             $test = Test::create([
                 'test_access_id' => $access->id,
                 'user_id' => $user->id,
                 'attempt_number' => $attemptNumber,
-                'expires_at' => $expiresAt,
             ]);
 
             if ($access->type === TestAccessType::Ent) {

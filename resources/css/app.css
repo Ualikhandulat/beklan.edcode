@@ -87,8 +87,23 @@
 
     /* Buttons — border border-transparent на base чтобы все кнопки одного размера */
     .btn {
-        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-2xl border border-transparent transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 select-none;
+        @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-2xl border border-transparent transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 select-none relative overflow-hidden;
     }
+    .btn::after {
+        content: '';
+        position: absolute;
+        top: -20%;
+        left: -80%;
+        width: 55%;
+        height: 140%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.32), transparent);
+        transform: skewX(-18deg);
+        pointer-events: none;
+    }
+    .btn:not(:disabled):hover::after {
+        animation: btn-shine 0.55s ease forwards;
+    }
+
     .btn-sm {
         @apply px-3 py-1.5 text-xs;
     }
@@ -321,6 +336,11 @@
     .public-nav-inner {
         @apply max-w-6xl mx-auto px-6 h-16 flex items-center justify-between;
     }
+}
+
+@keyframes btn-shine {
+    from { left: -80%; }
+    to   { left: 160%; }
 }
 
 [x-cloak] { display: none !important; }
