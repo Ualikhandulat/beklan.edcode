@@ -199,18 +199,47 @@
     style="min-height: calc(100vh - 3.5rem)"
 >
 
-    {{-- ── Subject tabs — mobile only, horizontal scroll ────────────────── --}}
+    {{-- ── Subject dropdown — mobile only ────────────────────────────────── --}}
     @if (count($subjectsData) > 1)
-    <div class="lg:hidden bg-white border-b border-border overflow-x-auto">
-        <div class="flex gap-2 px-4 py-2.5" style="width: max-content; min-width: 100%">
+    <div class="lg:hidden bg-white border-b border-border" x-data="{ subjectOpen: false }">
+        <button type="button"
+                @click="subjectOpen = !subjectOpen"
+                class="w-full flex items-center justify-between px-4 py-3 cursor-pointer">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+                <span class="text-sm font-bold text-text truncate" x-text="currentSubject?.subject.title"></span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0 ml-3">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary"
+                      x-text="`${currentSubject?.answered ?? 0}/${currentSubject?.questions.length ?? 0}`"></span>
+                <svg class="w-4 h-4 text-text-muted transition-transform duration-200"
+                     :class="subjectOpen ? 'rotate-180' : ''"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+        </button>
+
+        <div x-show="subjectOpen" x-cloak
+             x-transition:enter="transition ease-out duration-150"
+             x-transition:enter-start="opacity-0 -translate-y-1"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-100"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-1"
+             @click.outside="subjectOpen = false"
+             class="border-t border-border">
             <template x-for="(subject, si) in subjects" :key="si">
                 <button type="button"
-                        @click="activeSubject = si; activeQuestion = 0"
-                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold whitespace-nowrap transition-all border cursor-pointer"
-                        :class="si === activeSubject
-                            ? 'border-primary bg-primary text-white shadow-sm'
-                            : 'border-border bg-white text-text-muted hover:border-primary/40'">
-                    <span x-text="subject.subject.title"></span>
+                        @click="activeSubject = si; activeQuestion = 0; subjectOpen = false"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left transition-colors border-b border-border/50 last:border-b-0 cursor-pointer"
+                        :class="si === activeSubject ? 'bg-primary/8 text-primary' : 'text-text hover:bg-gray-50'">
+                    <span class="w-2 h-2 rounded-full shrink-0"
+                          :class="si === activeSubject ? 'bg-primary' : 'bg-border'"></span>
+                    <span x-text="subject.subject.title" class="flex-1 truncate"></span>
+                    <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                          :class="si === activeSubject ? 'bg-primary/15 text-primary' : (subject.answered > 0 ? 'bg-success/15 text-success' : 'bg-gray-100 text-text-muted')"
+                          x-text="`${subject.answered}/${subject.questions.length}`"></span>
                 </button>
             </template>
         </div>
@@ -228,7 +257,7 @@
                             ? 'bg-primary text-white shadow-sm scale-110'
                             : (isAnswered(q)
                                 ? 'bg-success/20 text-success border border-success/30'
-                                : 'bg-gray-100 text-text-muted hover:bg-gray-200')"
+                                : 'bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200')"
                         x-text="qi + 1">
                 </button>
             </template>
@@ -236,7 +265,7 @@
     </div>
 
     {{-- ── Main area ────────────────────────────────────────────────────── --}}
-    <div class="flex-1 max-w-7xl mx-auto w-full px-0 lg:px-6 lg:py-5 flex flex-col lg:flex-row gap-0 lg:gap-4 mt-3 shadow-xl">
+    <div class="flex-1 max-w-7xl mx-auto w-full px-0 lg:px-6 lg:py-5 flex flex-col lg:flex-row gap-0 lg:gap-4 mt-3 md:mt-0">
 
         {{-- ── Desktop sidebar: subjects + pills + finish ──────────────── --}}
         <div class="hidden lg:flex lg:flex-col gap-3 lg:w-72 xl:w-80 shrink-0"
@@ -276,7 +305,7 @@
                                     ? 'bg-primary text-white shadow-sm scale-110'
                                     : (isAnswered(q)
                                         ? 'bg-success/20 text-success border border-success/30 hover:bg-success/30'
-                                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200')"
+                                        : 'bg-gray-100 border border-gray-300 text-gray-900 hover:bg-gray-200')"
                                 x-text="qi + 1">
                         </button>
                     </template>
