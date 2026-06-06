@@ -45,10 +45,17 @@
                         @endif
                     </td>
                     <td onclick="event.stopPropagation()">
-                        <div class="flex items-center gap-1.5">
-                            <x-btn.edit :route="route('admin.subjects.edit', $subject)" />
-                            <x-btn.delete :route="route('admin.subjects.destroy', $subject)" />
-                        </div>
+                        @if ($subject->is_mandatory)
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold text-warning bg-warning/10">
+                                <x-icon name="lock-closed" class="w-3 h-3" />
+                                Обязательный
+                            </span>
+                        @else
+                            <div class="flex items-center gap-1.5">
+                                <x-btn.edit :route="route('admin.subjects.edit', $subject)" />
+                                <x-btn.delete :route="route('admin.subjects.destroy', $subject)" />
+                            </div>
+                        @endif
                     </td>
                 </tr>
             @empty

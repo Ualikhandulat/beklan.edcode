@@ -87,11 +87,17 @@ class EntDataSeeder extends Seeder
             $chunk->each(fn ($u) => $u->update(['group_id' => $groups[$index]->id]));
         });
 
+        $mandatoryTitles = ['История Казахстана', 'Грамотность чтения', 'Математическая грамотность'];
+
         $this->command->info('Seeding ENT subjects, parts, and questions...');
         foreach ($this->entSubjects as $subjectTitle => $config) {
             $subject = Subject::firstOrCreate(
                 ['title' => $subjectTitle],
-                ['is_ent_subject' => true, 'is_active' => true]
+                [
+                    'is_ent_subject' => true,
+                    'is_mandatory' => in_array($subjectTitle, $mandatoryTitles),
+                    'is_active' => true,
+                ]
             );
 
             foreach ($config['topics'] as $topicTitle) {

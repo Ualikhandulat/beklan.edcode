@@ -15,11 +15,13 @@ class Subject extends Model
         'title',
         'image',
         'is_ent_subject',
+        'is_mandatory',
         'is_active',
     ];
 
     protected $casts = [
         'is_ent_subject' => 'boolean',
+        'is_mandatory' => 'boolean',
         'is_active' => 'boolean',
     ];
 

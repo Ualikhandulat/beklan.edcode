@@ -62,8 +62,13 @@ class SubjectController extends Controller
         return view('admin.subjects.show', compact('subject', 'tab', 'topics', 'nusqas', 'navigations'));
     }
 
-    public function edit(Subject $subject): View
+    public function edit(Subject $subject): View|RedirectResponse
     {
+        if ($subject->is_mandatory) {
+            return redirect()->route('admin.subjects.show', $subject)
+                ->with('error', 'Обязательный предмет ЕНТ нельзя редактировать.');
+        }
+
         $navigations = [
             route('admin.subjects.index') => 'Предметы',
             route('admin.subjects.show', $subject) => $subject->title,
@@ -80,6 +85,11 @@ class SubjectController extends Controller
 
     public function update(UpdateSubjectRequest $request, Subject $subject): RedirectResponse
     {
+        if ($subject->is_mandatory) {
+            return redirect()->route('admin.subjects.show', $subject)
+                ->with('error', 'Обязательный предмет ЕНТ нельзя редактировать.');
+        }
+
         $subject->update($request->validated());
 
         return redirect()->route('admin.subjects.show', $subject)
@@ -88,6 +98,11 @@ class SubjectController extends Controller
 
     public function destroy(Subject $subject): RedirectResponse
     {
+        if ($subject->is_mandatory) {
+            return redirect()->back()
+                ->with('error', 'Обязательный предмет ЕНТ нельзя удалить.');
+        }
+
         if ($subject->parts()->exists()) {
             return redirect()->back()
                 ->with('error', 'Нельзя удалить «'.$subject->title.'»: сначала удалите все темы и нұсқалар.');
