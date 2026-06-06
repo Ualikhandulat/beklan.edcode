@@ -44,7 +44,7 @@ class StoreTestAccessRequest extends FormRequest
             ],
 
             'subject' => [Rule::requiredIf(! $isEnt), 'array'],
-            'subject.subject_id' => [Rule::requiredIf(! $isEnt), 'exists:subjects,id'],
+            'subject.subject_id' => [Rule::requiredIf(! $isEnt), 'nullable', 'exists:subjects,id'],
             'subject.part_type' => ['nullable', new Enum(PartType::class)],
             'subject.part_id' => ['nullable', 'exists:parts,id'],
             'subject.student_chooses_part' => ['boolean'],

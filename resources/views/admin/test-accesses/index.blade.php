@@ -10,33 +10,35 @@
 @section('content')
 
 {{-- Filters --}}
-<form method="GET" action="{{ route('admin.test-accesses.index') }}" class="flex flex-wrap items-center gap-3 mb-5">
+<form method="GET" action="{{ route('admin.test-accesses.index') }}" class="flex items-center gap-3 mb-5">
 
-    <div class="relative w-64">
+    <div class="relative w-64 shrink-0">
         <x-icon name="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
         <input type="search" name="search" value="{{ request('search') }}"
                placeholder="Студент или группа..."
                class="pl-10">
     </div>
 
-    <select name="type" class="px-4 py-2.5 border border-border rounded-2xl text-sm bg-white focus:outline-none focus:border-primary transition-colors"
-            onchange="this.form.submit()">
-        <option value="">Все типы</option>
-        @foreach (\App\Enums\TestAccessType::cases() as $t)
-            <option value="{{ $t->value }}" @selected(request('type') === $t->value)>{{ $t->label() }}</option>
-        @endforeach
-    </select>
+    <div class="w-40 shrink-0">
+        <select name="type" onchange="this.form.submit()">
+            <option value="">Все типы</option>
+            @foreach (\App\Enums\TestAccessType::cases() as $t)
+                <option value="{{ $t->value }}" @selected(request('type') === $t->value)>{{ $t->label() }}</option>
+            @endforeach
+        </select>
+    </div>
 
-    <select name="target" class="px-4 py-2.5 border border-border rounded-2xl text-sm bg-white focus:outline-none focus:border-primary transition-colors"
-            onchange="this.form.submit()">
-        <option value="">Студент и группы</option>
-        <option value="user"  @selected(request('target') === 'user')>Только студенты</option>
-        <option value="group" @selected(request('target') === 'group')>Только группы</option>
-    </select>
+    <div class="w-48 shrink-0">
+        <select name="target" onchange="this.form.submit()">
+            <option value="">Студент и группы</option>
+            <option value="user"  @selected(request('target') === 'user')>Только студенты</option>
+            <option value="group" @selected(request('target') === 'group')>Только группы</option>
+        </select>
+    </div>
 
     @if (request()->hasAny(['search', 'type', 'target']))
         <a href="{{ route('admin.test-accesses.index') }}"
-           class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light">
+           class="btn btn-ghost btn-sm shrink-0 text-text-muted hover:text-danger hover:bg-danger-light">
             <x-icon name="x" class="w-4 h-4" />
         </a>
     @endif

@@ -95,6 +95,7 @@
                            x-ref="searchInput"
                            x-model="search"
                            @click.stop
+                           @keydown.enter.prevent="const e = Object.entries(filteredOptions); if (e.length > 0) { const [val, opt] = e[0]; select(val, opt.label) }"
                            placeholder="Поиск..."
                            class="w-full pl-8 pr-3 py-1.5 text-xs border border-border rounded-xl focus:outline-none focus:border-primary bg-white">
                 </div>
@@ -105,7 +106,7 @@
                 <template x-for="(opt, val) in filteredOptions" :key="val">
                     <button type="button"
                             @click="select(val, opt.label)"
-                            class="w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between gap-3"
+                            class="w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between gap-3 cursor-pointer"
                             :class="value === val ? 'bg-primary-light text-primary font-bold' : 'text-text hover:bg-gray-50'">
                         <div class="min-w-0">
                             <span x-text="opt.label" class="block truncate"></span>
