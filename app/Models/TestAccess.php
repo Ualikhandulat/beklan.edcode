@@ -25,10 +25,7 @@ class TestAccess extends Model
     protected $casts = [
         'type' => TestAccessType::class,
         'student_chooses_subject' => 'boolean',
-        'nusqa_number' => 'integer',
         'student_chooses_nusqa' => 'boolean',
-        'question_count' => 'integer',
-        'attempts_limit' => 'integer',
         'expires_at' => 'datetime',
     ];
 
