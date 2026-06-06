@@ -8,54 +8,80 @@
 @endsection
 
 @section('content')
-<div class="flex gap-4" style="height: calc(100vh - 10rem)"
+
+<div class="flex gap-4"
+     style="height: calc(100vh - 10rem)"
      x-data="{
-         showModal: false,
+         showSearch:   false,
+         showConfirm:  false,
          studentSearch: '',
-         addSearch: '',
+         addSearch:    '',
+         selectedUser: null,
          available: {{ Js::from($available->map(fn($u) => ['id' => $u->id, 'name' => $u->name])) }},
+
          avatarColor(name) {
-             const palette = ['#E53E3E','#DD6B20','#D69E2E','#38A169','#3182CE','#805AD5','#D53F8C','#319795','#2F855A','#2B6CB0','#6B46C1','#C05621'];
-             let sum = 0;
-             for (const c of String(name)) { sum += c.codePointAt(0); }
-             return palette[sum % palette.length];
+             const p = ['#E53E3E','#DD6B20','#D69E2E','#38A169','#3182CE','#805AD5','#D53F8C','#319795','#2F855A','#2B6CB0','#6B46C1','#C05621'];
+             let s = 0; for (const c of String(name)) s += c.codePointAt(0);
+             return p[s % p.length];
          },
          avatarInitials(name) {
-             const words = String(name).trim().split(/\s+/);
-             if (words.length >= 2) return ([...words[0]][0] + [...words[1]][0]).toUpperCase();
-             return [...String(name).trim()].slice(0, 2).join('').toUpperCase();
+             const w = String(name).trim().split(/\s+/);
+             return w.length >= 2
+                 ? ([...w[0]][0] + [...w[1]][0]).toUpperCase()
+                 : [...String(name).trim()].slice(0, 2).join('').toUpperCase();
          },
+
+         openSearch() {
+             this.addSearch    = '';
+             this.selectedUser = null;
+             this.showSearch   = true;
+         },
+         pickUser(u) {
+             this.selectedUser = u;
+             this.showSearch   = false;
+             this.showConfirm  = true;
+         },
+         backToSearch() {
+             this.showConfirm = false;
+             this.showSearch  = true;
+         },
+         confirmAdd() {
+             this.$refs.addForm.submit();
+         },
+
          get filteredAvailable() {
-             if (!this.addSearch.trim()) return this.available;
-             const q = this.addSearch.toLowerCase();
-             return this.available.filter(u => u.name.toLowerCase().includes(q));
+             const q = this.addSearch.toLowerCase().trim();
+             return q ? this.available.filter(u => u.name.toLowerCase().includes(q)) : this.available;
          }
      }">
 
-    {{-- Left: All Groups (1/3) --}}
-    <div class="w-1/3 bg-white rounded-2xl border border-border flex flex-col overflow-hidden" style="box-shadow: var(--shadow-card)">
+    {{-- ── Left: All Groups (1/3) ─────────────────────────────────────── --}}
+    <div class="w-1/3 bg-white rounded-2xl border border-border flex flex-col overflow-hidden"
+         style="box-shadow: var(--shadow-card)">
+
         <div class="px-4 py-3.5 border-b border-border shrink-0 flex items-center justify-between">
             <span class="text-xs font-extrabold text-text-muted uppercase tracking-widest">Все группы</span>
             <span class="text-xs font-bold text-text-muted">{{ $groups->count() }}</span>
         </div>
+
         <div class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-border">
             @foreach ($groups as $g)
                 <a href="{{ route('admin.groups.show', $g) }}"
                    class="flex items-center gap-3 px-4 py-3 transition-colors {{ $g->id === $group->id ? 'bg-primary-light' : 'hover:bg-gray-50' }}">
-                    {{-- Colored group icon --}}
+
                     <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
                          style="background-color: {{ \App\Helpers\AvatarHelper::color($g->title) }}">
                         <x-icon name="user-group" class="w-4 h-4 text-white" />
                     </div>
-                    {{-- Title + description --}}
+
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-bold truncate {{ $g->id === $group->id ? 'text-primary' : 'text-text' }}">
                             {{ $g->title }}
                         </p>
                         <p class="text-xs text-text-muted truncate">{{ $g->description }}</p>
                     </div>
-                    {{-- Count badge --}}
-                    <span class="text-base font-bold text-text-muted border border-border rounded-full w-8 h-8 flex items-center justify-center shrink-0 {{ $g->id === $group->id ? 'border-primary/30 text-primary' : '' }}">
+
+                    <span class="text-base font-bold border border-border rounded-full w-8 h-8 flex items-center justify-center shrink-0 {{ $g->id === $group->id ? 'border-primary/30 text-primary' : 'text-text-muted' }}">
                         {{ $g->users_count }}
                     </span>
                 </a>
@@ -63,7 +89,7 @@
         </div>
     </div>
 
-    {{-- Right: Students in group (2/3) --}}
+    {{-- ── Right: Students (2/3) ──────────────────────────────────────── --}}
     <div class="flex-1 min-w-0 bg-white rounded-2xl border border-border flex flex-col overflow-hidden"
          style="box-shadow: var(--shadow-card)">
 
@@ -80,7 +106,7 @@
                 @endif
             </div>
             <span class="badge badge-info shrink-0">{{ $students->count() }} студ.</span>
-            <button @click="showModal = true; $nextTick(() => $refs.addInput.focus())"
+            <button @click="openSearch()"
                     class="btn btn-success btn-sm shrink-0">
                 <x-icon name="plus" class="w-4 h-4" />
                 Добавить
@@ -91,11 +117,14 @@
         <div class="px-5 py-2.5 border-b border-border shrink-0">
             <div class="relative">
                 <x-icon name="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
-                <input type="search" x-model="studentSearch" placeholder="Поиск по студентам..." class="pl-9 py-2 text-sm">
+                <input type="search"
+                       x-model="studentSearch"
+                       placeholder="Поиск по студентам..."
+                       class="pl-9 py-2 text-sm">
             </div>
         </div>
 
-        {{-- Students List --}}
+        {{-- Students list --}}
         <div class="flex-1 overflow-y-auto custom-scrollbar divide-y divide-border">
             @forelse ($students as $student)
                 <div class="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors"
@@ -125,75 +154,87 @@
                 </div>
             @endforelse
         </div>
-
     </div>
 
-    {{-- Modal: Add Student --}}
-    <div x-show="showModal" x-cloak
-         class="fixed inset-0 z-50 flex items-center justify-center p-4"
-         style="background: rgba(0,0,0,0.45)"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         @click.self="showModal = false; addSearch = ''">
+    {{-- Hidden form — inside x-data scope so $refs works --}}
+    <form x-ref="addForm"
+          method="POST"
+          action="{{ route('admin.groups.students.add', $group) }}"
+          class="hidden">
+        @csrf
+        <input type="hidden" name="user_id" :value="selectedUser?.id">
+    </form>
 
-        <div class="bg-white rounded-2xl w-full max-w-md flex flex-col overflow-hidden"
-             style="max-height: 80vh; box-shadow: var(--shadow-dropdown)"
-             x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 scale-95"
-             x-transition:enter-end="opacity-100 scale-100"
-             x-transition:leave="transition ease-in duration-150"
-             x-transition:leave-start="opacity-100 scale-100"
-             x-transition:leave-end="opacity-0 scale-95"
-             @click.stop>
+    {{-- ── Modal 1: Search student ─────────────────────────────────────── --}}
+    <x-modal title="Добавить студента" show="showSearch">
 
-            {{-- Modal header --}}
-            <div class="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
-                <p class="font-extrabold text-text">Добавить студента в группу</p>
-                <button @click="showModal = false; addSearch = ''"
-                        class="btn btn-ghost btn-sm text-text-muted hover:text-danger hover:bg-danger-light">
-                    <x-icon name="x" class="w-4 h-4" />
-                </button>
-            </div>
-
-            {{-- Modal search --}}
-            <div class="px-4 py-3 border-b border-border shrink-0">
-                <div class="relative">
-                    <x-icon name="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
-                    <input type="search"
-                           x-model="addSearch"
-                           x-ref="addInput"
-                           placeholder="Поиск по имени..."
-                           class="pl-9 py-2 text-sm">
-                </div>
-            </div>
-
-            {{-- Modal student list --}}
-            <div class="flex-1 overflow-y-auto custom-scrollbar p-2">
-                <template x-if="filteredAvailable.length === 0">
-                    <p class="text-sm text-text-muted text-center py-10">Нет доступных студентов</p>
-                </template>
-                <template x-for="u in filteredAvailable" :key="u.id">
-                    <form method="POST" action="{{ route('admin.groups.students.add', $group) }}">
-                        @csrf
-                        <input type="hidden" name="user_id" :value="u.id">
-                        <button type="submit"
-                                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left">
-                            <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-extrabold text-white text-[11px]"
-                                 :style="{ backgroundColor: avatarColor(u.name) }">
-                                <span x-text="avatarInitials(u.name)"></span>
-                            </div>
-                            <span class="flex-1 text-sm font-semibold text-text" x-text="u.name"></span>
-                            <x-icon name="plus" class="w-4 h-4 text-success shrink-0" />
-                        </button>
-                    </form>
-                </template>
+        <div class="px-4 py-3 border-b border-border">
+            <div class="relative">
+                <x-icon name="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
+                <input type="search"
+                       x-model="addSearch"
+                       x-init="$watch('showSearch', v => { if (v) $nextTick(() => $el.focus()) })"
+                       placeholder="Поиск по имени..."
+                       class="pl-9 py-2 text-sm">
             </div>
         </div>
-    </div>
+
+        <div class="p-2">
+            <template x-if="filteredAvailable.length === 0">
+                <p class="text-sm text-text-muted text-center py-10">Нет доступных студентов</p>
+            </template>
+            <template x-for="u in filteredAvailable" :key="u.id">
+                <button type="button"
+                        @click="pickUser(u)"
+                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors text-left">
+                    <div class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 font-extrabold text-white text-[11px]"
+                         :style="{ backgroundColor: avatarColor(u.name) }">
+                        <span x-text="avatarInitials(u.name)"></span>
+                    </div>
+                    <span class="flex-1 text-sm font-semibold text-text" x-text="u.name"></span>
+                    <x-icon name="plus" class="w-4 h-4 text-text-muted shrink-0" />
+                </button>
+            </template>
+        </div>
+
+    </x-modal>
+
+    {{-- ── Modal 2: Confirm add ────────────────────────────────────────── --}}
+    <x-modal title="Подтвердить добавление" show="showConfirm" size="sm">
+
+        <div class="px-5 py-6 flex flex-col items-center text-center gap-4">
+            <template x-if="selectedUser">
+                <div class="flex flex-col items-center gap-3">
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center font-extrabold text-white text-xl"
+                         :style="{ backgroundColor: avatarColor(selectedUser.name) }">
+                        <span x-text="avatarInitials(selectedUser.name)"></span>
+                    </div>
+                    <div>
+                        <p class="font-extrabold text-text text-lg" x-text="selectedUser.name"></p>
+                        <p class="text-sm text-text-muted mt-0.5">
+                            будет добавлен(а) в группу
+                            <span class="font-bold text-text">{{ $group->title }}</span>
+                        </p>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <x-slot:footer>
+            <button type="button"
+                    @click="backToSearch()"
+                    class="btn btn-outline btn-sm">
+                Назад
+            </button>
+            <button type="button"
+                    @click="confirmAdd()"
+                    class="btn btn-success btn-sm">
+                <x-icon name="check" class="w-4 h-4" />
+                Добавить
+            </button>
+        </x-slot:footer>
+
+    </x-modal>
 
 </div>
 @endsection
