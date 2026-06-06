@@ -1,102 +1,86 @@
 @use(App\Enums\QuestionType)
 
-@php $letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']; @endphp
+<tr class="cursor-pointer" onclick="window.location='{{ $editRoute }}'">
 
-<div class="q-card group cursor-pointer" onclick="window.location='{{ $editRoute }}'">
-    <div class="q-card-accent" style="background-color: {{ $question->type->color() }}"></div>
-    <div class="q-card-body">
+    <td class="text-text-muted text-xs w-10">
+        {{ str_pad($index, 2, '0', STR_PAD_LEFT) }}
+    </td>
 
-        {{-- Header --}}
-        <div class="flex items-start justify-between gap-3 mb-3">
-            <div class="flex items-center gap-3">
-                <span class="q-num">#{{ str_pad($index, 2, '0', STR_PAD_LEFT) }}</span>
-                <span class="badge" style="background-color:color-mix(in srgb,{{ $question->type->color() }} 12%,white);color:{{ $question->type->color() }}">
-                    <x-icon :name="'question-' . $question->type->value" class="w-3 h-3 inline-block mr-0.5" />{{ $question->type->title() }}
-                </span>
-            </div>
-            <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                <x-btn.edit :route="$editRoute" />
-                <span onclick="event.stopPropagation()">
-                    <x-btn.delete :route="$destroyRoute" />
-                </span>
-            </div>
-        </div>
+    <td class="w-36">
+        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold"
+              style="background-color:color-mix(in srgb,{{ $question->type->color() }} 13%,white);color:{{ $question->type->color() }}">
+            <x-icon :name="'question-' . $question->type->value" class="w-3 h-3 shrink-0" />
+            {{ $question->type->title() }}
+        </span>
+    </td>
 
+    <td class="max-w-xs">
         @if ($question->type === QuestionType::IS_GROUP)
-            {{-- Context block --}}
-            @if ($question->text)
-                <p class="q-preview mb-3 line-clamp-2 text-text-muted text-xs">
-                    {{ Str::limit(strip_tags($question->text), 180) }}
-                </p>
-            @endif
-
-            @forelse ($question->details as $j => $detail)
-                <div class="mt-3 pl-4 border-l-2 border-primary/25 first:mt-0 group/detail">
-                    <div class="flex items-start justify-between gap-2 mb-1">
-                        <p class="text-[10px] font-extrabold text-text-muted uppercase tracking-wider">
-                            {{ $index }}.{{ $j + 1 }}
-                        </p>
-                        <div class="flex items-center gap-1 opacity-0 group-hover/detail:opacity-100 transition-opacity shrink-0">
-                            <x-btn.edit :route="route('admin.subjects.parts.questions.details.edit', [$subject, $part, $question, $detail])"
-                                        class="!px-1.5 !py-1" />
-                            <span onclick="event.stopPropagation()">
-                                <x-btn.delete :route="route('admin.subjects.parts.questions.details.destroy', [$subject, $part, $question, $detail])"
-                                              class="!px-1.5 !py-1" />
-                            </span>
-                        </div>
-                    </div>
-                    <p class="q-preview mb-2">
-                        {{ Str::limit(strip_tags($detail->question ?? ''), 120) }}
-                    </p>
-                    <div class="flex flex-wrap gap-1.5">
-                        @foreach (range(1, 5) as $v)
-                            @php $var = $detail->{"var{$v}"}; @endphp
-                            @if ($var)
-                                <span class="q-chip {{ in_array($v, $detail->answers ?? []) ? 'q-chip-correct' : 'q-chip-wrong' }}">
-                                    {{ in_array($v, $detail->answers ?? []) ? '✓ ' : '' }}{{ $letters[$v - 1] }}. {{ Str::limit(strip_tags($var), 50) }}
-                                </span>
-                            @endif
-                        @endforeach
-                    </div>
-                </div>
-            @empty
-                <p class="text-xs text-text-muted italic">Подвопросы не добавлены</p>
-            @endforelse
-
+            <span class="text-sm text-text-muted">
+                {{ Str::limit(strip_tags($question->text ?? '—'), 100) }}
+            </span>
         @else
-            {{-- Regular question --}}
-            <p class="q-preview mb-3">
-                {{ Str::limit(strip_tags($question->detail?->question ?? '—'), 200) }}
-            </p>
-
-            @if ($question->detail)
-                @if ($question->type === QuestionType::IS_MATCH)
-                    {{-- Match: show pairs --}}
-                    <div class="flex flex-wrap gap-1.5">
-                        @foreach ([[1,5],[2,6]] as [$l,$r])
-                            @php $lv = $question->detail->{"var{$l}"}; $rv = $question->detail->{"var{$r}"}; @endphp
-                            @if ($lv && $rv)
-                                <span class="q-chip bg-success-light text-success">
-                                    {{ Str::limit(strip_tags($lv), 30) }} → {{ Str::limit(strip_tags($rv), 30) }}
-                                </span>
-                            @endif
-                        @endforeach
-                    </div>
-                @else
-                    {{-- One / Multi: letter chips --}}
-                    <div class="flex flex-wrap gap-1.5">
-                        @foreach (range(1, 8) as $v)
-                            @php $var = $question->detail->{"var{$v}"}; @endphp
-                            @if ($var)
-                                <span class="q-chip {{ in_array($v, $question->detail->answers ?? []) ? 'q-chip-correct' : 'q-chip-wrong' }}">
-                                    @if (in_array($v, $question->detail->answers ?? []))✓ @endif{{ $letters[$v - 1] }}. {{ Str::limit(strip_tags($var), 45) }}
-                                </span>
-                            @endif
-                        @endforeach
-                    </div>
-                @endif
-            @endif
+            <span class="text-sm text-text">
+                {{ Str::limit(strip_tags($question->detail?->question ?? '—'), 120) }}
+            </span>
         @endif
+    </td>
 
-    </div>
-</div>
+    <td class="w-20 text-xs text-text-muted text-center">
+        @if ($question->type !== QuestionType::IS_GROUP)
+            {{ $question->count_variants }}&thinsp;/&thinsp;{{ $question->count_answers }}
+        @else
+            —
+        @endif
+    </td>
+
+    <td class="w-20" onclick="event.stopPropagation()">
+        <div class="flex items-center gap-1">
+            <x-btn.edit :route="$editRoute" />
+            <x-btn.delete :route="$destroyRoute" />
+        </div>
+    </td>
+
+</tr>
+
+{{-- Sub-questions for IS_GROUP --}}
+@if ($question->type === QuestionType::IS_GROUP)
+    @foreach ($question->details as $j => $detail)
+        @php
+            $detailEditRoute    = route('admin.subjects.parts.questions.details.edit',    [$subject, $part, $question, $detail]);
+            $detailDestroyRoute = route('admin.subjects.parts.questions.details.destroy', [$subject, $part, $question, $detail]);
+            $varCount = collect(range(1, 5))->filter(fn($v) => !empty($detail->{"var{$v}"}))->count();
+            $ansCount = count($detail->answers ?? []);
+        @endphp
+        <tr class="cursor-pointer bg-gray-50" onclick="window.location='{{ $detailEditRoute }}'">
+
+            <td class="text-text-muted text-xs">
+                <span class="pl-3 border-l-2 border-primary/40 block">
+                    {{ str_pad($index, 2, '0', STR_PAD_LEFT) }}.{{ $j + 1 }}
+                </span>
+            </td>
+
+            <td>
+                <span class="text-[11px] font-semibold text-text-muted">подвопрос</span>
+            </td>
+
+            <td class="max-w-xs">
+                <span class="text-sm text-text">
+                    {{ Str::limit(strip_tags($detail->question ?? '—'), 120) }}
+                </span>
+            </td>
+
+            <td class="text-xs text-text-muted text-center">
+                {{ $varCount }}&thinsp;/&thinsp;{{ $ansCount }}
+            </td>
+
+            <td onclick="event.stopPropagation()">
+                <div class="flex items-center gap-1">
+                    <x-btn.edit :route="$detailEditRoute" />
+                    <x-btn.delete :route="$detailDestroyRoute" />
+                </div>
+            </td>
+
+        </tr>
+    @endforeach
+@endif

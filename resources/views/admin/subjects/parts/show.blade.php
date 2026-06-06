@@ -49,17 +49,30 @@
             </a>
         </div>
     @else
-        <div class="space-y-3">
-            @foreach ($questions as $i => $question)
-                @include('admin.subjects.questions._question_row', [
-                    'subject'      => $subject,
-                    'part'         => $part,
-                    'question'     => $question,
-                    'index'        => $i + 1,
-                    'editRoute'    => route('admin.subjects.parts.questions.edit', [$subject, $part, $question]),
-                    'destroyRoute' => route('admin.subjects.parts.questions.destroy', [$subject, $part, $question]),
-                ])
-            @endforeach
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="w-10">#</th>
+                        <th class="w-36">Тип</th>
+                        <th>Вопрос</th>
+                        <th class="w-20 text-center">Вар / Отв</th>
+                        <th class="w-20"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($questions as $i => $question)
+                        @include('admin.subjects.questions._question_row', [
+                            'subject'      => $subject,
+                            'part'         => $part,
+                            'question'     => $question,
+                            'index'        => $i + 1,
+                            'editRoute'    => route('admin.subjects.parts.questions.edit', [$subject, $part, $question]),
+                            'destroyRoute' => route('admin.subjects.parts.questions.destroy', [$subject, $part, $question]),
+                        ])
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     @endif
 
