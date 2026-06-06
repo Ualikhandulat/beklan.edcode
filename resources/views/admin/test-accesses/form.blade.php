@@ -78,6 +78,13 @@
              return this.data[this.single.subjectId]?.topics ?? [];
          },
 
+         get electiveSubjects() {
+             const mandatoryIds = new Set(this.mandatory.map(s => String(s.id)));
+             return Object.fromEntries(
+                 Object.entries(this.data).filter(([id]) => !mandatoryIds.has(id))
+             );
+         },
+
          onAccessTypeChange() {
              this.scs = false;
              this.electives = [{subjectId:null},{subjectId:null}];
@@ -179,7 +186,7 @@
                                     x-model.number="e.subjectId"
                                     class="w-full px-4 py-2.5 border border-border rounded-2xl text-sm bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
                                 <option value="">— Не выбран —</option>
-                                <template x-for="(s, id) in data" :key="id">
+                                <template x-for="(s, id) in electiveSubjects" :key="id">
                                     <option :value="id" :selected="e.subjectId == id" x-text="s.title"></option>
                                 </template>
                             </select>
@@ -360,15 +367,19 @@
         {{-- ── 5. Ограничения ──────────────────────────────────────────────── --}}
         <div x-show="accessType !== ''" x-cloak class="card mb-6">
             <p class="q-section-label mb-3">Ограничения</p>
-            <div class="grid grid-cols-3 gap-5">
-                <x-form.input name="question_count" label="Вопросов"
-                    type="number" placeholder="0 — все" :value="$oldQCount" />
+            <div class="grid gap-5"
+                 :class="accessType === 'subject' ? 'grid-cols-3' : 'grid-cols-2'">
+                <div x-show="accessType === 'subject'" x-cloak>
+                    <x-form.input name="question_count" label="Вопросов"
+                        type="number" placeholder="0 — все" :value="$oldQCount" />
+                </div>
+                <input x-show="accessType !== 'subject'" type="hidden" name="question_count" value="0">
                 <x-form.input name="attempts_limit" label="Попыток"
                     type="number" placeholder="1" :value="$oldTries" />
                 <x-form.input name="expires_at" label="Срок доступа"
                     type="datetime-local" :value="$oldExpiry" />
             </div>
-            <p class="text-xs text-text-muted mt-1">Вопросов: 0 = все. Попыток: 0 = без ограничений.</p>
+            <p class="text-xs text-text-muted mt-1">Попыток: 0 = без ограничений.</p>
         </div>
 
         <div class="flex items-center justify-between">

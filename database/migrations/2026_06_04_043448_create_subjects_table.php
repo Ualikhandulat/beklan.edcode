@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->boolean('image')->nullable()->default(null);
-            $table->boolean('is_ent_subject');
-            $table->boolean('is_active');
+            $table->boolean('is_ent_subject')->default(false);
+            $table->boolean('is_mandatory')->default(false);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('test_access_id')->constrained('test_accesses')->cascadeOnDelete();
             $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
-            $table->enum('part_type', ['topic', 'nusqa'])->nullable();
+            $table->string('part_type')->nullable(); // PartType enum: 'topic' | 'nusqa'
             $table->foreignId('part_id')->nullable()->constrained('parts')->cascadeOnDelete();
             $table->boolean('student_chooses_part')->default(false);
             $table->timestamps();
