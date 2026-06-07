@@ -151,11 +151,12 @@
                     })),
                 };
                 try {
-                    await fetch('{{ route('student.test.save', $test) }}', {
+                    const r = await fetch('{{ route('student.test.save', $test) }}', {
                         method: 'POST',
                         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload),
                     });
+                    if (!r.ok) { throw new Error('save failed'); }
                     this.clearLocal(); // Saved to server — localStorage no longer needed
                 } catch {
                     this.pendingSave = true;
@@ -408,16 +409,22 @@
                 <template x-if="currentQuestion">
                     <div class="p-5 sm:p-7">
 
+                        {{-- Context passage (IS_GROUP) --}}
+                        <template x-if="currentQuestion.context">
+                            <div class="mb-5 p-4 rounded-2xl bg-gray-50 border border-border text-sm text-text leading-relaxed"
+                                 x-html="currentQuestion.context"></div>
+                        </template>
+
                         {{-- Question text --}}
                         <div class="text-base font-semibold text-text leading-relaxed mb-3"
                              x-html="currentQuestion.text || ''"></div>
 
                         {{-- Question type label --}}
-                        <p class="text-xs font-semibold text-text-muted mb-5"
+                        <p x-show="currentQuestion.type !== 'group'"
+                           class="text-xs font-semibold text-text-muted mb-5"
                            x-text="currentQuestion.type === 'multi'
                                ? 'Выберите ' + currentQuestion.count_answers + ' варианта'
                                : currentQuestion.type === 'match' ? 'Соответствие'
-                               : currentQuestion.type === 'group' ? 'Контекстный вопрос'
                                : 'Один верный ответ'">
                         </p>
 

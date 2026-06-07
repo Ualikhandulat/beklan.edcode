@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Enums\QuestionType;
 use App\Enums\TestAccessType;
 use App\Http\Controllers\Controller;
 use App\Models\Part;
@@ -169,7 +170,7 @@ class TestController extends Controller
             'subjects.*.test_subject_id' => ['required', 'integer'],
             'subjects.*.questions' => ['required', 'array'],
             'subjects.*.questions.*.detail_id' => ['required', 'integer'],
-            'subjects.*.questions.*.user_answers' => ['required', 'array'],
+            'subjects.*.questions.*.user_answers' => ['present', 'array'],
             'subjects.*.questions.*.user_answers.*' => ['nullable', 'integer'],
         ]);
 
@@ -376,6 +377,7 @@ class TestController extends Controller
                 $questions[] = [
                     'index' => $idx,
                     'detail_id' => $detail->id,
+                    'context' => $questionModel->type === QuestionType::IS_GROUP ? $questionModel->text : null,
                     'text' => $detail->question ?? $questionModel->text,
                     'type' => $questionModel->type,
                     'count_answers' => $questionModel->count_answers,

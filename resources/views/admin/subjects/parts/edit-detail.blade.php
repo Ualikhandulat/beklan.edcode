@@ -10,7 +10,7 @@
         <div class="flex flex-wrap gap-2">
             <span class="q-type-tab q-type-tab-active" style="--tab-color: {{ QuestionType::IS_GROUP->color() }}">
                 <x-icon :name="'question-' . QuestionType::IS_GROUP->value" class="q-type-tab-icon" />
-                Подвопрос контекста
+Вопрос к контексту
             </span>
         </div>
     </div>
@@ -21,7 +21,7 @@
             @csrf
             @method('PUT')
 
-            <p class="q-section-label">Текст подвопроса</p>
+            <p class="q-section-label">Текст вопроса</p>
             <div class="form-group">
                 <input type="hidden" name="question" data-wysiwyg-target="question"
                        value="{{ old('question', $detail->question ?? '') }}">

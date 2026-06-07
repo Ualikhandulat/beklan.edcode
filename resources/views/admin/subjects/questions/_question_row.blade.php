@@ -43,7 +43,7 @@
 
 </tr>
 
-{{-- Sub-questions for IS_GROUP --}}
+{{-- Questions for IS_GROUP context --}}
 @if ($question->type === QuestionType::IS_GROUP)
     @foreach ($question->details as $j => $detail)
         @php
@@ -61,7 +61,7 @@
             </td>
 
             <td>
-                <span class="text-[11px] font-semibold text-text-muted">подвопрос</span>
+                <span class="text-[11px] font-semibold text-text-muted">вопрос</span>
             </td>
 
             <td class="max-w-xs">

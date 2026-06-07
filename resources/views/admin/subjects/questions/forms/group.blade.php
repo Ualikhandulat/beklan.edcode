@@ -45,7 +45,7 @@
     @unless ($isEdit)
         <div class="border-t border-border my-6"></div>
 
-        <p class="q-section-label">Подвопрос</p>
+        <p class="q-section-label">Вопрос</p>
         <div class="form-group">
             <input type="hidden" name="question" data-wysiwyg-target="question" value="{{ old('question') }}">
             <div data-wysiwyg="question" data-placeholder="Вопрос к тексту..."></div>
@@ -84,7 +84,7 @@
     @endunless
 
     <div class="flex items-center justify-between mt-8 pt-6 border-t border-border">
-        <button type="submit" class="btn btn-success">{{ $isEdit ? 'Сохранить изменения' : 'Сохранить подвопрос' }}</button>
+        <button type="submit" class="btn btn-success">{{ $isEdit ? 'Сохранить изменения' : 'Сохранить вопрос' }}</button>
         <a href="{{ $showUrl }}" class="btn btn-outline">Отмена</a>
     </div>
 </form>

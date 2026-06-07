@@ -131,7 +131,7 @@ class PartQuestionController extends Controller
             ]);
         });
 
-        return redirect($this->back($subject, $part))->with('success', 'Подвопрос добавлен.');
+        return redirect($this->back($subject, $part))->with('success', 'Вопрос добавлен.');
     }
 
     public function edit(Subject $subject, Part $part, Question $question): View
@@ -253,7 +253,7 @@ class PartQuestionController extends Controller
             route('admin.subjects.index') => 'Предметы',
             route('admin.subjects.show', $subject) => $subject->title,
             route('admin.subjects.parts.show', [$subject, $part]) => $part->title,
-            '#' => 'Изменить подвопрос',
+            '#' => 'Изменить вопрос',
         ];
 
         return view('admin.subjects.parts.edit-detail', [
@@ -288,13 +288,13 @@ class PartQuestionController extends Controller
             'var5' => $data['var5'] ?? null,
         ]);
 
-        return redirect($this->back($subject, $part))->with('success', 'Подвопрос обновлён.');
+        return redirect($this->back($subject, $part))->with('success', 'Вопрос обновлён.');
     }
 
     public function destroyDetail(Subject $subject, Part $part, Question $question, QuestionDetail $detail): RedirectResponse
     {
         $detail->delete();
 
-        return redirect($this->back($subject, $part))->with('success', 'Подвопрос удалён.');
+        return redirect($this->back($subject, $part))->with('success', 'Вопрос удалён.');
     }
 }

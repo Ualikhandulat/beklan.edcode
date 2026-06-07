@@ -124,7 +124,7 @@ class QuestionFactory extends Factory
         });
     }
 
-    /** Контекстный вопрос с под-вопросами */
+    /** Контекстный вопрос с вопросами к контексту */
     public function group(int $subjectId, int $partId): static
     {
         return $this->state(fn () => [
@@ -140,7 +140,7 @@ class QuestionFactory extends Factory
             for ($i = 1; $i <= 3; $i++) {
                 QuestionDetail::create([
                     'question_id' => $q->id,
-                    'question' => "Под-вопрос {$i} для {$subjectTitle}, №{$q->id}. ".fake()->sentence(6).'?',
+                    'question' => "Вопрос {$i} к контексту {$subjectTitle}, №{$q->id}. ".fake()->sentence(6).'?',
                     'answers' => [0],
                     'var1' => $this->variantLabel(1, true),
                     'var2' => $this->variantLabel(2, false),

@@ -201,6 +201,12 @@
                 <template x-if="currentQuestion">
                     <div class="p-5 sm:p-7">
 
+                        {{-- Context passage (IS_GROUP) --}}
+                        <template x-if="currentQuestion.context">
+                            <div class="mb-5 p-4 rounded-2xl bg-gray-50 border border-border text-sm text-text leading-relaxed"
+                                 x-html="currentQuestion.context"></div>
+                        </template>
+
                         {{-- Status icon + question text --}}
                         <div class="flex items-start gap-3 mb-3">
                             <span class="w-7 h-7 rounded-xl flex items-center justify-center text-sm font-extrabold text-white shrink-0 mt-0.5"
@@ -217,11 +223,11 @@
                         </div>
 
                         {{-- Question type --}}
-                        <p class="text-xs font-semibold text-text-muted mb-5"
+                        <p x-show="currentQuestion.type !== 'group'"
+                           class="text-xs font-semibold text-text-muted mb-5"
                            x-text="currentQuestion.type === 'multi'
                                ? 'Выберите ' + currentQuestion.count_answers + ' варианта'
                                : currentQuestion.type === 'match' ? 'Соответствие'
-                               : currentQuestion.type === 'group' ? 'Контекстный вопрос'
                                : 'Один верный ответ'">
                         </p>
 
