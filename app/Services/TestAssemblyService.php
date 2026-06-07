@@ -20,6 +20,40 @@ use Illuminate\Support\Facades\DB;
 class TestAssemblyService
 {
     /**
+     * Канонические квоты типов вопросов для обязательных предметов ЕНТ РК, по названию
+     * предмета (как в EntDataSeeder) и значению QuestionType:
+     * История Казахстана — 20 SELECT_ONE (20 баллов); Грамотность чтения — 10 IS_GROUP
+     * под-вопросов из контекстов (10 баллов); Математическая грамотность — 10
+     * SELECT_ONE (10 баллов).
+     *
+     * @var array<string, array<string, int>>
+     */
+    private const MANDATORY_QUOTAS = [
+        'История Казахстана' => [
+            'one' => 20,
+        ],
+        'Грамотность чтения' => [
+            'group' => 10,
+        ],
+        'Математическая грамотность' => [
+            'one' => 10,
+        ],
+    ];
+
+    /**
+     * Каноническая квота типов вопросов для профильных (элективных) предметов ЕНТ РК:
+     * 25 SELECT_ONE + 5 IS_GROUP + 5 IS_MATCH + 5 SELECT_MULTI = 40 заданий / 50 баллов.
+     *
+     * @var array<string, int>
+     */
+    private const PROFILE_QUOTA = [
+        'one' => 25,
+        'group' => 5,
+        'match' => 5,
+        'multi' => 5,
+    ];
+
+    /**
      * Create a Test record and assemble questions for a given access.
      *
      * @param  array<string, mixed>  $choices  Student's runtime choices (subject IDs, nusqa number)
@@ -67,16 +101,20 @@ class TestAssemblyService
             $subjectIds = array_merge($mandatoryIds, array_slice($electiveIds, 0, 2));
         }
 
+        $subjects = Subject::whereIn('id', $subjectIds)->get()->keyBy('id');
+
         foreach ($subjectIds as $subjectId) {
+            $subject = $subjects->get($subjectId);
             $part = $this->resolveNusqaPart($subjectId, $nusqaNumber);
-            $detailIds = $this->pickDetails($subjectId, $part?->id);
-            $maxScore = count($detailIds);
+            $quota = self::MANDATORY_QUOTAS[$subject?->title] ?? self::PROFILE_QUOTA;
+            $detailIds = $this->pickDetailsByQuota($subjectId, $part?->id, $quota);
+            ['questions' => $questions, 'max_score' => $maxScore] = $this->initQuestions($detailIds);
 
             TestSubject::create([
                 'test_id' => $test->id,
                 'subject_id' => $subjectId,
                 'part_id' => $part?->id,
-                'questions' => $this->initQuestions($detailIds),
+                'questions' => $questions,
                 'max_score' => $maxScore,
             ]);
         }
@@ -97,13 +135,13 @@ class TestAssemblyService
         $limit = $access->question_count > 0 ? $access->question_count : null;
 
         $detailIds = $this->pickDetails($cfg->subject_id, $partId, $limit);
-        $maxScore = count($detailIds);
+        ['questions' => $questions, 'max_score' => $maxScore] = $this->initQuestions($detailIds);
 
         TestSubject::create([
             'test_id' => $test->id,
             'subject_id' => $cfg->subject_id,
             'part_id' => $partId,
-            'questions' => $this->initQuestions($detailIds),
+            'questions' => $questions,
             'max_score' => $maxScore,
         ]);
     }
@@ -207,22 +245,67 @@ class TestAssemblyService
     }
 
     /**
-     * Initialise the questions JSON with a randomised var_order per question.
-     * This ensures answer options are shuffled differently on every attempt.
+     * Подбирает ID QuestionDetail по каноническим квотам типов вопросов ЕНТ РК для предмета/части.
+     *
+     * Берёт до нужного количества каждого типа (в порядке квоты), сортируя детерминированно
+     * по id — нұсқа представляет собой фиксированный вариант экзамена, а не случайную выборку
+     * на каждую попытку. Если у предмета/части не хватает контента нужного типа, берём всё,
+     * что есть, и идём дальше — каноническая структура является целью, но нехватка контента
+     * не должна ломать сборку теста (админы должны заметить пробелы и добавить вопросы).
+     *
+     * @param  array<string, int>  $quota  значение QuestionType => нужное количество вопросов
+     * @return int[]
+     */
+    private function pickDetailsByQuota(int $subjectId, ?int $partId, array $quota): array
+    {
+        $detailIds = [];
+
+        foreach ($quota as $typeValue => $count) {
+            if ($count <= 0) {
+                continue;
+            }
+
+            $query = Question::join('question_details as qd', 'qd.question_id', '=', 'questions.id')
+                ->where('questions.subject_id', $subjectId)
+                ->where('questions.type', $typeValue)
+                ->whereNull('questions.deleted_at')
+                ->whereNull('qd.deleted_at');
+
+            if ($partId !== null) {
+                $query->where('questions.part_id', $partId);
+            }
+
+            $detailIds = array_merge(
+                $detailIds,
+                $query->orderBy('qd.id')->limit($count)->pluck('qd.id')->map(fn ($id) => (int) $id)->all()
+            );
+        }
+
+        return $detailIds;
+    }
+
+    /**
+     * Формирует JSON вопросов со случайным var_order для каждого вопроса и считает
+     * max_score предмета как сумму максимальных баллов по каждому вопросу
+     * (1 для SELECT_ONE/IS_GROUP, 2 для SELECT_MULTI/IS_MATCH — см. calculatePoints).
+     * Это гарантирует, что варианты ответов перемешиваются по-разному в каждой попытке,
+     * а max_score отражает каноническую систему баллов ЕНТ (20/10/10/50/50 = 140 баллов
+     * при полностью заполненной квоте предмета).
      *
      * @param  int[]  $detailIds
-     * @return array<int, array{detail_id: int, user_answers: array, is_right: null, var_order: int[]}>
+     * @return array{questions: array<int, array{detail_id: int, user_answers: array, is_right: null, var_order: int[]}>, max_score: int}
      */
     private function initQuestions(array $detailIds): array
     {
         if (empty($detailIds)) {
-            return [];
+            return ['questions' => [], 'max_score' => 0];
         }
 
         $details = QuestionDetail::whereIn('id', $detailIds)->get()->keyBy('id');
         $questionModels = Question::whereIn('id', $details->pluck('question_id'))->get()->keyBy('id');
 
-        return array_map(function ($id) use ($details, $questionModels) {
+        $maxScore = 0;
+        $questions = array_map(function ($id) use ($details, $questionModels, &$maxScore) {
             $detail = $details->get($id);
             $qModel = $detail ? $questionModels->get($detail->question_id) : null;
 
@@ -235,6 +318,14 @@ class TestAssemblyService
                 }
             }
 
+            if ($qModel) {
+                // SELECT_ONE/IS_GROUP — 0 или 1 балл, SELECT_MULTI/IS_MATCH — 0-2 балла (см. calculatePoints)
+                $maxScore += match ($qModel->type) {
+                    QuestionType::SELECT_ONE, QuestionType::IS_GROUP => 1,
+                    QuestionType::SELECT_MULTI, QuestionType::IS_MATCH => 2,
+                };
+            }
+
             return [
                 'detail_id' => $id,
                 'user_answers' => [],
@@ -242,11 +333,16 @@ class TestAssemblyService
                 'var_order' => $this->generateVarOrder($qModel?->type, $varCount),
             ];
         }, $detailIds);
+
+        return ['questions' => $questions, 'max_score' => $maxScore];
     }
 
     /**
      * Generate a shuffled order for answer option vars.
-     * IS_MATCH keeps its original order; all other types are fully shuffled.
+     *
+     * IS_MATCH keeps its first two vars (the left-column prompts) fixed and only
+     * shuffles the remaining answer-option vars (var5-var8 → display positions 2+).
+     * All other types are fully shuffled.
      *
      * @return int[]
      */
@@ -254,8 +350,19 @@ class TestAssemblyService
     {
         $order = range(0, max(0, $varCount - 1));
 
-        if ($varCount < 2 || $type === null || $type === QuestionType::IS_MATCH) {
+        if ($varCount < 2 || $type === null) {
             return $order;
+        }
+
+        if ($type === QuestionType::IS_MATCH) {
+            if ($varCount <= 2) {
+                return $order;
+            }
+
+            $options = array_slice($order, 2);
+            shuffle($options);
+
+            return array_merge([0, 1], $options);
         }
 
         shuffle($order);
@@ -293,12 +400,21 @@ class TestAssemblyService
                     $type = $questionModel->type;
                     $varOrder = $q['var_order'] ?? null;
 
-                    // Remap display-order indices back to original var indices before scoring
-                    if ($varOrder !== null && $type !== QuestionType::IS_MATCH && ! empty($userAnswers)) {
-                        $userAnswers = array_values(array_filter(
-                            array_map(fn ($displayIdx) => $varOrder[$displayIdx] ?? null, $userAnswers),
-                            fn ($v) => $v !== null
-                        ));
+                    // Remap display-order indices back to original var indices before scoring.
+                    // IS_MATCH answers are positional (index 0 = pair 1, index 1 = pair 2), so
+                    // nulls must be preserved rather than filtered out.
+                    if ($varOrder !== null && ! empty($userAnswers)) {
+                        if ($type === QuestionType::IS_MATCH) {
+                            $userAnswers = array_map(
+                                fn ($displayIdx) => $displayIdx === null ? null : ($varOrder[$displayIdx] ?? null),
+                                $userAnswers
+                            );
+                        } else {
+                            $userAnswers = array_values(array_filter(
+                                array_map(fn ($displayIdx) => $varOrder[$displayIdx] ?? null, $userAnswers),
+                                fn ($v) => $v !== null
+                            ));
+                        }
                     }
 
                     $pts = $this->calculatePoints($type, $userAnswers, $correct, $questionModel);

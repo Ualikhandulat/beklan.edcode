@@ -101,23 +101,27 @@ class EntDataSeeder extends Seeder
             );
 
             foreach ($config['topics'] as $topicTitle) {
-                $topic = Part::create([
+                $topic = Part::firstOrCreate([
                     'subject_id' => $subject->id,
                     'title' => $topicTitle,
                     'type' => PartType::Topic,
                 ]);
 
-                $this->seedQuestions($subject->id, $topic->id);
+                if ($topic->wasRecentlyCreated) {
+                    $this->seedQuestions($subject->id, $topic->id);
+                }
             }
 
             foreach ($config['nusqas'] as $nusqaTitle) {
-                $nusqa = Part::create([
+                $nusqa = Part::firstOrCreate([
                     'subject_id' => $subject->id,
                     'title' => $nusqaTitle,
                     'type' => PartType::Nusqa,
                 ]);
 
-                $this->seedQuestions($subject->id, $nusqa->id, nusqa: true);
+                if ($nusqa->wasRecentlyCreated) {
+                    $this->seedQuestions($subject->id, $nusqa->id, nusqa: true);
+                }
             }
         }
 
@@ -128,11 +132,11 @@ class EntDataSeeder extends Seeder
     {
         $count = $nusqa ? 20 : 10;
 
-        // Mix of all question types
+        // Смесь всех типов вопросов — group получает остаток, чтобы сумма всегда была равна $count
         $oneCount = (int) ($count * 0.5);
         $multiCount = (int) ($count * 0.2);
         $matchCount = (int) ($count * 0.15);
-        $groupCount = (int) ($count * 0.15);
+        $groupCount = $count - $oneCount - $multiCount - $matchCount;
 
         Question::factory()->one($subjectId, $partId)->count($oneCount)->create();
         Question::factory()->multi($subjectId, $partId)->count($multiCount)->create();

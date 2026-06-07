@@ -495,12 +495,12 @@
 
                                                 <template x-if="(currentQuestion.user_answers ?? [])[pairIdx] != null">
                                                     <span class="w-5 h-5 rounded-md bg-primary/15 text-primary text-xs font-extrabold flex items-center justify-center shrink-0"
-                                                          x-text="['А','Б','В','Г'][(currentQuestion.user_answers ?? [])[pairIdx]] ?? ''"></span>
+                                                          x-text="['А','Б','В','Г'][(currentQuestion.user_answers ?? [])[pairIdx] - 2] ?? ''"></span>
                                                 </template>
 
                                                 <span class="flex-1 leading-snug"
                                                       x-html="(currentQuestion.user_answers ?? [])[pairIdx] != null
-                                                          ? (currentQuestion.vars[4 + (currentQuestion.user_answers ?? [])[pairIdx]] || '')
+                                                          ? (currentQuestion.vars[(currentQuestion.user_answers ?? [])[pairIdx]] || '')
                                                           : '— Выберите ответ —'"></span>
 
                                                 <svg class="w-4 h-4 text-text-muted shrink-0 transition-transform duration-200"
@@ -522,18 +522,18 @@
                                                  class="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl border border-border shadow-lg z-20 overflow-hidden">
                                                 <template x-for="(letter, optIdx) in ['А', 'Б', 'В', 'Г']" :key="optIdx">
                                                     <button type="button"
-                                                            @click="answerQuestion({ pair: pairIdx, val: optIdx }); open = false"
+                                                            @click="answerQuestion({ pair: pairIdx, val: 2 + optIdx }); open = false"
                                                             class="w-full flex items-start gap-3 px-3.5 py-2.5 text-left transition-colors border-b last:border-0 border-border/60"
-                                                            :class="(currentQuestion.user_answers ?? [])[pairIdx] === optIdx
+                                                            :class="(currentQuestion.user_answers ?? [])[pairIdx] === (2 + optIdx)
                                                                 ? 'bg-primary/8 text-primary'
                                                                 : 'hover:bg-gray-50 text-gray-900'">
                                                         <span class="w-5 h-5 rounded-md text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5 transition-colors"
-                                                              :class="(currentQuestion.user_answers ?? [])[pairIdx] === optIdx
+                                                              :class="(currentQuestion.user_answers ?? [])[pairIdx] === (2 + optIdx)
                                                                   ? 'bg-primary text-white'
                                                                   : 'bg-gray-100 text-gray-600'"
                                                               x-text="letter"></span>
                                                         <span class="flex-1 text-sm font-semibold leading-snug"
-                                                              x-html="currentQuestion.vars[4 + optIdx] || ''"></span>
+                                                              x-html="currentQuestion.vars[2 + optIdx] || ''"></span>
                                                     </button>
                                                 </template>
                                             </div>

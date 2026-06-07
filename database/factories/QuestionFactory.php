@@ -26,7 +26,27 @@ class QuestionFactory extends Factory
         ];
     }
 
-    /** Single-answer question with detail */
+    /**
+     * Формирует узнаваемый текст вопроса вида "Вопрос для {Предмет}, №{id}. {lorem}".
+     * Позволяет демо-контенту оставаться прослеживаемым по предмету/id и при этом показывать заказчику настоящий lorem-текст.
+     */
+    private function questionText(Question $q, string $label = 'Вопрос'): string
+    {
+        $subjectTitle = $q->subject?->title ?? 'Предмет';
+
+        return "{$label} для {$subjectTitle}, №{$q->id}. ".fake()->sentence(6).'?';
+    }
+
+    /** "Вариант N (правильный)" / "(неправильный)" — сразу видно правильный вариант в демо */
+    private function variantLabel(int $index, bool $correct, ?string $note = null): string
+    {
+        $status = $correct ? 'правильный' : 'неправильный';
+        $suffix = $note ? " {$note}" : '';
+
+        return "Вариант {$index} ({$status}{$suffix})";
+    }
+
+    /** Вопрос с одним правильным ответом */
     public function one(int $subjectId, int $partId): static
     {
         return $this->state(fn () => [
@@ -38,17 +58,17 @@ class QuestionFactory extends Factory
         ])->afterCreating(function (Question $q) {
             QuestionDetail::create([
                 'question_id' => $q->id,
-                'question' => fake()->sentence(8).'?',
-                'answers' => [1],
-                'var1' => fake()->sentence(3),
-                'var2' => fake()->sentence(3),
-                'var3' => fake()->sentence(3),
-                'var4' => fake()->sentence(3),
+                'question' => $this->questionText($q),
+                'answers' => [0],
+                'var1' => $this->variantLabel(1, true),
+                'var2' => $this->variantLabel(2, false),
+                'var3' => $this->variantLabel(3, false),
+                'var4' => $this->variantLabel(4, false),
             ]);
         });
     }
 
-    /** Multi-answer question with detail */
+    /** Вопрос с несколькими правильными ответами */
     public function multi(int $subjectId, int $partId): static
     {
         return $this->state(fn () => [
@@ -60,19 +80,25 @@ class QuestionFactory extends Factory
         ])->afterCreating(function (Question $q) {
             QuestionDetail::create([
                 'question_id' => $q->id,
-                'question' => fake()->sentence(8).'?',
-                'answers' => [1, 3],
-                'var1' => fake()->sentence(3),
-                'var2' => fake()->sentence(3),
-                'var3' => fake()->sentence(3),
-                'var4' => fake()->sentence(3),
-                'var5' => fake()->sentence(3),
-                'var6' => fake()->sentence(3),
+                'question' => $this->questionText($q),
+                'answers' => [0, 1],
+                'var1' => $this->variantLabel(1, true),
+                'var2' => $this->variantLabel(2, true),
+                'var3' => $this->variantLabel(3, false),
+                'var4' => $this->variantLabel(4, false),
+                'var5' => $this->variantLabel(5, false),
+                'var6' => $this->variantLabel(6, false),
             ]);
         });
     }
 
-    /** Match question with detail */
+    /**
+     * Вопрос на соответствие.
+     *
+     * Формат: var1/var2 — вопросы левого столбца, var5 — правильный ответ для var1,
+     * var6 — правильный ответ для var2, var7/var8 — дистракторы. После сжатия vars
+     * получается [var1, var2, var5, var6, var7, var8], поэтому правильные индексы — [2, 3].
+     */
     public function match(int $subjectId, int $partId): static
     {
         return $this->state(fn () => [
@@ -82,21 +108,23 @@ class QuestionFactory extends Factory
             'count_variants' => 2,
             'count_answers' => 2,
         ])->afterCreating(function (Question $q) {
+            $subjectTitle = $q->subject?->title ?? 'Предмет';
+
             QuestionDetail::create([
                 'question_id' => $q->id,
                 'question' => 'Установите соответствие:',
-                'answers' => [5, 6],
-                'var1' => fake()->word(),
-                'var2' => fake()->word(),
-                'var5' => fake()->sentence(2),
-                'var6' => fake()->sentence(2),
-                'var7' => fake()->sentence(2),
-                'var8' => fake()->sentence(2),
+                'answers' => [2, 3],
+                'var1' => "Вопрос 1 для {$subjectTitle}, №{$q->id}",
+                'var2' => "Вопрос 2 для {$subjectTitle}, №{$q->id}",
+                'var5' => $this->variantLabel(1, true, 'для вопроса 1'),
+                'var6' => $this->variantLabel(2, true, 'для вопроса 2'),
+                'var7' => $this->variantLabel(3, false),
+                'var8' => $this->variantLabel(4, false),
             ]);
         });
     }
 
-    /** Context (group) question with sub-questions */
+    /** Контекстный вопрос с под-вопросами */
     public function group(int $subjectId, int $partId): static
     {
         return $this->state(fn () => [
@@ -105,17 +133,19 @@ class QuestionFactory extends Factory
             'type' => QuestionType::IS_GROUP,
             'count_variants' => 0,
             'count_answers' => 0,
-            'text' => fake()->paragraph(3),
         ])->afterCreating(function (Question $q) {
-            for ($i = 0; $i < 3; $i++) {
+            $subjectTitle = $q->subject?->title ?? 'Предмет';
+            $q->update(['text' => "Контекст для {$subjectTitle}, №{$q->id}. ".fake()->paragraph(3)]);
+
+            for ($i = 1; $i <= 3; $i++) {
                 QuestionDetail::create([
                     'question_id' => $q->id,
-                    'question' => fake()->sentence(7).'?',
-                    'answers' => [1],
-                    'var1' => fake()->sentence(3),
-                    'var2' => fake()->sentence(3),
-                    'var3' => fake()->sentence(3),
-                    'var4' => fake()->sentence(3),
+                    'question' => "Под-вопрос {$i} для {$subjectTitle}, №{$q->id}. ".fake()->sentence(6).'?',
+                    'answers' => [0],
+                    'var1' => $this->variantLabel(1, true),
+                    'var2' => $this->variantLabel(2, false),
+                    'var3' => $this->variantLabel(3, false),
+                    'var4' => $this->variantLabel(4, false),
                 ]);
             }
         });

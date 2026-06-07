@@ -90,13 +90,13 @@ class PartQuestionController extends Controller
             ]);
             $q->detail()->create([
                 'question' => $data['question'],
-                'answers' => [5, 6],
+                'answers' => [2, 3],
                 'var1' => $data['var1'],
                 'var2' => $data['var2'],
                 'var5' => $data['var5'],
                 'var6' => $data['var6'],
                 'var7' => $data['var7'],
-                'var8' => $data['var8'] ?? null,
+                'var8' => $data['var8'],
             ]);
         });
 
@@ -222,15 +222,15 @@ class PartQuestionController extends Controller
             'question' => ['required', 'string'],
             'var1' => ['required', 'string'], 'var2' => ['required', 'string'],
             'var5' => ['required', 'string'], 'var6' => ['required', 'string'],
-            'var7' => ['required', 'string'], 'var8' => ['nullable', 'string'],
+            'var7' => ['required', 'string'], 'var8' => ['required', 'string'],
         ]);
 
         $question->detail()->updateOrCreate([], [
             'question' => $data['question'],
-            'answers' => [5, 6],
+            'answers' => [2, 3],
             'var1' => $data['var1'], 'var2' => $data['var2'],
             'var5' => $data['var5'], 'var6' => $data['var6'],
-            'var7' => $data['var7'], 'var8' => $data['var8'] ?? null,
+            'var7' => $data['var7'], 'var8' => $data['var8'],
         ]);
     }
 

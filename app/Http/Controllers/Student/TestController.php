@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Student;
 
-use App\Enums\QuestionType;
 use App\Enums\TestAccessType;
 use App\Http\Controllers\Controller;
 use App\Models\Part;
@@ -360,11 +359,10 @@ class TestController extends Controller
 
                 // Remap correct answer original-indices to display-indices so they align
                 // with user_answers (which are stored in display order after shuffling).
-                // IS_MATCH is never shuffled so its indices are already consistent.
                 $correct = null;
                 if ($withCorrect) {
                     $originalCorrect = $detail->answers ?? [];
-                    if ($varOrder !== null && $questionModel->type !== QuestionType::IS_MATCH) {
+                    if ($varOrder !== null) {
                         $reverseOrder = array_flip($varOrder);
                         $correct = array_values(array_filter(
                             array_map(fn ($origIdx) => $reverseOrder[$origIdx] ?? null, $originalCorrect),

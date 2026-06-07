@@ -294,7 +294,7 @@
                                                 <span class="w-5 h-5 rounded-md bg-primary/10 text-primary text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5"
                                                       x-text="letter"></span>
                                                 <span class="text-sm font-semibold text-gray-900 leading-snug"
-                                                      x-html="currentQuestion.vars[4 + optIdx] || ''"></span>
+                                                      x-html="currentQuestion.vars[2 + optIdx] || ''"></span>
                                             </div>
                                         </template>
                                     </div>
@@ -323,9 +323,9 @@
                                                         <span class="w-5 h-5 rounded-md text-xs font-extrabold flex items-center justify-center shrink-0"
                                                               :class="(currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
                                                                   ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'"
-                                                              x-text="['А','Б','В','Г'][(currentQuestion.user_answers ?? [])[pairIdx]] ?? '?'"></span>
+                                                              x-text="['А','Б','В','Г'][(currentQuestion.user_answers ?? [])[pairIdx] - 2] ?? '?'"></span>
                                                         <span class="text-sm font-semibold text-gray-900 leading-snug"
-                                                              x-html="currentQuestion.vars[4 + (currentQuestion.user_answers ?? [])[pairIdx]] || ''"></span>
+                                                              x-html="currentQuestion.vars[(currentQuestion.user_answers ?? [])[pairIdx]] || ''"></span>
                                                     </div>
                                                 </template>
                                                 <template x-if="(currentQuestion.user_answers ?? [])[pairIdx] == null">
@@ -337,9 +337,9 @@
                                                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-success mb-1.5">Верный ответ</p>
                                                     <div class="flex items-center gap-2">
                                                         <span class="w-5 h-5 rounded-md bg-success/20 text-success text-xs font-extrabold flex items-center justify-center shrink-0"
-                                                              x-text="['А','Б','В','Г'][(currentQuestion.correct || [])[pairIdx]] ?? '?'"></span>
+                                                              x-text="['А','Б','В','Г'][(currentQuestion.correct || [])[pairIdx] - 2] ?? '?'"></span>
                                                         <span class="text-sm font-semibold text-gray-900 leading-snug"
-                                                              x-html="currentQuestion.vars[4 + (currentQuestion.correct || [])[pairIdx]] || ''"></span>
+                                                              x-html="currentQuestion.vars[(currentQuestion.correct || [])[pairIdx]] || ''"></span>
                                                     </div>
                                                 </div>
                                             </template>

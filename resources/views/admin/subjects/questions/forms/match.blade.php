@@ -44,9 +44,9 @@
         </div>
     </div>
 
-    <p class="q-section-label mt-6">Дистракторы <span class="normal-case font-semibold tracking-normal text-text-muted ml-1">(лишние варианты)</span></p>
+    <p class="q-section-label mt-6">Дистракторы <span class="normal-case font-semibold tracking-normal text-text-muted ml-1">(лишние варианты, оба обязательны — всего должно быть 4 варианта)</span></p>
     <div class="space-y-3">
-        @foreach ([[7,'Лишний 1'],[8,'Лишний 2 (необязательно)']] as [$n,$label])
+        @foreach ([[7,'Лишний 1'],[8,'Лишний 2']] as [$n,$label])
             <div class="q-var-row">
                 <div class="q-var-letter q-var-letter-opt">×</div>
                 <div class="flex-1">

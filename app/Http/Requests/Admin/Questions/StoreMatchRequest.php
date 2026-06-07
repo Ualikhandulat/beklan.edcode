@@ -19,8 +19,8 @@ class StoreMatchRequest extends FormRequest
             'var2' => ['required', 'string'],   // левый 2
             'var5' => ['required', 'string'],   // правильный для var1
             'var6' => ['required', 'string'],   // правильный для var2
-            'var7' => ['required', 'string'],   // доп. вариант (дистрактор)
-            'var8' => ['nullable', 'string'],   // доп. вариант (необязательный)
+            'var7' => ['required', 'string'],   // дистрактор 1
+            'var8' => ['required', 'string'],   // дистрактор 2
         ];
     }
 
@@ -31,7 +31,8 @@ class StoreMatchRequest extends FormRequest
             'var2.required' => 'Введите 2-й элемент левого столбца.',
             'var5.required' => 'Введите правильное соответствие для 1-го элемента.',
             'var6.required' => 'Введите правильное соответствие для 2-го элемента.',
-            'var7.required' => 'Введите хотя бы один дистрактор.',
+            'var7.required' => 'Введите 1-й дистрактор.',
+            'var8.required' => 'Введите 2-й дистрактор. Для вопроса на соответствие нужно ровно 4 варианта ответа.',
         ];
     }
 }
