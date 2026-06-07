@@ -52,9 +52,11 @@ class TestAccess extends Model
 
     // ── Scopes ─────────────────────────────────────────────────────────────
 
-    public function scopeForUser(Builder $query, int $userId): Builder
+    public function scopeForCurrentUser(Builder $query): Builder
     {
-        $groupId = User::where('id', $userId)->value('group_id');
+        $user       = auth()->user();
+        $userId     = $user->id;
+        $groupId    = $user->group_id;
 
         return $query
             ->where('is_active', true)

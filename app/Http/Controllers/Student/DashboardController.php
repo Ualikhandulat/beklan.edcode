@@ -17,7 +17,7 @@ class DashboardController extends Controller
     {
         $user = auth()->user()->load('group');
 
-        $accesses = TestAccess::forUser($user->id)
+        $accesses = TestAccess::forCurrentUser()
             ->with(['accessSubjects'])
             ->latest()
             ->get();
