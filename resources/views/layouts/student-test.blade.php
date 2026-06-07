@@ -14,9 +14,10 @@
 
     <nav class="bg-white border-b border-border sticky top-0 z-40 h-14 flex items-center">
         <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 flex items-center gap-3">
-            <a href="{{ route('student.tests.active') }}" class="flex items-center gap-0.5 shrink-0">
+            <a href="{{ route('student.dashboard') }}" class="flex items-center gap-0.5 shrink-0">
                 <span class="text-lg font-extrabold text-primary">Ed</span><span class="text-lg font-extrabold text-text">Code</span>
             </a>
+            @stack('nav-right')
         </div>
     </nav>
 

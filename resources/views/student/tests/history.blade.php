@@ -29,7 +29,7 @@
         <p class="text-sm text-text-muted max-w-xs mx-auto leading-relaxed">
             После прохождения первого теста здесь появится история результатов.
         </p>
-        <a href="{{ route('student.tests.active') }}"
+        <a href="{{ route('student.dashboard') }}"
            class="inline-flex items-center gap-1.5 mt-5 text-sm font-bold text-primary hover:underline">
             Перейти к тестам
             <x-icon name="arrow-right" class="w-3.5 h-3.5" />

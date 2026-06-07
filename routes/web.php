@@ -63,7 +63,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'
 /* Student */
 Route::prefix('student')->name('student.')->middleware(['auth', 'role:student'])->group(function () {
     Route::get('/dashboard', [StudentDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/tests/active', [StudentDashboardController::class, 'active'])->name('tests.active');
     Route::get('/tests/history', [StudentDashboardController::class, 'history'])->name('tests.history');
     Route::get('/info', [StudentDashboardController::class, 'info'])->name('info');
 

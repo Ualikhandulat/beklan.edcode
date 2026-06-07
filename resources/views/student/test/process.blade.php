@@ -17,6 +17,26 @@
 </style>
 @endpush
 
+@push('nav-right')
+<div
+    x-data="{
+        elapsedSeconds: {{ $test->started_at ? (int) $test->started_at->diffInSeconds(now()) : 0 }},
+        get elapsedStr() {
+            const h = Math.floor(this.elapsedSeconds / 3600);
+            const m = Math.floor((this.elapsedSeconds % 3600) / 60);
+            const s = this.elapsedSeconds % 60;
+            if (h > 0) return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+        },
+    }"
+    x-init="setInterval(() => elapsedSeconds++, 1000)"
+    class="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border bg-gray-50 text-xs text-text"
+>
+    <x-icon name="clock" class="w-3 h-3 shrink-0" />
+    <span class="font-mono font-extrabold tabular-nums" x-text="elapsedStr"></span>
+</div>
+@endpush
+
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('testApp', () => ({
@@ -415,22 +435,6 @@
                         {{-- IS_MATCH — custom dropdown showing full option text --}}
                         <template x-if="currentQuestion.type === 'match'">
                             <div class="space-y-3">
-
-                                {{-- All options reference --}}
-                                <div class="rounded-xl bg-gray-50 border border-border p-4">
-                                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-text-muted mb-3">Варианты ответов</p>
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
-                                        <template x-for="(letter, optIdx) in ['А', 'Б', 'В', 'Г']" :key="optIdx">
-                                            <div class="flex items-start gap-2">
-                                                <span class="w-5 h-5 rounded-md bg-primary/10 text-primary text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5"
-                                                      x-text="letter"></span>
-                                                <span class="text-sm font-semibold text-gray-900 leading-snug"
-                                                      x-html="currentQuestion.vars[4 + optIdx] || ''"></span>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
-
                                 {{-- Pair rows --}}
                                 <template x-for="pairIdx in [0, 1]" :key="pairIdx">
                                     <div class="rounded-2xl border-2 p-4 transition-all"

@@ -163,7 +163,7 @@
         </a>
     @endif
 
-    <a href="{{ route('student.tests.active') }}"
+    <a href="{{ route('student.dashboard') }}"
        class="flex-1 btn btn-outline text-center font-semibold py-3 rounded-2xl">
         <x-icon name="home" class="w-4 h-4" />
         В кабинет

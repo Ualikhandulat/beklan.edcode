@@ -5,49 +5,44 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\Test;
 use App\Models\TestAccess;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function index(): RedirectResponse
-    {
-        return redirect()->route('student.tests.active');
-    }
-
-    public function active(): View
+    public function index(): View
     {
         $user = auth()->user()->load('group');
 
-        $allAccesses = TestAccess::forUser($user->id)
-            ->with(['accessSubjects.subject'])
+        $accesses = TestAccess::forUser($user->id)
+            ->with(['accessSubjects'])
             ->latest()
-            ->get()
-            ->filter(function (TestAccess $access) use ($user) {
-                if ($access->attempts_limit === 0) {
-                    return true;
-                }
+            ->get();
 
-                $completed = Test::where('test_access_id', $access->id)
-                    ->where('user_id', $user->id)
-                    ->whereNotNull('completed_at')
-                    ->count();
+        $accessIds = $accesses->pluck('id');
 
-                return $completed < $access->attempts_limit;
-            })
-            ->values();
+        $completedCounts = Test::whereIn('test_access_id', $accessIds)
+            ->where('user_id', $user->id)
+            ->whereNotNull('completed_at')
+            ->selectRaw('test_access_id, count(*) as completed_count')
+            ->groupBy('test_access_id')
+            ->pluck('completed_count', 'test_access_id')
+            ->map(fn ($count) => (int) $count);
 
-        $inProgressTests = Test::whereIn('test_access_id', $allAccesses->pluck('id'))
+        $inProgressTests = Test::whereIn('test_access_id', $accessIds)
             ->where('user_id', $user->id)
             ->whereNull('completed_at')
             ->get()
             ->keyBy('test_access_id');
 
+        $allAccesses = $accesses->filter(fn (TestAccess $access) => $access->attempts_limit === 0
+            || $completedCounts->get($access->id, 0) < $access->attempts_limit
+        )->values();
+
         $inProgress = $allAccesses->filter(fn ($a) => $inProgressTests->has($a->id))->values();
         $available = $allAccesses->filter(fn ($a) => ! $inProgressTests->has($a->id))->values();
         $hasActiveTest = $inProgress->isNotEmpty();
 
-        return view('student.tests.active', compact('user', 'inProgress', 'available', 'hasActiveTest', 'inProgressTests'));
+        return view('student.dashboard', compact('user', 'inProgress', 'available', 'hasActiveTest', 'inProgressTests', 'completedCounts'));
     }
 
     public function history(): View

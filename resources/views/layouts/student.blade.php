@@ -15,7 +15,7 @@
     @php
         $currentRoute = request()->route()?->getName() ?? '';
         $navLinks = [
-            ['route' => 'student.tests.active',  'label' => 'Активные тесты',  'icon' => 'clipboard-list'],
+            ['route' => 'student.dashboard',     'label' => 'Главная',          'icon' => 'clipboard-list'],
             ['route' => 'student.tests.history', 'label' => 'История',          'icon' => 'chart-bar'],
             ['route' => 'student.info',          'label' => 'Информация',       'icon' => 'book-open'],
         ];
@@ -24,7 +24,7 @@
     <nav class="bg-white border-b border-border sticky top-0 z-40" x-data="{ menuOpen: false }">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
 
-            <a href="{{ route('student.tests.active') }}" class="flex items-center gap-0.5 shrink-0">
+            <a href="{{ route('student.dashboard') }}" class="flex items-center gap-0.5 shrink-0">
                 <span class="text-lg font-extrabold text-primary">Ed</span><span class="text-lg font-extrabold text-text">Code</span>
             </a>
 
