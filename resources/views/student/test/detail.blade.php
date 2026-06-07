@@ -203,7 +203,7 @@
 
                         {{-- Context passage (IS_GROUP) --}}
                         <template x-if="currentQuestion.context">
-                            <div class="mb-5 p-4 rounded-2xl bg-gray-50 border border-border text-sm text-text leading-relaxed"
+                            <div class="text-sm text-text leading-relaxed mb-4"
                                  x-html="currentQuestion.context"></div>
                         </template>
 

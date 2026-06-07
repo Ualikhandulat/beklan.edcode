@@ -265,6 +265,12 @@ class TestAssemblyService
                 continue;
             }
 
+            if ($typeValue === QuestionType::IS_GROUP->value) {
+                $detailIds = array_merge($detailIds, $this->pickGroupContextDetails($subjectId, $partId, $count));
+
+                continue;
+            }
+
             $query = Question::join('question_details as qd', 'qd.question_id', '=', 'questions.id')
                 ->where('questions.subject_id', $subjectId)
                 ->where('questions.type', $typeValue)
@@ -278,6 +284,42 @@ class TestAssemblyService
             $detailIds = array_merge(
                 $detailIds,
                 $query->orderBy('qd.id')->limit($count)->pluck('qd.id')->map(fn ($id) => (int) $id)->all()
+            );
+        }
+
+        return $detailIds;
+    }
+
+    /**
+     * Подбирает QuestionDetail для контекстных (IS_GROUP) вопросов целыми контекстами —
+     * один контекст (текст для чтения) всегда отдаёт студенту все свои вопросы вместе,
+     * никогда не разрывая их по границе квоты. Берёт контексты по порядку id, пока
+     * не наберётся нужное количество вопросов (итог может немного превышать $count,
+     * если последний добавленный контекст содержит несколько вопросов).
+     *
+     * @return int[]
+     */
+    private function pickGroupContextDetails(int $subjectId, ?int $partId, int $count): array
+    {
+        $query = Question::where('subject_id', $subjectId)
+            ->where('type', QuestionType::IS_GROUP->value)
+            ->whereNull('deleted_at')
+            ->with(['details' => fn ($q) => $q->whereNull('deleted_at')->orderBy('id')]);
+
+        if ($partId !== null) {
+            $query->where('part_id', $partId);
+        }
+
+        $detailIds = [];
+
+        foreach ($query->orderBy('id')->get() as $context) {
+            if (count($detailIds) >= $count) {
+                break;
+            }
+
+            $detailIds = array_merge(
+                $detailIds,
+                $context->details->pluck('id')->map(fn ($id) => (int) $id)->all()
             );
         }
 
