@@ -248,7 +248,7 @@
                                                       ? 'border-danger bg-danger text-white'
                                                       : 'border-border text-text-muted')"
                                               x-text="String.fromCharCode(65 + i)"></span>
-                                        <span class="flex-1 text-sm font-semibold text-gray-900 leading-snug" x-html="v"></span>
+                                        <span class="flex-1 text-sm font-semibold text-black leading-snug" x-html="v"></span>
                                         <template x-if="(currentQuestion.correct || []).includes(i)">
                                             <svg class="w-4 h-4 text-success shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                         </template>
@@ -283,7 +283,7 @@
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                             </template>
                                         </span>
-                                        <span class="flex-1 text-sm font-semibold text-gray-900 leading-snug" x-html="v"></span>
+                                        <span class="flex-1 text-sm font-semibold text-black leading-snug" x-html="v"></span>
                                     </div>
                                 </template>
                             </div>
@@ -299,7 +299,7 @@
                                             <div class="flex items-start gap-2">
                                                 <span class="w-5 h-5 rounded-md bg-primary/10 text-primary text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5"
                                                       x-text="letter"></span>
-                                                <span class="text-sm font-semibold text-gray-900 leading-snug"
+                                                <span class="text-sm font-semibold text-black leading-snug"
                                                       x-html="currentQuestion.vars[2 + optIdx] || ''"></span>
                                             </div>
                                         </template>
@@ -311,9 +311,9 @@
                                              ? 'border-success/40 bg-success/4'
                                              : 'border-danger/40 bg-danger/4'">
                                         <div class="flex items-start gap-2.5 mb-3">
-                                            <span class="w-6 h-6 rounded-lg bg-gray-100 text-gray-700 text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5"
+                                            <span class="w-6 h-6 rounded-lg bg-gray-100 text-black text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5"
                                                   x-text="pairIdx + 1"></span>
-                                            <div class="text-sm font-bold text-gray-900 leading-snug flex-1"
+                                            <div class="text-sm font-bold text-black leading-snug flex-1"
                                                  x-html="currentQuestion.vars[pairIdx] || ''"></div>
                                         </div>
                                         <div class="flex flex-col sm:flex-row gap-2">
@@ -330,7 +330,7 @@
                                                               :class="(currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
                                                                   ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'"
                                                               x-text="['А','Б','В','Г'][(currentQuestion.user_answers ?? [])[pairIdx] - 2] ?? '?'"></span>
-                                                        <span class="text-sm font-semibold text-gray-900 leading-snug"
+                                                        <span class="text-sm font-semibold text-black leading-snug"
                                                               x-html="currentQuestion.vars[(currentQuestion.user_answers ?? [])[pairIdx]] || ''"></span>
                                                     </div>
                                                 </template>
@@ -344,7 +344,7 @@
                                                     <div class="flex items-center gap-2">
                                                         <span class="w-5 h-5 rounded-md bg-success/20 text-success text-xs font-extrabold flex items-center justify-center shrink-0"
                                                               x-text="['А','Б','В','Г'][(currentQuestion.correct || [])[pairIdx] - 2] ?? '?'"></span>
-                                                        <span class="text-sm font-semibold text-gray-900 leading-snug"
+                                                        <span class="text-sm font-semibold text-black leading-snug"
                                                               x-html="currentQuestion.vars[(currentQuestion.correct || [])[pairIdx]] || ''"></span>
                                                     </div>
                                                 </div>

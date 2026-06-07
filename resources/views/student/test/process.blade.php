@@ -294,7 +294,7 @@
                             ? 'bg-primary text-white shadow-sm scale-110'
                             : (isAnswered(q)
                                 ? 'bg-success/20 text-success border border-success/30'
-                                : 'bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200')"
+                                : 'bg-gray-100 border border-gray-300 text-black hover:bg-gray-200')"
                         x-text="qi + 1">
                 </button>
             </template>
@@ -349,7 +349,7 @@
                                     ? 'bg-primary text-white shadow-sm scale-110'
                                     : (isAnswered(q)
                                         ? 'bg-success/20 text-success border border-success/30 hover:bg-success/30'
-                                        : 'bg-gray-100 border border-gray-300 text-gray-900 hover:bg-gray-200')"
+                                        : 'bg-gray-100 border border-gray-300 text-black hover:bg-gray-200')"
                                 x-text="qi + 1">
                         </button>
                     </template>
@@ -442,7 +442,7 @@
                                                   ? 'border-primary bg-primary text-white'
                                                   : 'border-border text-text-muted'"
                                               x-text="String.fromCharCode(65 + i)"></span>
-                                        <span class="flex-1 text-sm font-semibold text-gray-900 leading-snug" x-html="v"></span>
+                                        <span class="flex-1 text-sm font-semibold text-black leading-snug" x-html="v"></span>
                                     </button>
                                 </template>
                             </div>
@@ -465,7 +465,7 @@
                                                 <x-icon name="check" class="w-3.5 h-3.5" />
                                             </template>
                                         </span>
-                                        <span class="flex-1 text-sm font-semibold text-gray-900 leading-snug" x-html="v"></span>
+                                        <span class="flex-1 text-sm font-semibold text-black leading-snug" x-html="v"></span>
                                     </button>
                                 </template>
                             </div>
@@ -483,9 +483,9 @@
 
                                         {{-- Left item text --}}
                                         <div class="flex items-start gap-2.5 mb-3">
-                                            <span class="w-6 h-6 rounded-lg bg-gray-100 text-gray-700 text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5"
+                                            <span class="w-6 h-6 rounded-lg bg-gray-100 text-black text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5"
                                                   x-text="pairIdx + 1"></span>
-                                            <div class="text-sm font-bold text-gray-900 leading-snug flex-1"
+                                            <div class="text-sm font-bold text-black leading-snug flex-1"
                                                  x-html="currentQuestion.vars[pairIdx] || ''"></div>
                                         </div>
 
@@ -497,7 +497,7 @@
                                                     @click="open = !open"
                                                     class="w-full flex items-center gap-3 px-3.5 py-2.5 text-sm font-semibold rounded-xl border-2 text-left transition-colors"
                                                     :class="(currentQuestion.user_answers ?? [])[pairIdx] != null
-                                                        ? 'border-primary bg-white text-gray-900'
+                                                        ? 'border-primary bg-white text-black'
                                                         : 'border-border bg-white text-text-muted hover:border-primary/60'">
 
                                                 <template x-if="(currentQuestion.user_answers ?? [])[pairIdx] != null">
@@ -533,11 +533,11 @@
                                                             class="w-full flex items-start gap-3 px-3.5 py-2.5 text-left transition-colors border-b last:border-0 border-border/60"
                                                             :class="(currentQuestion.user_answers ?? [])[pairIdx] === (2 + optIdx)
                                                                 ? 'bg-primary/8 text-primary'
-                                                                : 'hover:bg-gray-50 text-gray-900'">
+                                                                : 'hover:bg-gray-50 text-black'">
                                                         <span class="w-5 h-5 rounded-md text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5 transition-colors"
                                                               :class="(currentQuestion.user_answers ?? [])[pairIdx] === (2 + optIdx)
                                                                   ? 'bg-primary text-white'
-                                                                  : 'bg-gray-100 text-gray-600'"
+                                                                  : 'bg-gray-100 text-black'"
                                                               x-text="letter"></span>
                                                         <span class="flex-1 text-sm font-semibold leading-snug"
                                                               x-html="currentQuestion.vars[2 + optIdx] || ''"></span>
