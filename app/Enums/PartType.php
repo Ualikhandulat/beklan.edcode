@@ -38,4 +38,12 @@ enum PartType: string
             self::Nusqa => 'badge-primary',
         };
     }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::Topic => 'book-open',
+            self::Nusqa => 'clipboard-list',
+        };
+    }
 }

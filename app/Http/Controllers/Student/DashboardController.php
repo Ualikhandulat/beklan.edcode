@@ -161,7 +161,8 @@ class DashboardController extends Controller
             ->whereNotNull('completed_at')
             ->with(['access.accessSubjects.subject'])
             ->latest('completed_at')
-            ->get();
+            ->paginate()
+            ->withQueryString();
 
         return view('student.tests.history', compact('user', 'tests'));
     }

@@ -15,7 +15,7 @@
     <h2 class="text-base font-extrabold text-text">История тестов</h2>
     @if ($tests->isNotEmpty())
         <span class="text-xs font-bold text-text-muted bg-white border border-border px-2.5 py-1 rounded-full shadow-sm">
-            {{ $tests->count() }}
+            {{ $tests->total() }}
         </span>
     @endif
 </div>
@@ -129,6 +129,12 @@
             </div>
         @endforeach
     </div>
+
+    @if ($tests->hasPages())
+        <div class="mt-5 fade-up" style="animation-delay: {{ 60 + $tests->count() * 50 }}ms">
+            {{ $tests->links() }}
+        </div>
+    @endif
 @endif
 
 @endsection

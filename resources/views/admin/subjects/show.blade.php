@@ -19,13 +19,13 @@
         <div class="flex border-b border-border -mx-6 px-6 mb-6">
             <a href="{{ $topicsUrl }}"
                class="tab-item {{ $isTopics ? 'tab-active' : '' }}">
-                <x-icon name="book-open" class="w-4 h-4" />
+                <x-icon :name="PartType::Topic->icon()" class="w-4 h-4" />
                 Тақырыптар
                 <span class="tab-count {{ $isTopics ? 'tab-count-active' : '' }}">{{ $topics->count() }}</span>
             </a>
             <a href="{{ $nusqasUrl }}"
                class="tab-item {{ ! $isTopics ? 'tab-active' : '' }}">
-                <x-icon name="clipboard-list" class="w-4 h-4" />
+                <x-icon :name="PartType::Nusqa->icon()" class="w-4 h-4" />
                 Нұсқалар
                 <span class="tab-count {{ ! $isTopics ? 'tab-count-active' : '' }}">{{ $nusqas->count() }}</span>
             </a>
