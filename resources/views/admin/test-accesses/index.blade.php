@@ -51,7 +51,7 @@
             <tr>
                 <th class="w-12 text-text-muted hidden sm:table-cell">ID</th>
                 <th>Кому</th>
-                <th class="w-24 text-center">Статус</th>
+                <th class="w-24 text-center">Активный</th>
                 <th class="w-28">Тип</th>
                 <th>Предметы</th>
                 <th class="w-36">Нұсқа / Раздел</th>
@@ -94,12 +94,19 @@
                     </td>
 
                     {{-- Status --}}
-                    <td class="text-center">
-                        @if ($access->is_active)
-                            <span class="badge badge-success">Активен</span>
-                        @else
-                            <span class="badge badge-danger">Откл.</span>
-                        @endif
+                    <td class="text-center" onclick="event.stopPropagation()">
+                        <form method="POST" action="{{ route('admin.test-accesses.toggle-active', $access) }}">
+                            @csrf
+                            @method('PATCH')
+                            <label class="inline-flex items-center cursor-pointer" title="{{ $access->is_active ? 'Деактивировать доступ' : 'Активировать доступ' }}">
+                                <div class="relative shrink-0">
+                                    <input type="checkbox" class="sr-only peer" @checked($access->is_active)
+                                           onchange="this.form.requestSubmit()">
+                                    <div class="w-11 h-6 bg-gray-200 peer-checked:bg-success rounded-full transition-all duration-300 shadow-inner border border-gray-200 peer-focus:ring-2 peer-focus:ring-success/30"></div>
+                                    <div class="absolute top-[2px] left-[2px] bg-white rounded-full h-5 w-5 shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] peer-checked:translate-x-full"></div>
+                                </div>
+                            </label>
+                        </form>
                     </td>
 
                     {{-- Type --}}

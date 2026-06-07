@@ -83,6 +83,15 @@ class TestAccessController extends Controller
         return redirect()->route('admin.test-accesses.index')->with('success', 'Доступ обновлён.');
     }
 
+    public function toggleActive(TestAccess $testAccess): RedirectResponse
+    {
+        $testAccess->update(['is_active' => ! $testAccess->is_active]);
+
+        $message = $testAccess->is_active ? 'Доступ активирован.' : 'Доступ деактивирован.';
+
+        return redirect()->route('admin.test-accesses.index')->with('success', $message);
+    }
+
     public function destroy(TestAccess $testAccess): RedirectResponse
     {
         $testAccess->delete();
