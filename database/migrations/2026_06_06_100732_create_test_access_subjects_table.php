@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Part;
+use App\Models\Subject;
+use App\Models\TestAccess;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -10,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('test_access_subjects', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('test_access_id')->constrained('test_accesses')->cascadeOnDelete();
-            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
+            $table->foreignIdFor(TestAccess::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Subject::class)->constrained()->cascadeOnDelete();
             $table->string('part_type')->nullable(); // PartType enum: 'topic' | 'nusqa'
-            $table->foreignId('part_id')->nullable()->constrained('parts')->cascadeOnDelete();
+            $table->foreignIdFor(Part::class)->nullable()->constrained()->cascadeOnDelete();
             $table->boolean('student_chooses_part')->default(false);
             $table->timestamps();
 

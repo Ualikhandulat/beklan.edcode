@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Group;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,8 +15,9 @@ return new class extends Migration
             $table->string('type'); // TestAccessType enum: 'ent' | 'subject'
 
             // Target: one of user or group must be set
-            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
-            $table->foreignId('group_id')->nullable()->constrained('groups')->cascadeOnDelete();
+            $table->foreignIdFor(User::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Group::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->boolean('is_active')->default(true);
 
             // ENT: student picks own elective subjects
             $table->boolean('student_chooses_subject')->default(false);
@@ -28,6 +31,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('attempts_limit')->default(1);
 
             $table->timestamp('expires_at')->nullable();
+            $table->unsignedSmallInteger('duration_minutes')->nullable();
             $table->timestamps();
 
             $table->index(['user_id', 'type']);

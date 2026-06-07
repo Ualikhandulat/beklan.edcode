@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Part;
+use App\Models\Subject;
+use App\Models\Test;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,9 +16,9 @@ return new class extends Migration
     {
         Schema::create('test_subjects', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('test_id')->constrained('tests')->cascadeOnDelete();
-            $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
-            $table->foreignId('part_id')->nullable()->constrained('parts')->nullOnDelete();
+            $table->foreignIdFor(Test::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Subject::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Part::class)->nullable()->constrained()->nullOnDelete();
             $table->json('questions'); // [{detail_id, user_answers: [], is_right: null}]
             $table->unsignedSmallInteger('score')->nullable();
             $table->unsignedSmallInteger('max_score')->default(0);
