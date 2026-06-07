@@ -44,6 +44,9 @@
             activeQuestion: 0,
             finishing: false,
             confirmFinish: false,
+            calcOpen: false,
+            mendeleevOpen: false,
+            solubilityOpen: false,
             pendingSave: false,
             totalAnswered: {{ $answered }},
             totalQuestions: {{ $totalQuestions }},
@@ -274,6 +277,11 @@
     </div>
     @endif
 
+    {{-- ── Test tools — mobile ──────────────────────────────────────────── --}}
+    <div class="lg:hidden bg-white border-b border-border px-4 py-2.5">
+        @include('student.test._tools')
+    </div>
+
     {{-- ── Question pills — mobile horizontal scroll ───────────────────── --}}
     <div class="lg:hidden bg-white border-b border-border overflow-x-auto mt-3 border-y">
         <div class="flex gap-2 px-4 py-2.5" style="width: max-content; min-width: 100%">
@@ -347,6 +355,25 @@
                 </div>
             </div>
 
+            {{-- Test tools --}}
+            <div class="bg-white rounded-2xl border border-border overflow-hidden" style="box-shadow: var(--shadow-card)">
+                <button type="button" @click="calcOpen = true"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left text-text hover:bg-gray-50 transition-colors border-b border-border last:border-b-0 cursor-pointer">
+                    <x-icon name="calculator" class="w-4 h-4 text-text-muted shrink-0" />
+                    <span>Калькулятор</span>
+                </button>
+                <button type="button" @click="mendeleevOpen = true"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left text-text hover:bg-gray-50 transition-colors border-b border-border last:border-b-0 cursor-pointer">
+                    <x-icon name="beaker" class="w-4 h-4 text-text-muted shrink-0" />
+                    <span>Менделеев</span>
+                </button>
+                <button type="button" @click="solubilityOpen = true"
+                        class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left text-text hover:bg-gray-50 transition-colors cursor-pointer">
+                    <x-icon name="beaker" class="w-4 h-4 text-text-muted shrink-0" />
+                    <span>Растворимость</span>
+                </button>
+            </div>
+
             <div class="bg-white rounded-2xl border border-border p-4" style="box-shadow: var(--shadow-card)">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold text-text-muted">
@@ -359,6 +386,11 @@
                             <span class="font-mono font-extrabold tabular-nums" x-text="timerStr"></span>
                         </div>
                     </template>
+                </div>
+                <div class="h-1.5 rounded-full bg-gray-100 overflow-hidden mb-3">
+                    <div class="h-full rounded-full transition-all duration-300"
+                         :class="totalAnswered >= totalQuestions ? 'bg-success' : 'bg-primary'"
+                         :style="`width: ${totalQuestions > 0 ? Math.round(totalAnswered / totalQuestions * 100) : 0}%`"></div>
                 </div>
                 <button @click="confirmFinish = true" class="w-full btn btn-danger">
                     <x-icon name="check" class="w-4 h-4" />
@@ -558,6 +590,11 @@
     {{-- ── Mobile sticky bottom bar ────────────────────────────────────── --}}
     <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border z-30"
          style="box-shadow: 0 -4px 16px rgba(0,0,0,0.08)">
+        <div class="h-1 bg-gray-100 overflow-hidden">
+            <div class="h-full transition-all duration-300"
+                 :class="totalAnswered >= totalQuestions ? 'bg-success' : 'bg-primary'"
+                 :style="`width: ${totalQuestions > 0 ? Math.round(totalAnswered / totalQuestions * 100) : 0}%`"></div>
+        </div>
         <div class="flex items-center gap-3 px-4 py-3">
             <span class="text-xs font-semibold text-text-muted shrink-0">
                 <span x-text="totalAnswered" class="text-text font-extrabold"></span>/<span x-text="totalQuestions"></span>
@@ -608,6 +645,21 @@
             </div>
         </div>
     </div>
+
+    {{-- ── Test tools modals ─────────────────────────────────────────────── --}}
+    <x-calculator show="calcOpen" />
+
+    <x-modal title="Таблица Менделеева" show="mendeleevOpen" size="2xl">
+        <div class="p-3">
+            <x-zoomable-image :src="asset('images/mendeleev.png')" alt="Периодическая таблица Менделеева" />
+        </div>
+    </x-modal>
+
+    <x-modal title="Таблица растворимости" show="solubilityOpen" size="2xl">
+        <div class="p-3">
+            <x-zoomable-image :src="asset('images/solubility.png')" alt="Таблица растворимости" />
+        </div>
+    </x-modal>
 
 </div>
 

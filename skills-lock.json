@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "alpinejs": {
+      "source": "brettatoms/agent-skills",
+      "sourceType": "github",
+      "skillPath": "alpinejs/SKILL.md",
+      "computedHash": "4952716ebe84faa812f6dcb3f921a85e84327891a2767ecea9601bc23e06e01c"
+    }
+  }
+}
