@@ -167,11 +167,18 @@
                 <div x-show="accessType !== ''" x-cloak class="card">
                     <p class="q-section-label mb-3">Ограничения</p>
                     <div class="space-y-4">
-                        <div x-show="accessType === 'subject'" x-cloak>
-                            <x-form.input name="question_count" label="Вопросов"
-                                type="number" placeholder="0 — все" :value="$oldQCount" />
-                        </div>
-                        <input x-show="accessType !== 'subject'" type="hidden" name="question_count" value="0">
+                        <template x-if="accessType === 'subject'">
+                            <div>
+                                <x-form.input name="question_count" label="Вопросов"
+                                    type="number" placeholder="0 — все" :value="$oldQCount" />
+                                <p x-show="single.partType === ''" x-cloak class="text-xs text-warning mt-1.5">
+                                    При случайном типе вопросов лимит обязателен — иначе студенту достанутся все вопросы предмета.
+                                </p>
+                            </div>
+                        </template>
+                        <template x-if="accessType !== 'subject'">
+                            <input type="hidden" name="question_count" value="0">
+                        </template>
                         <x-form.input name="attempts_limit" label="Попыток"
                             type="number" placeholder="1" :value="$oldTries" />
                         <x-form.input name="duration_minutes" label="Время (мин.)"

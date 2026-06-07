@@ -17,6 +17,7 @@ use App\Services\TestAssemblyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class TestController extends Controller
@@ -112,6 +113,8 @@ class TestController extends Controller
     {
         $user = auth()->user();
         $this->authorizeAccess($access, $user);
+
+        $this->validateChoices($request, $access);
 
         $choices = $request->only(['nusqa_number', 'elective_subject_ids', 'part_id']);
 
@@ -255,6 +258,44 @@ class TestController extends Controller
     private function authorizeTest(Test $test): void
     {
         abort_if($test->user_id !== auth()->id(), 403);
+    }
+
+    /** Make sure the student has made all choices required by the access config before assembling the test. */
+    private function validateChoices(Request $request, TestAccess $access): void
+    {
+        if ($access->type === TestAccessType::Ent) {
+            if ($access->student_chooses_subject) {
+                $request->validate([
+                    'elective_subject_ids' => ['required', 'array', 'size:2'],
+                    'elective_subject_ids.*' => ['required', 'distinct', 'exists:subjects,id'],
+                ], [
+                    'elective_subject_ids.required' => 'Выберите профильные предметы.',
+                    'elective_subject_ids.size' => 'Нужно выбрать ровно 2 предмета.',
+                    'elective_subject_ids.*.required' => 'Выберите профильные предметы.',
+                    'elective_subject_ids.*.distinct' => 'Предметы не должны повторяться.',
+                ]);
+            }
+
+            if ($access->student_chooses_nusqa) {
+                $request->validate([
+                    'nusqa_number' => ['required', 'integer', 'min:1'],
+                ], [
+                    'nusqa_number.required' => 'Выберите нұсқа.',
+                ]);
+            }
+
+            return;
+        }
+
+        $cfg = $access->accessSubjects->first();
+
+        if ($cfg && $cfg->student_chooses_part && $cfg->part_type) {
+            $request->validate([
+                'part_id' => ['required', 'integer', Rule::exists('parts', 'id')->where('subject_id', $cfg->subject_id)],
+            ], [
+                'part_id.required' => 'Выберите раздел.',
+            ]);
+        }
     }
 
     /**

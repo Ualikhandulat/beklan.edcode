@@ -126,23 +126,23 @@
         $sMid   = $sPct >= 50 && $sPct < 70;
         $sColor = $sGood ? 'var(--color-success)' : ($sMid ? 'var(--color-primary)' : 'var(--color-danger)');
     @endphp
-    @if ($s['part'])
-        <div class="card mb-4 fade-up" style="animation-delay: 120ms">
-            <div class="flex items-center justify-between gap-3 mb-3">
-                <div class="min-w-0">
-                    <p class="text-sm font-extrabold text-text leading-snug truncate">{{ $s['subject']->title }}</p>
+    <div class="card mb-4 fade-up" style="animation-delay: 120ms">
+        <div class="flex items-center justify-between gap-3 mb-3">
+            <div class="min-w-0">
+                <p class="text-sm font-extrabold text-text leading-snug truncate">{{ $s['subject']->title }}</p>
+                @if ($s['part'])
                     <p class="text-xs text-text-muted truncate">{{ $s['part']->title }}</p>
-                </div>
-                <span class="text-sm font-black tabular-nums shrink-0" style="color: {{ $sColor }}">
-                    {{ $s['score'] }}<span class="text-xs text-text-muted font-semibold">/{{ $s['max_score'] }}</span>
-                </span>
+                @endif
             </div>
-            <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full rounded-full bar-fill"
-                     style="--bar-target: {{ $sPct }}%; background: {{ $sColor }}; width: 0%; animation-delay: 400ms"></div>
-            </div>
+            <span class="text-sm font-black tabular-nums shrink-0" style="color: {{ $sColor }}">
+                {{ $s['score'] }}<span class="text-xs text-text-muted font-semibold">/{{ $s['max_score'] }}</span>
+            </span>
         </div>
-    @endif
+        <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full rounded-full bar-fill"
+                 style="--bar-target: {{ $sPct }}%; background: {{ $sColor }}; width: 0%; animation-delay: 400ms"></div>
+        </div>
+    </div>
 @endif
 
 {{-- ── Actions ──────────────────────────────────────────────────────────── --}}

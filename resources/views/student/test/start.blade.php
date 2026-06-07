@@ -137,16 +137,13 @@
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     @foreach([0, 1] as $i)
-                        <div>
-                            <label class="block text-sm font-semibold text-text mb-1.5">Предмет {{ $i + 1 }}</label>
-                            <select name="elective_subject_ids[]" required
-                                    class="w-full px-4 py-2.5 border border-border rounded-2xl text-sm bg-white focus:outline-none focus:border-info focus:ring-2 focus:ring-info/20 transition-colors">
-                                <option value="">— Выберите —</option>
-                                @foreach ($electiveSubjects as $s)
-                                    <option value="{{ $s->id }}">{{ $s->title }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        <x-form.select
+                            name="elective_subject_ids[{{ $i }}]"
+                            label="Предмет {{ $i + 1 }}"
+                            :options="$electiveSubjects->pluck('title', 'id')"
+                            placeholder="— Выберите —"
+                            :searchable="false"
+                            :required="true" />
                     @endforeach
                 </div>
             </div>
@@ -185,19 +182,13 @@
         {{-- Subject: Student chooses part --}}
         @if (!$isEnt && $singleCfg?->student_chooses_part && $choosableParts->isNotEmpty())
             <div class="card mb-4">
-                <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">
-                    Выберите {{ $singleCfg->part_type?->label() ?? 'раздел' }}
-                </p>
-                <div class="flex flex-wrap gap-2">
-                    @foreach ($choosableParts as $part)
-                        <label class="cursor-pointer">
-                            <input type="radio" name="part_id" value="{{ $part->id }}" class="sr-only peer" required>
-                            <span class="inline-flex items-center px-4 py-2 rounded-xl border border-border text-sm font-semibold text-text-muted transition-all peer-checked:border-info peer-checked:text-info peer-checked:bg-info-light hover:border-info/50">
-                                {{ $part->title }}
-                            </span>
-                        </label>
-                    @endforeach
-                </div>
+                <x-form.select
+                    name="part_id"
+                    label="Выберите {{ $singleCfg->part_type?->label() ?? 'раздел' }}"
+                    :options="$choosableParts->pluck('title', 'id')"
+                    placeholder="— Выберите —"
+                    :searchable="false"
+                    :required="true" />
             </div>
         @endif
 
