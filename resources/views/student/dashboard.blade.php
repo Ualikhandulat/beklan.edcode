@@ -50,7 +50,7 @@
             </span>
         </div>
 
-        <div class="space-y-3 mb-6">
+        <div class="space-y-3 mb-10">
             @foreach ($inProgress as $i => $access)
                 @php
                     $test       = $inProgressTests->get($access->id);
@@ -165,7 +165,7 @@
             </div>
         @endif
 
-        <div class="space-y-3">
+        <div class="space-y-3 mb-10">
             @foreach ($available as $i => $access)
                 @php
                     $isEnt      = $access->type === TestAccessType::Ent;
