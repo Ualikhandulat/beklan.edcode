@@ -370,47 +370,57 @@
                             @endforeach
                         </div>
 
-                        <div x-show="single.partType !== ''" x-cloak class="space-y-3">
-                            {{-- Student chooses part --}}
-                            <label class="inline-flex items-center gap-3 cursor-pointer">
-                                <div class="relative shrink-0">
-                                    <input type="hidden" name="subject[student_chooses_part]" value="0">
-                                    <input type="checkbox" name="subject[student_chooses_part]" value="1"
-                                           class="sr-only peer" x-model="single.scp"
-                                           @change="if (single.scp) single.partId = null">
-                                    <div class="w-9 h-5 bg-gray-200 peer-checked:bg-primary rounded-full transition-all shadow-inner border border-gray-200 peer-focus:ring-2 peer-focus:ring-primary/30"></div>
-                                    <div class="absolute top-[2px] left-[2px] bg-white rounded-full h-4 w-4 shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] peer-checked:translate-x-full"></div>
-                                </div>
-                                <span class="text-sm font-semibold text-text select-none">Студент выбирает</span>
-                            </label>
-
-                            {{-- Specific part dropdown --}}
-                            <div x-show="!single.scp" class="form-group !mb-0">
-                                <label>
-                                    Конкретный раздел
-                                    <span class="text-xs text-text-muted font-normal">(необязательно — иначе случайно)</span>
+                        <template x-if="single.partType !== ''">
+                            <div class="space-y-3">
+                                {{-- Student chooses part --}}
+                                <label class="inline-flex items-center gap-3 cursor-pointer">
+                                    <div class="relative shrink-0">
+                                        <input type="hidden" name="subject[student_chooses_part]" value="0">
+                                        <input type="checkbox" name="subject[student_chooses_part]" value="1"
+                                               class="sr-only peer" x-model="single.scp"
+                                               @change="if (single.scp) single.partId = null">
+                                        <div class="w-9 h-5 bg-gray-200 peer-checked:bg-primary rounded-full transition-all shadow-inner border border-gray-200 peer-focus:ring-2 peer-focus:ring-primary/30"></div>
+                                        <div class="absolute top-[2px] left-[2px] bg-white rounded-full h-4 w-4 shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] peer-checked:translate-x-full"></div>
+                                    </div>
+                                    <span class="text-sm font-semibold text-text select-none">Студент выбирает</span>
                                 </label>
-                                <select name="subject[part_id]" x-model.number="single.partId"
-                                        class="w-full px-4 py-2.5 border border-border rounded-2xl text-sm bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
-                                    <option value="">— Случайно из всех —</option>
-                                    <template x-if="single.partType === 'nusqa'">
-                                        <template x-for="n in subjectNusqas" :key="n.id">
-                                            <option :value="n.id" :selected="single.partId == n.id"
-                                                    x-text="`Нұсқа ${n.title} (${n.count} вопр.)`"></option>
-                                        </template>
-                                    </template>
-                                    <template x-if="single.partType === 'topic'">
-                                        <template x-for="t in subjectTopics" :key="t.id">
-                                            <option :value="t.id" :selected="single.partId == t.id"
-                                                    x-text="t.title"></option>
-                                        </template>
-                                    </template>
-                                </select>
+
+                                {{-- Specific part dropdown --}}
+                                <template x-if="!single.scp">
+                                    <div class="form-group !mb-0">
+                                        <label>
+                                            Конкретный раздел
+                                            <span class="text-xs text-text-muted font-normal">(необязательно — иначе случайно)</span>
+                                        </label>
+                                        <select name="subject[part_id]" x-model.number="single.partId"
+                                                class="w-full px-4 py-2.5 border border-border rounded-2xl text-sm bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
+                                            <option value="">— Случайно из всех —</option>
+                                            <template x-if="single.partType === 'nusqa'">
+                                                <template x-for="n in subjectNusqas" :key="n.id">
+                                                    <option :value="n.id" :selected="single.partId == n.id"
+                                                            x-text="`Нұсқа ${n.title} (${n.count} вопр.)`"></option>
+                                                </template>
+                                            </template>
+                                            <template x-if="single.partType === 'topic'">
+                                                <template x-for="t in subjectTopics" :key="t.id">
+                                                    <option :value="t.id" :selected="single.partId == t.id"
+                                                            x-text="t.title"></option>
+                                                </template>
+                                            </template>
+                                        </select>
+                                    </div>
+                                </template>
+                                <template x-if="single.scp">
+                                    <input type="hidden" name="subject[part_id]" value="">
+                                </template>
                             </div>
-                            <input x-show="single.scp" type="hidden" name="subject[part_id]" value="">
-                        </div>
-                        <input x-show="single.partType === ''" type="hidden" name="subject[part_id]" value="">
-                        <input x-show="single.partType === ''" type="hidden" name="subject[student_chooses_part]" value="0">
+                        </template>
+                        <template x-if="single.partType === ''">
+                            <div>
+                                <input type="hidden" name="subject[part_id]" value="">
+                                <input type="hidden" name="subject[student_chooses_part]" value="0">
+                            </div>
+                        </template>
                     </div>
                 </div>
 

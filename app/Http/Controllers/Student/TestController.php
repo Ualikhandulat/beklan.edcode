@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Student;
 
 use App\Enums\QuestionType;
+use App\Enums\TestAccessType;
 use App\Http\Controllers\Controller;
 use App\Models\Part;
 use App\Models\Question;
@@ -81,7 +82,7 @@ class TestController extends Controller
 
         // Parts available for нұсқа/topic choice (if student_chooses_part — subject type)
         $choosableParts = collect();
-        if (! $access->type->value === 'ent') {
+        if ($access->type !== TestAccessType::Ent) {
             $cfg = $access->accessSubjects->first();
             if ($cfg && $cfg->student_chooses_part && $cfg->part_type) {
                 $choosableParts = Part::where('subject_id', $cfg->subject_id)
@@ -343,7 +344,11 @@ class TestController extends Controller
                 'questions' => $questions,
                 'score' => $testSubject->score,
                 'max_score' => $testSubject->max_score,
-                'answered' => collect($questions)->filter(fn ($q) => ! empty($q['user_answers']))->count(),
+                'answered' => collect($questions)->filter(function ($q) {
+                    $answers = $q['user_answers'] ?? [];
+
+                    return ! empty($answers) && collect($answers)->every(fn ($a) => $a !== null);
+                })->count(),
             ];
         }
 

@@ -188,15 +188,15 @@
                     answers[answer.pair] = answer.val;
                 }
 
-                const wasEmpty = !q.user_answers || q.user_answers.length === 0;
+                const wasAnswered = this.isAnswered(q);
                 q.user_answers = answers;
                 this.subjects[this.activeSubject].questions[this.activeQuestion].user_answers = answers;
+                const isNowAnswered = this.isAnswered(q);
 
-                const isNowAnswered = answers && answers.length > 0 && answers.every(a => a !== null);
-                if (wasEmpty && isNowAnswered) {
+                if (!wasAnswered && isNowAnswered) {
                     this.subjects[this.activeSubject].answered++;
                     this.totalAnswered++;
-                } else if (!wasEmpty && !isNowAnswered) {
+                } else if (wasAnswered && !isNowAnswered) {
                     this.subjects[this.activeSubject].answered--;
                     this.totalAnswered--;
                 }
