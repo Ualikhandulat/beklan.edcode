@@ -1,7 +1,10 @@
 import Alpine from 'alpinejs';
-import { initWysiwyg } from './wysiwyg.js';
 
 window.Alpine = Alpine;
 Alpine.start();
 
-document.addEventListener('DOMContentLoaded', initWysiwyg);
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.querySelector('[data-wysiwyg]')) {
+        import('./wysiwyg.js').then(({ initWysiwyg }) => initWysiwyg());
+    }
+});
