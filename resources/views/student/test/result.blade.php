@@ -8,14 +8,6 @@
     $isGood     = $pct >= 70;
     $isMid      = $pct >= 50 && $pct < 70;
     $scoreColor = $isGood ? 'var(--color-success)' : ($isMid ? 'var(--color-primary)' : 'var(--color-danger)');
-    $access     = $test->access;
-
-    $usedAttempts = \App\Models\Test::where('test_access_id', $access->id)
-        ->where('user_id', auth()->id())
-        ->whereNotNull('completed_at')
-        ->count();
-    $canRetry = $access->attempts_limit === 0 || $usedAttempts < $access->attempts_limit;
-
     $duration = $test->started_at
         ? $test->started_at->diffInSeconds($test->completed_at)
         : null;
@@ -109,7 +101,12 @@
             @endphp
             <div class="card fade-up" style="animation-delay: {{ 120 + $i * 50 }}ms">
                 <div class="flex items-center justify-between gap-3 mb-3">
-                    <p class="text-sm font-extrabold text-text leading-snug truncate">{{ $subject['subject']->title }}</p>
+                    <div class="min-w-0">
+                        <p class="text-sm font-extrabold text-text leading-snug truncate">{{ $subject['subject']->title }}</p>
+                        @if ($subject['part'])
+                            <p class="text-xs text-text-muted truncate">{{ $subject['part']->title }}</p>
+                        @endif
+                    </div>
                     <span class="text-sm font-black tabular-nums shrink-0" style="color: {{ $sColor }}">
                         {{ $subject['score'] }}<span class="text-xs text-text-muted font-semibold">/{{ $subject['max_score'] }}</span>
                     </span>
@@ -132,7 +129,10 @@
     @if ($s['part'])
         <div class="card mb-4 fade-up" style="animation-delay: 120ms">
             <div class="flex items-center justify-between gap-3 mb-3">
-                <p class="text-sm font-extrabold text-text leading-snug truncate">{{ $s['subject']->title }}</p>
+                <div class="min-w-0">
+                    <p class="text-sm font-extrabold text-text leading-snug truncate">{{ $s['subject']->title }}</p>
+                    <p class="text-xs text-text-muted truncate">{{ $s['part']->title }}</p>
+                </div>
                 <span class="text-sm font-black tabular-nums shrink-0" style="color: {{ $sColor }}">
                     {{ $s['score'] }}<span class="text-xs text-text-muted font-semibold">/{{ $s['max_score'] }}</span>
                 </span>
@@ -154,14 +154,6 @@
         <x-icon name="book-open" class="w-4 h-4" />
         Разбор ответов
     </a>
-
-    @if ($canRetry)
-        <a href="{{ route('student.test.index', $access) }}"
-           class="flex-1 btn btn-outline text-center font-semibold py-3 rounded-2xl">
-            <x-icon name="refresh" class="w-4 h-4" />
-            Пройти ещё раз
-        </a>
-    @endif
 
     <a href="{{ route('student.dashboard') }}"
        class="flex-1 btn btn-outline text-center font-semibold py-3 rounded-2xl">

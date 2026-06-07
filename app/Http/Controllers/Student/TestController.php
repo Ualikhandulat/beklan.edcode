@@ -10,6 +10,7 @@ use App\Models\QuestionDetail;
 use App\Models\Subject;
 use App\Models\Test;
 use App\Models\TestAccess;
+use App\Models\TestSubject;
 use App\Models\User;
 use App\Services\TestAssemblyService;
 use Illuminate\Http\JsonResponse;
@@ -226,9 +227,16 @@ class TestController extends Controller
             return redirect()->route('student.test.process', $test);
         }
 
-        $test->load(['subjects.subject', 'subjects.part', 'access']);
+        $test->load(['subjects.subject', 'subjects.part']);
 
-        $subjectsData = $this->buildSubjectsData($test);
+        // The result page only shows per-subject scores, not question details —
+        // no need to pull every question/detail like buildSubjectsData() does.
+        $subjectsData = $test->subjects->map(fn (TestSubject $testSubject) => [
+            'subject' => $testSubject->subject,
+            'part' => $testSubject->part,
+            'score' => $testSubject->score,
+            'max_score' => $testSubject->max_score,
+        ])->all();
 
         return view('student.test.result', compact('test', 'subjectsData'));
     }
@@ -255,20 +263,22 @@ class TestController extends Controller
      */
     private function buildSubjectsData(Test $test, bool $withCorrect = false): array
     {
+        $detailIds = $test->subjects
+            ->flatMap(fn ($testSubject) => collect($testSubject->questions)->pluck('detail_id'))
+            ->unique();
+
+        $details = QuestionDetail::whereIn('id', $detailIds)
+            ->get()
+            ->keyBy('id');
+
+        // Load parent Question models separately to avoid the `question` column/relation name clash
+        $questionModels = Question::whereIn('id', $details->pluck('question_id')->unique())
+            ->get()
+            ->keyBy('id');
+
         $result = [];
 
         foreach ($test->subjects as $testSubject) {
-            $detailIds = collect($testSubject->questions)->pluck('detail_id');
-
-            $details = QuestionDetail::whereIn('id', $detailIds)
-                ->get()
-                ->keyBy('id');
-
-            // Load parent Question models separately to avoid the `question` column/relation name clash
-            $questionModels = Question::whereIn('id', $details->pluck('question_id'))
-                ->get()
-                ->keyBy('id');
-
             $questions = [];
             foreach ($testSubject->questions as $idx => $q) {
                 $detail = $details->get($q['detail_id']);
