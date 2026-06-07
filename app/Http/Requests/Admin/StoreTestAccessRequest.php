@@ -27,6 +27,7 @@ class StoreTestAccessRequest extends FormRequest
             'user_id' => ['nullable', 'required_without:group_id', 'exists:users,id'],
             'group_id' => ['nullable', 'required_without:user_id', 'exists:groups,id'],
 
+            'is_active' => ['boolean'],
             'student_chooses_subject' => ['boolean'],
             'question_count' => [
                 Rule::requiredIf($requiresQuestionLimit),
@@ -80,6 +81,7 @@ class StoreTestAccessRequest extends FormRequest
             $data['group_id'] = null;
         }
 
+        $data['is_active'] = (bool) ($data['is_active'] ?? false);
         $data['student_chooses_subject'] = (bool) ($data['student_chooses_subject'] ?? false);
 
         $nusqaMode = $data['nusqa_mode'] ?? 'random';

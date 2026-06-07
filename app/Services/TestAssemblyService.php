@@ -14,6 +14,7 @@ use App\Models\TestAccess;
 use App\Models\TestAccessSubject;
 use App\Models\TestSubject;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class TestAssemblyService
@@ -34,6 +35,7 @@ class TestAssemblyService
                 'test_access_id' => $access->id,
                 'user_id' => $user->id,
                 'attempt_number' => $attemptNumber,
+                'started_at' => now(),
             ]);
 
             if ($access->type === TestAccessType::Ent) {
@@ -314,6 +316,10 @@ class TestAssemblyService
                 'total_score' => $totalScore,
                 'completed_at' => now(),
             ]);
+
+            // Cache key format mirrored in DashboardController::buildStats() — drop it so the
+            // dashboard reloads fresh progress/activity data after this completed attempt.
+            Cache::forget("student.dashboard.stats.{$test->user_id}");
         });
     }
 

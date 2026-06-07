@@ -30,6 +30,11 @@ class TestController extends Controller
         $user = auth()->user();
         $this->authorizeAccess($access, $user);
 
+        if (! $access->is_active) {
+            return redirect()->route('student.dashboard')
+                ->with('error', 'Доступ к этому тесту деактивирован.');
+        }
+
         // Auto-finish expired incomplete tests so they count as used attempts
         if ($access->duration_minutes) {
             $expiryThreshold = now()->subMinutes($access->duration_minutes);
@@ -113,6 +118,11 @@ class TestController extends Controller
     {
         $user = auth()->user();
         $this->authorizeAccess($access, $user);
+
+        if (! $access->is_active) {
+            return redirect()->route('student.dashboard')
+                ->with('error', 'Доступ к этому тесту деактивирован.');
+        }
 
         $this->validateChoices($request, $access);
 

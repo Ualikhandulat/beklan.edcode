@@ -14,6 +14,7 @@ class TestAccess extends Model
         'type',
         'user_id',
         'group_id',
+        'is_active',
         'student_chooses_subject',
         'nusqa_number',
         'student_chooses_nusqa',
@@ -25,6 +26,7 @@ class TestAccess extends Model
 
     protected $casts = [
         'type' => TestAccessType::class,
+        'is_active' => 'boolean',
         'student_chooses_subject' => 'boolean',
         'student_chooses_nusqa' => 'boolean',
         'expires_at' => 'datetime',
@@ -55,6 +57,7 @@ class TestAccess extends Model
         $groupId = User::where('id', $userId)->value('group_id');
 
         return $query
+            ->where('is_active', true)
             ->where(function (Builder $q) use ($userId, $groupId) {
                 $q->where('user_id', $userId);
                 if ($groupId) {

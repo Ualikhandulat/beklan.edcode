@@ -6,6 +6,7 @@
     $isEdit     = $access->exists;
     $oldTarget  = old('user_id') || ($isEdit && $access->user_id) ? 'user' : 'group';
     $oldType    = old('type', $access->type?->value ?? '');
+    $oldIsActive = (bool) old('is_active', $access->exists ? $access->is_active : true);
     $oldSCS     = (bool) old('student_chooses_subject', $access->student_chooses_subject ?? false);
     $oldQCount    = old('question_count',    $access->question_count    ?? 0);
     $oldTries     = old('attempts_limit',   $access->attempts_limit    ?? 1);
@@ -19,6 +20,7 @@
      x-data="{
          targetType: '{{ $oldTarget }}',
          accessType: '{{ $oldType }}',
+         isActive: {{ $oldIsActive ? 'true' : 'false' }},
          scs: {{ $oldSCS ? 'true' : 'false' }},
          data: @js($subjectsWithParts),
          mandatory: @js($mandatorySubjectsJs),
@@ -117,6 +119,26 @@
 
             {{-- ── LEFT COLUMN ─────────────────────────────────────────────────── --}}
             <div class="w-full lg:w-96 shrink-0 space-y-4">
+
+                {{-- 0. Статус ────────────────────────────────────────────────────── --}}
+                <div class="card">
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="min-w-0">
+                            <p class="q-section-label !mb-0.5">Статус доступа</p>
+                            <p class="text-xs text-text-muted"
+                               x-text="isActive ? 'Студент может проходить тест' : 'Доступ деактивирован — студент не сможет начать тест'"></p>
+                        </div>
+                        <label class="inline-flex items-center cursor-pointer shrink-0">
+                            <div class="relative shrink-0">
+                                <input type="hidden" name="is_active" value="0">
+                                <input type="checkbox" name="is_active" value="1"
+                                       class="sr-only peer" x-model="isActive">
+                                <div class="w-11 h-6 bg-gray-200 peer-checked:bg-primary rounded-full transition-all shadow-inner border border-gray-200 peer-focus:ring-2 peer-focus:ring-primary/30"></div>
+                                <div class="absolute top-[2px] left-[2px] bg-white rounded-full h-5 w-5 shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] peer-checked:translate-x-full"></div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
 
                 {{-- 1. Кому ──────────────────────────────────────────────────────── --}}
                 <div class="card">

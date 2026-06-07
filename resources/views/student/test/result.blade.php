@@ -19,6 +19,10 @@
         $s = $duration % 60;
         $durationStr = $h > 0 ? "{$h}ч {$m}м" : ($m > 0 ? "{$m}м {$s}с" : "{$s}с");
     }
+
+    $partLabel = fn ($part) => $part->type === \App\Enums\PartType::Nusqa
+        ? "Нұсқа - {$part->title}"
+        : $part->title;
 @endphp
 
 @push('head')
@@ -104,7 +108,7 @@
                     <div class="min-w-0">
                         <p class="text-sm font-extrabold text-text leading-snug truncate">{{ $subject['subject']->title }}</p>
                         @if ($subject['part'])
-                            <p class="text-xs text-text-muted truncate">{{ $subject['part']->title }}</p>
+                            <p class="text-xs text-text-muted truncate">{{ $partLabel($subject['part']) }}</p>
                         @endif
                     </div>
                     <span class="text-sm font-black tabular-nums shrink-0" style="color: {{ $sColor }}">
@@ -131,7 +135,7 @@
             <div class="min-w-0">
                 <p class="text-sm font-extrabold text-text leading-snug truncate">{{ $s['subject']->title }}</p>
                 @if ($s['part'])
-                    <p class="text-xs text-text-muted truncate">{{ $s['part']->title }}</p>
+                    <p class="text-xs text-text-muted truncate">{{ $partLabel($s['part']) }}</p>
                 @endif
             </div>
             <span class="text-sm font-black tabular-nums shrink-0" style="color: {{ $sColor }}">

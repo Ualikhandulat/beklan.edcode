@@ -30,7 +30,7 @@
 </div>
 
 @if ($inProgress->isEmpty() && $available->isEmpty())
-    <div class="card text-center py-16 fade-up" style="animation-delay: 80ms">
+    <div class="card text-center py-16 fade-up mb-10" style="animation-delay: 80ms">
         <div class="w-14 h-14 rounded-2xl bg-success/10 flex items-center justify-center mx-auto mb-4">
             <x-icon name="check" class="w-7 h-7 text-success" />
         </div>
@@ -276,5 +276,136 @@
     @endif
 
 @endif
+
+{{-- ── Прогресс и активность ────────────────────────────────────────────── --}}
+@if ($stats['totalTests'] > 0)
+    @php
+        $avgGood  = $stats['avgPct'] >= 70;
+        $avgMid   = $stats['avgPct'] >= 50 && $stats['avgPct'] < 70;
+        $avgColor = $avgGood ? 'var(--color-success)' : ($avgMid ? 'var(--color-primary)' : 'var(--color-danger)');
+
+        $chartW = 100;
+        $chartH = 40;
+        $chartPad = 4;
+        $progressPoints = $stats['progress'];
+        $pCount = $progressPoints->count();
+        $progressCoords = $progressPoints->values()->map(function ($p, $i) use ($pCount, $chartW, $chartH, $chartPad) {
+            $x = $pCount > 1 ? round($i * ($chartW / ($pCount - 1)), 2) : $chartW / 2;
+            $y = round($chartH - $chartPad - ($p['pct'] / 100) * ($chartH - $chartPad * 2), 2);
+
+            return ['x' => $x, 'y' => $y, 'pct' => $p['pct'], 'date' => $p['date']];
+        });
+        $progressPolyline = $progressCoords->map(fn ($c) => "{$c['x']},{$c['y']}")->implode(' ');
+        $progressArea = $pCount > 0
+            ? "0,{$chartH} {$progressPolyline} {$chartW},{$chartH}"
+            : '';
+
+        $maxActivity = max(1, $stats['activity']->max('count'));
+    @endphp
+
+    <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-3 fade-up" style="animation-delay: 20ms">
+        <div class="card text-center py-4 px-2">
+            <p class="text-2xl font-black text-text tabular-nums leading-none">{{ $stats['totalTests'] }}</p>
+            <p class="text-[10px] sm:text-[11px] text-text-muted font-bold uppercase tracking-wide mt-1.5">Тестов пройдено</p>
+        </div>
+        <div class="card text-center py-4 px-2">
+            <p class="text-2xl font-black tabular-nums leading-none" style="color: {{ $avgColor }}">{{ $stats['avgPct'] }}%</p>
+            <p class="text-[10px] sm:text-[11px] text-text-muted font-bold uppercase tracking-wide mt-1.5">Средний балл</p>
+        </div>
+        <div class="card text-center py-4 px-2">
+            <p class="text-2xl font-black tabular-nums leading-none" style="color: var(--color-success)">{{ $stats['bestPct'] }}%</p>
+            <p class="text-[10px] sm:text-[11px] text-text-muted font-bold uppercase tracking-wide mt-1.5">Лучший результат</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+
+        {{-- Progress trend --}}
+        @if ($pCount > 1)
+            <div class="card fade-up" style="animation-delay: 60ms">
+                <div class="flex items-center justify-between mb-3">
+                    <p class="text-sm font-extrabold text-text">Прогресс по тестам</p>
+                    <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-md bg-info-light text-info">
+                        <x-icon name="chart-bar" class="w-3 h-3" />
+                        Последние {{ $pCount }}
+                    </span>
+                </div>
+
+                <svg viewBox="0 0 {{ $chartW }} {{ $chartH }}" preserveAspectRatio="none" class="w-full h-28 sm:h-32 overflow-visible">
+                    <polygon points="{{ $progressArea }}" fill="var(--color-primary)" opacity="0.10"></polygon>
+                    <polyline points="{{ $progressPolyline }}" fill="none" stroke="var(--color-primary)"
+                              stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                              vector-effect="non-scaling-stroke"></polyline>
+                    @foreach ($progressCoords as $c)
+                        <circle cx="{{ $c['x'] }}" cy="{{ $c['y'] }}" r="1.7" fill="white"
+                                stroke="var(--color-primary)" stroke-width="1.3" vector-effect="non-scaling-stroke">
+                            <title>{{ $c['date'] }}: {{ $c['pct'] }}%</title>
+                        </circle>
+                    @endforeach
+                </svg>
+
+                <div class="flex items-center justify-between mt-2 text-[10px] text-text-muted font-semibold">
+                    <span>{{ $progressCoords->first()['date'] }} · {{ $progressCoords->first()['pct'] }}%</span>
+                    <span>{{ $progressCoords->last()['date'] }} · {{ $progressCoords->last()['pct'] }}%</span>
+                </div>
+            </div>
+        @endif
+
+        {{-- Subject breakdown --}}
+        @if ($stats['subjects']->isNotEmpty())
+            <div class="card fade-up" style="animation-delay: 100ms">
+                <p class="text-sm font-extrabold text-text mb-3">Сильные и слабые стороны</p>
+
+                @foreach ($stats['subjects'] as $subject)
+                    @php
+                        $spct  = (int) $subject['pct'];
+                        $sgood = $spct >= 70;
+                        $smid  = $spct >= 50 && $spct < 70;
+                        $scol  = $sgood ? 'var(--color-success)' : ($smid ? 'var(--color-primary)' : 'var(--color-danger)');
+                    @endphp
+                    <div class="mb-3 last:mb-0">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="text-xs font-bold text-text truncate">{{ $subject['title'] }}</span>
+                            <span class="text-xs font-extrabold tabular-nums shrink-0" style="color: {{ $scol }}">{{ $spct }}%</span>
+                        </div>
+                        <div class="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full" style="width: {{ $spct }}%; background: {{ $scol }}"></div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+
+    {{-- Activity strip --}}
+    <div class="card mb-6 fade-up" style="animation-delay: 140ms">
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-sm font-extrabold text-text">Активность за 14 дней</p>
+            <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-md bg-success-light text-success">
+                <x-icon name="refresh" class="w-3 h-3" />
+                {{ $stats['activity']->sum('count') }} за период
+            </span>
+        </div>
+
+        <div class="flex items-end justify-between gap-1 sm:gap-1.5 h-20">
+            @foreach ($stats['activity'] as $day)
+                @php
+                    $active = $day['count'] > 0;
+                    $barH = $active ? max(18, (int) round(($day['count'] / $maxActivity) * 100)) : 6;
+                @endphp
+                <div class="flex-1 h-full flex items-end" title="{{ $day['date'] }}: {{ $day['count'] }}">
+                    <div class="w-full rounded-md transition-all duration-300 {{ $active ? '' : 'bg-gray-200' }}"
+                         style="height: {{ $barH }}%; {{ $active ? 'background: var(--color-primary)' : '' }}"></div>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="flex items-center justify-between mt-2 text-[10px] text-text-muted font-semibold">
+            <span>{{ $stats['activity']->first()['date'] }}</span>
+            <span>{{ $stats['activity']->last()['date'] }}</span>
+        </div>
+    </div>
+@endif
+
 
 @endsection

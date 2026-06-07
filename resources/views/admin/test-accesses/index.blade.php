@@ -51,6 +51,7 @@
             <tr>
                 <th class="w-12 text-text-muted hidden sm:table-cell">ID</th>
                 <th>Кому</th>
+                <th class="w-24 text-center">Статус</th>
                 <th class="w-28">Тип</th>
                 <th>Предметы</th>
                 <th class="w-36">Нұсқа / Раздел</th>
@@ -89,6 +90,15 @@
                                 </div>
                                 <p class="text-sm font-semibold text-text">{{ $access->group->title }}</p>
                             </div>
+                        @endif
+                    </td>
+
+                    {{-- Status --}}
+                    <td class="text-center">
+                        @if ($access->is_active)
+                            <span class="badge badge-success">Активен</span>
+                        @else
+                            <span class="badge badge-danger">Откл.</span>
                         @endif
                     </td>
 
@@ -184,7 +194,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="9" class="text-center text-text-muted py-12">
+                    <td colspan="10" class="text-center text-text-muted py-12">
                         @if (request()->hasAny(['search', 'type', 'target']))
                             По фильтрам ничего не найдено.
                         @else
