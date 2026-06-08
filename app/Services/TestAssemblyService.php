@@ -291,11 +291,11 @@ class TestAssemblyService
     }
 
     /**
-     * Подбирает QuestionDetail для контекстных (IS_GROUP) вопросов целыми контекстами —
-     * один контекст (текст для чтения) всегда отдаёт студенту все свои вопросы вместе,
-     * никогда не разрывая их по границе квоты. Берёт контексты по порядку id, пока
-     * не наберётся нужное количество вопросов (итог может немного превышать $count,
-     * если последний добавленный контекст содержит несколько вопросов).
+     * Подбирает ровно $count QuestionDetail для контекстных (IS_GROUP) вопросов —
+     * берёт контексты (тексты для чтения) по порядку id целиком, пока не наберётся
+     * нужное количество; если очередной контекст не помещается полностью, забирает
+     * из него только недостающий «хвост» вопросов. Итог всегда равен канонической
+     * квоте ЕНТ РК — не больше и не меньше, как того требуют правила экзамена.
      *
      * @return int[]
      */
@@ -313,14 +313,14 @@ class TestAssemblyService
         $detailIds = [];
 
         foreach ($query->orderBy('id')->get() as $context) {
-            if (count($detailIds) >= $count) {
+            $remaining = $count - count($detailIds);
+
+            if ($remaining <= 0) {
                 break;
             }
 
-            $detailIds = array_merge(
-                $detailIds,
-                $context->details->pluck('id')->map(fn ($id) => (int) $id)->all()
-            );
+            $contextDetailIds = $context->details->pluck('id')->map(fn ($id) => (int) $id)->all();
+            $detailIds = array_merge($detailIds, array_slice($contextDetailIds, 0, $remaining));
         }
 
         return $detailIds;
