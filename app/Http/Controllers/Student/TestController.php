@@ -319,12 +319,14 @@ class TestController extends Controller
             ->flatMap(fn ($testSubject) => collect($testSubject->questions)->pluck('detail_id'))
             ->unique();
 
-        $details = QuestionDetail::whereIn('id', $detailIds)
+        // withTrashed: a question/detail may have been soft-deleted by an admin after
+        // the test was assembled — the student must still be able to finish/review it.
+        $details = QuestionDetail::withTrashed()->whereIn('id', $detailIds)
             ->get()
             ->keyBy('id');
 
         // Load parent Question models separately to avoid the `question` column/relation name clash
-        $questionModels = Question::whereIn('id', $details->pluck('question_id')->unique())
+        $questionModels = Question::withTrashed()->whereIn('id', $details->pluck('question_id')->unique())
             ->get()
             ->keyBy('id');
 

@@ -94,6 +94,11 @@ class TestAccessController extends Controller
 
     public function destroy(TestAccess $testAccess): RedirectResponse
     {
+        if ($testAccess->tests()->exists()) {
+            return redirect()->back()
+                ->with('error', 'Нельзя удалить: по этому доступу уже есть начатые тесты.');
+        }
+
         $testAccess->delete();
 
         return redirect()->route('admin.test-accesses.index')->with('success', 'Доступ удалён.');

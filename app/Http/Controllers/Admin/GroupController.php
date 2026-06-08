@@ -115,6 +115,11 @@ class GroupController extends Controller
 
     public function destroy(Group $group): RedirectResponse
     {
+        if ($group->users()->exists()) {
+            return redirect()->back()
+                ->with('error', 'Нельзя удалить «'.$group->title.'»: сначала удалите всех студентов из группы.');
+        }
+
         $group->delete();
 
         return redirect()->route('admin.groups.index')

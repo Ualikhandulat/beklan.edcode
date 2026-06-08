@@ -50,13 +50,18 @@ class TestAccess extends Model
         return $this->hasMany(TestAccessSubject::class)->with(['subject', 'part']);
     }
 
+    public function tests(): HasMany
+    {
+        return $this->hasMany(Test::class);
+    }
+
     // ── Scopes ─────────────────────────────────────────────────────────────
 
     public function scopeForCurrentUser(Builder $query): Builder
     {
-        $user       = auth()->user();
-        $userId     = $user->id;
-        $groupId    = $user->group_id;
+        $user = auth()->user();
+        $userId = $user->id;
+        $groupId = $user->group_id;
 
         return $query
             ->where('is_active', true)

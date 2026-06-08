@@ -33,6 +33,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'
     Route::post('groups/{group}/students', [AdminGroupController::class, 'addStudent'])->name('groups.students.add');
     Route::delete('groups/{group}/students/{user}', [AdminGroupController::class, 'removeStudent'])->name('groups.students.remove');
     Route::resource('users', AdminUserController::class)->except(['show']);
+    Route::get('users/archive', [AdminUserController::class, 'archive'])->name('users.archive');
+    Route::patch('users/{user}/restore', [AdminUserController::class, 'restore'])->name('users.restore')->withTrashed();
     Route::resource('test-accesses', AdminTestAccessController::class)->except(['show']);
     Route::patch('test-accesses/{test_access}/toggle-active', [AdminTestAccessController::class, 'toggleActive'])->name('test-accesses.toggle-active');
 
