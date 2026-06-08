@@ -37,11 +37,29 @@
 
     <div x-data="{
             open: false,
+            dropUp: false,
             value: @js($resolved),
             label: @js($initialLabel),
             search: '',
             disabled: {{ $disabled ? 'true' : 'false' }},
             allOptions: @js($formatted),
+            toggle() {
+                if (this.disabled) return;
+
+                if (!this.open) {
+                    // Открываем вверх, только если внизу места меньше, чем нужно дропдауну, и сверху его больше
+                    const rect = this.$refs.trigger.getBoundingClientRect();
+                    const spaceBelow = window.innerHeight - rect.bottom;
+                    const spaceAbove = rect.top;
+                    this.dropUp = spaceBelow < 300 && spaceAbove > spaceBelow;
+                }
+
+                this.open = !this.open;
+
+                if (this.open && {{ $searchable ? 'true' : 'false' }}) {
+                    this.$nextTick(() => this.$refs.searchInput?.focus());
+                }
+            },
             get filteredOptions() {
                 if (!this.search) return this.allOptions;
                 const s = this.search.toLowerCase();
@@ -64,7 +82,8 @@
 
         {{-- Trigger --}}
         <button type="button"
-            @click="if (!disabled) { open = !open; if (open && {{ $searchable ? 'true' : 'false' }}) $nextTick(() => $refs.searchInput?.focus()) }"
+            x-ref="trigger"
+            @click="toggle()"
             :disabled="disabled"
             class="w-full flex items-center justify-between px-4 py-2.5 bg-white border rounded-2xl text-sm transition-colors {{ $hasError ? 'border-danger' : 'border-border' }}"
             :class="[
@@ -79,12 +98,13 @@
         {{-- Dropdown --}}
         <div x-show="open"
              x-transition:enter="transition ease-out duration-100"
-             x-transition:enter-start="opacity-0 -translate-y-1"
-             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
              x-transition:leave="transition ease-in duration-75"
-             x-transition:leave-start="opacity-100 translate-y-0"
-             x-transition:leave-end="opacity-0 -translate-y-1"
-             class="absolute z-50 w-full mt-1.5 bg-white border border-border rounded-2xl overflow-hidden"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95"
+             class="absolute z-50 w-full bg-white border border-border rounded-2xl overflow-hidden"
+             :class="dropUp ? 'bottom-full mb-1.5 origin-bottom' : 'top-full mt-1.5 origin-top'"
              style="display:none; box-shadow: var(--shadow-dropdown)">
 
             @if ($searchable)
