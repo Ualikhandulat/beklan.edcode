@@ -15,7 +15,8 @@
     <nav class="public-nav">
         <div class="public-nav-inner">
             <a href="{{ route('home') }}" class="flex items-center gap-2">
-                <span class="text-xl font-extrabold text-primary">Ed</span><span class="text-xl font-extrabold text-text">Code</span>
+                <img src="{{ asset('images/logo-mark.png') }}" alt="" class="w-8 h-8 shrink-0">
+                <span class="text-xl font-extrabold"><span class="text-primary">Ed</span><span class="text-text">Code</span></span>
             </a>
             <div class="flex items-center gap-3">
                 @guest

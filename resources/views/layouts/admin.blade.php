@@ -32,8 +32,9 @@
             <span :class="nav ? '-rotate-45 -translate-y-2' : ''"
                   class="block w-5 h-0.5 bg-text rounded-full transition-all duration-300 origin-center"></span>
         </button>
-        <span class="font-extrabold text-base">
-            <span class="text-primary">Ed</span><span class="text-text">Code</span>
+        <span class="flex items-center gap-1.5 font-extrabold text-base">
+            <img src="{{ asset('images/logo-mark.png') }}" alt="" class="w-8 h-8 shrink-0">
+            <span><span class="text-primary">Ed</span><span class="text-text">Code</span></span>
         </span>
         <span class="text-[10px] font-bold text-text-muted bg-gray-100 px-2 py-0.5 rounded-full">Admin</span>
     </div>
@@ -53,7 +54,8 @@
     {{-- Sidebar ─────────────────────────────────────────────────────────── --}}
     <aside :class="nav ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" class="sidebar">
         <div class="sidebar-brand">
-            <span class="text-lg font-extrabold text-primary">Ed</span><span class="text-lg font-extrabold text-text">Code</span>
+            <img src="{{ asset('images/logo-mark.png') }}" alt="" class="w-8 h-8 shrink-0">
+            <span class="text-lg font-extrabold"><span class="text-primary">Ed</span><span class="text-text">Code</span></span>
             <span class="text-xs font-bold text-text-muted bg-gray-100 px-2 py-0.5 rounded-full ml-auto">Admin</span>
         </div>
 

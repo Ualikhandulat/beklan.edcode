@@ -27,8 +27,9 @@
     <nav class="bg-white border-b border-border sticky top-0 z-40" x-data="{ menuOpen: false }">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
 
-            <a href="{{ route('student.dashboard') }}" class="flex items-center gap-0.5 shrink-0">
-                <span class="text-lg font-extrabold text-primary">Ed</span><span class="text-lg font-extrabold text-text">Code</span>
+            <a href="{{ route('student.dashboard') }}" class="flex items-center gap-1.5 shrink-0">
+                <img src="{{ asset('images/logo-mark.png') }}" alt="" class="w-8 h-8 shrink-0">
+                <span class="text-lg font-extrabold"><span class="text-primary">Ed</span><span class="text-text">Code</span></span>
             </a>
 
             <div class="flex items-center gap-3">
