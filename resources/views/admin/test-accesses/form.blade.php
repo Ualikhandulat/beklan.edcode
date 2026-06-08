@@ -7,7 +7,6 @@
     $oldTarget  = old('user_id') || ($isEdit && $access->user_id) ? 'user' : 'group';
     $oldType    = old('type', $access->type?->value ?? '');
     $oldSCS     = (bool) old('student_chooses_subject', $access->student_chooses_subject ?? false);
-    $oldQCount    = old('question_count',    $access->question_count    ?? 0);
     $oldTries     = old('attempts_limit',   $access->attempts_limit    ?? 1);
     $oldExpiry    = old('expires_at',       $access->expires_at?->format('Y-m-d\TH:i') ?? '');
     $oldDuration  = old('duration_minutes', $access->duration_minutes  ?? '');
@@ -167,18 +166,6 @@
                 <div x-show="accessType !== ''" x-cloak class="card">
                     <p class="q-section-label mb-3">Ограничения</p>
                     <div class="space-y-4">
-                        <template x-if="accessType === 'subject'">
-                            <div>
-                                <x-form.input name="question_count" label="Вопросов"
-                                    type="number" placeholder="0 — все" :value="$oldQCount" />
-                                <p x-show="single.partType === ''" x-cloak class="text-xs text-warning mt-1.5">
-                                    При случайном типе вопросов лимит обязателен — иначе студенту достанутся все вопросы предмета.
-                                </p>
-                            </div>
-                        </template>
-                        <template x-if="accessType !== 'subject'">
-                            <input type="hidden" name="question_count" value="0">
-                        </template>
                         <x-form.input name="attempts_limit" label="Попыток"
                             type="number" placeholder="1" :value="$oldTries" />
                         <x-form.input name="duration_minutes" label="Время (мин.)"
@@ -376,6 +363,18 @@
                             </button>
                             @endforeach
                         </div>
+
+                        <p class="text-xs text-text-muted italic mb-3">
+                            <template x-if="single.partType === ''">
+                                <span>Случайно — студенту достанется 40 заданий по структуре ЕНТ (25 один ответ + 5 текстов + 5 на соответствие + 5 несколько ответов).</span>
+                            </template>
+                            <template x-if="single.partType === 'topic'">
+                                <span>Тема — студенту достанутся все вопросы выбранной темы.</span>
+                            </template>
+                            <template x-if="single.partType === 'nusqa'">
+                                <span>Нұсқа — студенту достанутся все вопросы выбранной нұсқа.</span>
+                            </template>
+                        </p>
 
                         <template x-if="single.partType !== ''">
                             <div class="space-y-3">

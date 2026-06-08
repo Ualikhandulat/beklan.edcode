@@ -20,7 +20,6 @@ class UpdateTestAccessRequest extends FormRequest
     {
         $isEnt = $this->input('type') === TestAccessType::Ent->value;
         $nusqaMode = $this->input('nusqa_mode', 'random');
-        $requiresQuestionLimit = ! $isEnt && empty($this->input('subject.part_type'));
 
         return [
             'type' => ['required', new Enum(TestAccessType::class)],
@@ -28,12 +27,6 @@ class UpdateTestAccessRequest extends FormRequest
             'group_id' => ['nullable', 'required_without:user_id', 'exists:groups,id'],
 
             'student_chooses_subject' => ['boolean'],
-            'question_count' => [
-                Rule::requiredIf($requiresQuestionLimit),
-                'integer',
-                $requiresQuestionLimit ? 'min:1' : 'min:0',
-                'max:500',
-            ],
             'attempts_limit' => ['integer', 'min:0', 'max:100'],
             'expires_at' => ['nullable', 'date'],
             'duration_minutes' => ['nullable', 'integer', 'min:1', 'max:480'],
@@ -66,8 +59,6 @@ class UpdateTestAccessRequest extends FormRequest
             'group_id.required_without' => 'Укажите студента или группу.',
             'subject.subject_id.required_if' => 'Выберите предмет.',
             'nusqa_number.required_if' => 'Введите номер нұсқа.',
-            'question_count.required_if' => 'При случайном типе вопросов укажите лимит вопросов.',
-            'question_count.min.numeric' => 'При случайном типе вопросов лимит должен быть не меньше 1.',
         ];
     }
 

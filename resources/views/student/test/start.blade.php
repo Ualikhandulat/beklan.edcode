@@ -78,16 +78,6 @@
                         </p>
                     </div>
                 </div>
-
-                @if ($access->question_count > 0 && !$isEnt)
-                    <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2.5">
-                        <x-icon name="clipboard-list" class="w-4 h-4 text-text-muted shrink-0" />
-                        <div>
-                            <p class="text-[10px] text-text-muted font-bold uppercase">{{ __('Вопросов') }}</p>
-                            <p class="text-sm font-extrabold text-text">{{ $access->question_count }}</p>
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
     </div>

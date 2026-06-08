@@ -132,9 +132,12 @@ class TestAssemblyService
         }
 
         $partId = $this->resolveSubjectPartId($cfg, $choices);
-        $limit = $access->question_count > 0 ? $access->question_count : null;
 
-        $detailIds = $this->pickDetails($cfg->subject_id, $partId, $limit);
+        // Без выбранной части — генерируем по канонической квоте профильного предмета ЕНТ
+        // (40 заданий). С выбранной темой/нұсқа — берём все вопросы этой части целиком.
+        $detailIds = $cfg->part_type === null
+            ? $this->pickDetailsByQuota($cfg->subject_id, null, self::PROFILE_QUOTA)
+            : $this->pickDetails($cfg->subject_id, $partId);
         ['questions' => $questions, 'max_score' => $maxScore] = $this->initQuestions($detailIds);
 
         TestSubject::create([

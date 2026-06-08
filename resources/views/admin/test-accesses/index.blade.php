@@ -55,7 +55,6 @@
                 <th class="w-28">Тип</th>
                 <th>Предметы</th>
                 <th class="w-36">Нұсқа / Раздел</th>
-                <th class="w-20 text-center">Вопросов</th>
                 <th class="w-20 text-center">Попыток</th>
                 <th class="w-32">Срок</th>
                 <th class="w-20"></th>
@@ -157,15 +156,6 @@
                             @else
                                 <span class="text-text-muted text-xs">случайно</span>
                             @endif
-                        @endif
-                    </td>
-
-                    {{-- Question count --}}
-                    <td class="text-center">
-                        @if ($access->question_count > 0)
-                            <span class="font-mono font-bold text-sm text-text">{{ $access->question_count }}</span>
-                        @else
-                            <span class="text-text-muted text-xs">все</span>
                         @endif
                     </td>
 
