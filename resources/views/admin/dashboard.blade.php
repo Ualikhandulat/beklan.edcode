@@ -179,6 +179,12 @@
                 </a>
             @endforeach
         </div>
+
+        @if ($stats['recent']->hasPages())
+            <div class="pt-4 mt-1 border-t border-border">
+                {{ $stats['recent']->links() }}
+            </div>
+        @endif
     @else
         <p class="text-sm text-text-muted text-center py-12">Пока никто не завершил ни одного теста.</p>
     @endif

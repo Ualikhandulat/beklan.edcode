@@ -10,6 +10,7 @@ use App\Models\Test;
 use App\Models\TestAccess;
 use App\Models\TestSubject;
 use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -34,7 +35,7 @@ class DashboardController extends Controller
      *     activity: Collection<int, array{label: string, date: string, count: int}>,
      *     subjects: Collection<int, array{title: string, pct: int, attempts: int}>,
      *     groups: Collection<int, array{title: string, pct: int, attempts: int}>,
-     *     recent: Collection<int, Test>,
+     *     recent: LengthAwarePaginator<int, Test>,
      * }
      */
     private function loadStats(): array
@@ -111,8 +112,8 @@ class DashboardController extends Controller
         $recent = Test::whereNotNull('completed_at')
             ->with('user:id,name,login')
             ->latest('completed_at')
-            ->limit(8)
-            ->get(['id', 'user_id', 'total_score', 'max_score', 'completed_at']);
+            ->paginate(10, ['id', 'user_id', 'total_score', 'max_score', 'completed_at'])
+            ->withQueryString();
 
         return [
             'counts' => $counts,
