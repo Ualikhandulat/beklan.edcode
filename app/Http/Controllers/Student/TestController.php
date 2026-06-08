@@ -101,13 +101,18 @@ class TestController extends Controller
         // Нұсқа list for ENT student_chooses_nusqa
         $nusqaNumbers = collect();
         if ($access->student_chooses_nusqa) {
-            // Derive available нұсқа numbers from mandatory subjects
-            $mandatoryId = Subject::where('is_mandatory', true)->value('id');
-            $nusqaNumbers = Part::where('subject_id', $mandatoryId)
-                ->where('type', 'nusqa')
-                ->orderBy('id')
-                ->get(['id', 'title'])
-                ->map(fn ($p, $i) => ['number' => $i + 1, 'title' => $p->title]);
+            // Нұсқа numbering is shared across subjects (Nth nұсқа, ordered by id), so any
+            // configured subject works as a reference — don't assume mandatory ones exist.
+            $referenceSubjectId = $access->accessSubjects->first()?->subject_id
+                ?? $electiveSubjects->first()?->id;
+
+            if ($referenceSubjectId) {
+                $nusqaNumbers = Part::where('subject_id', $referenceSubjectId)
+                    ->where('type', 'nusqa')
+                    ->orderBy('id')
+                    ->get(['id', 'title'])
+                    ->map(fn ($p, $i) => ['number' => $i + 1, 'title' => $p->title]);
+            }
         }
 
         return view('student.test.start', compact('access', 'electiveSubjects', 'choosableParts', 'nusqaNumbers'));
