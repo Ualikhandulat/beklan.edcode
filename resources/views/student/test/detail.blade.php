@@ -1,5 +1,5 @@
 @extends('layouts.student-test')
-@section('title', 'Разбор ответов')
+@section('title', __('Разбор ответов'))
 
 @section('content')
 
@@ -177,17 +177,17 @@
             <div class="bg-white rounded-2xl border border-border p-4" style="box-shadow: var(--shadow-card)">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-success/15 text-success">
-                        {{ $rightCount }} верно
+                        {{ __(':count верно', ['count' => $rightCount]) }}
                     </span>
                     @if ($wrongCount > 0)
                         <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-danger/15 text-danger">
-                            {{ $wrongCount }} ошибок
+                            {{ __(':count ошибок', ['count' => $wrongCount]) }}
                         </span>
                     @endif
                 </div>
                 <a href="{{ route('student.test.result', $test) }}" class="w-full btn btn-outline">
                     <x-icon name="arrow-left" class="w-4 h-4" />
-                    К результатам
+                    {{ __('К результатам') }}
                 </a>
             </div>
 
@@ -226,9 +226,9 @@
                         <p x-show="currentQuestion.type !== 'group'"
                            class="text-xs font-semibold text-text-muted mb-5"
                            x-text="currentQuestion.type === 'multi'
-                               ? 'Выберите ' + currentQuestion.count_answers + ' варианта'
-                               : currentQuestion.type === 'match' ? 'Соответствие'
-                               : 'Один верный ответ'">
+                               ? @js(__('Выберите :count варианта')).replace(':count', currentQuestion.count_answers)
+                               : currentQuestion.type === 'match' ? @js(__('Соответствие'))
+                               : @js(__('Один верный ответ'))">
                         </p>
 
                         {{-- SELECT_ONE / IS_GROUP --}}
@@ -293,7 +293,7 @@
                         <template x-if="currentQuestion.type === 'match'">
                             <div class="space-y-3">
                                 <div class="rounded-xl bg-gray-50 border border-border p-4">
-                                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-text-muted mb-3">Варианты ответов</p>
+                                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-text-muted mb-3">{{ __('Варианты ответов') }}</p>
                                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2.5">
                                         <template x-for="(letter, optIdx) in ['А', 'Б', 'В', 'Г']" :key="optIdx">
                                             <div class="flex items-start gap-2">
@@ -323,7 +323,7 @@
                                                      : 'border-danger/40 bg-danger/8'">
                                                 <p class="text-[10px] font-extrabold uppercase tracking-widest mb-1.5"
                                                    :class="(currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
-                                                       ? 'text-success' : 'text-danger'">Ваш ответ</p>
+                                                       ? 'text-success' : 'text-danger'">{{ __('Ваш ответ') }}</p>
                                                 <template x-if="(currentQuestion.user_answers ?? [])[pairIdx] != null">
                                                     <div class="flex items-center gap-2">
                                                         <span class="w-5 h-5 rounded-md text-xs font-extrabold flex items-center justify-center shrink-0"
@@ -335,12 +335,12 @@
                                                     </div>
                                                 </template>
                                                 <template x-if="(currentQuestion.user_answers ?? [])[pairIdx] == null">
-                                                    <span class="text-sm text-danger font-semibold">Нет ответа</span>
+                                                    <span class="text-sm text-danger font-semibold">{{ __('Нет ответа') }}</span>
                                                 </template>
                                             </div>
                                             <template x-if="(currentQuestion.correct || [])[pairIdx] !== (currentQuestion.user_answers || [])[pairIdx]">
                                                 <div class="flex-1 rounded-xl p-3 border border-success/40 bg-success/8">
-                                                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-success mb-1.5">Верный ответ</p>
+                                                    <p class="text-[10px] font-extrabold uppercase tracking-widest text-success mb-1.5">{{ __('Верный ответ') }}</p>
                                                     <div class="flex items-center gap-2">
                                                         <span class="w-5 h-5 rounded-md bg-success/20 text-success text-xs font-extrabold flex items-center justify-center shrink-0"
                                                               x-text="['А','Б','В','Г'][(currentQuestion.correct || [])[pairIdx] - 2] ?? '?'"></span>
@@ -362,7 +362,7 @@
                                     class="btn btn-outline btn-sm"
                                     :disabled="activeSubject === 0 && activeQuestion === 0">
                                 <x-icon name="arrow-left" class="w-4 h-4" />
-                                Назад
+                                {{ __('Назад') }}
                             </button>
                             <span class="text-xs font-bold text-text-muted">
                                 <span x-text="activeQuestion + 1"></span> / <span x-text="currentSubject?.questions.length"></span>
@@ -374,7 +374,7 @@
                                     class="btn btn-sm text-white"
                                     style="background: var(--color-primary)"
                                     :disabled="activeSubject === subjects.length - 1 && activeQuestion === currentSubject.questions.length - 1">
-                                Вперёд
+                                {{ __('Вперёд') }}
                                 <x-icon name="arrow-right" class="w-4 h-4" />
                             </button>
                         </div>
@@ -392,16 +392,16 @@
          style="box-shadow: 0 -4px 16px rgba(0,0,0,0.08)">
         <div class="flex items-center gap-3 px-4 py-3">
             <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-success/15 text-success shrink-0">
-                {{ $rightCount }} верно
+                {{ __(':count верно', ['count' => $rightCount]) }}
             </span>
             @if ($wrongCount > 0)
                 <span class="text-xs font-bold px-2.5 py-1 rounded-full bg-danger/15 text-danger shrink-0">
-                    {{ $wrongCount }} ошибок
+                    {{ __(':count ошибок', ['count' => $wrongCount]) }}
                 </span>
             @endif
             <a href="{{ route('student.test.result', $test) }}" class="ml-auto btn btn-outline btn-sm">
                 <x-icon name="arrow-left" class="w-4 h-4" />
-                К результатам
+                {{ __('К результатам') }}
             </a>
         </div>
     </div>

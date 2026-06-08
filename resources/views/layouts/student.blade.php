@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Кабинет') — EdCode</title>
+    <title>@yield('title', __('Кабинет')) — EdCode</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -18,9 +18,9 @@
     @php
         $currentRoute = request()->route()?->getName() ?? '';
         $navLinks = [
-            ['route' => 'student.dashboard',     'label' => 'Главная',          'icon' => 'clipboard-list'],
-            ['route' => 'student.tests.history', 'label' => 'История',          'icon' => 'chart-bar'],
-            ['route' => 'student.info',          'label' => 'Информация',       'icon' => 'book-open'],
+            ['route' => 'student.dashboard',     'label' => __('Главная'),      'icon' => 'clipboard-list'],
+            ['route' => 'student.tests.history', 'label' => __('История'),      'icon' => 'chart-bar'],
+            ['route' => 'student.info',          'label' => __('Информация'),   'icon' => 'book-open'],
         ];
     @endphp
 
@@ -49,7 +49,7 @@
                 <button @click="menuOpen = !menuOpen"
                         class="w-9 h-9 flex flex-col items-center justify-center gap-1.5 rounded-xl transition-colors hover:bg-gray-100 cursor-pointer"
                         :class="menuOpen ? 'bg-gray-100' : ''"
-                        aria-label="Меню">
+                        aria-label="{{ __('Меню') }}">
                     <span class="w-5 h-0.5 bg-text-muted rounded-full transition-all duration-200"
                           :class="menuOpen ? 'rotate-45 translate-y-2' : ''"></span>
                     <span class="w-5 h-0.5 bg-text-muted rounded-full transition-all duration-200"
@@ -92,15 +92,17 @@
                     </a>
                 @endforeach
 
-                <div class="border-t border-border mt-2 pt-2">
+                <div class="border-t border-border mt-2 pt-2 flex items-center justify-between gap-3">
+                    <x-locale-switcher />
+
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit"
-                                class="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-colors hover:bg-danger/5 text-left">
+                                class="flex items-center gap-2 px-3 py-2 rounded-xl transition-colors hover:bg-danger/5 text-left cursor-pointer">
                             <span class="w-8 h-8 rounded-lg bg-danger/10 flex items-center justify-center shrink-0">
                                 <x-icon name="logout" class="w-4 h-4 text-danger" />
                             </span>
-                            <span class="text-sm font-bold text-danger">Выйти</span>
+                            <span class="text-sm font-bold text-danger">{{ __('Выйти') }}</span>
                         </button>
                     </form>
                 </div>

@@ -1,5 +1,5 @@
 @extends('layouts.student')
-@section('title', 'Личный кабинет')
+@section('title', __('Личный кабинет'))
 
 @section('content')
 
@@ -34,9 +34,9 @@
         <div class="w-14 h-14 rounded-2xl bg-success/10 flex items-center justify-center mx-auto mb-4">
             <x-icon name="check" class="w-7 h-7 text-success" />
         </div>
-        <p class="font-extrabold text-text mb-1">Все тесты пройдены</p>
+        <p class="font-extrabold text-text mb-1">{{ __('Все тесты пройдены') }}</p>
         <p class="text-sm text-text-muted max-w-xs mx-auto leading-relaxed">
-            Нет доступных или активных тестов.
+            {{ __('Нет доступных или активных тестов.') }}
         </p>
     </div>
 @else
@@ -44,7 +44,7 @@
     {{-- ── В процессе ── --}}
     @if ($inProgress->isNotEmpty())
         <div class="flex items-center justify-between mb-3 fade-up" style="animation-delay: 40ms">
-            <h2 class="text-base font-extrabold text-text">В процессе</h2>
+            <h2 class="text-base font-extrabold text-text">{{ __('В процессе') }}</h2>
             <span class="text-xs font-bold text-text-muted bg-white border border-border px-2.5 py-1 rounded-full shadow-sm">
                 {{ $inProgress->count() }}
             </span>
@@ -63,9 +63,9 @@
                     $expiryClass = 'text-text-muted';
                     if ($access->expires_at) {
                         $diff = (int) now()->diffInDays($access->expires_at, false);
-                        if ($diff < 0)       { $expiryLabel = 'Доступ истёк';       $expiryClass = 'text-danger font-bold'; }
-                        elseif ($diff === 0) { $expiryLabel = 'Сегодня';            $expiryClass = 'text-danger font-bold'; }
-                        elseif ($diff <= 3)  { $expiryLabel = "Осталось {$diff} дн."; $expiryClass = 'text-primary font-semibold'; }
+                        if ($diff < 0)       { $expiryLabel = __('Доступ истёк');       $expiryClass = 'text-danger font-bold'; }
+                        elseif ($diff === 0) { $expiryLabel = __('Сегодня');            $expiryClass = 'text-danger font-bold'; }
+                        elseif ($diff <= 3)  { $expiryLabel = __('Осталось :count дн.', ['count' => $diff]); $expiryClass = 'text-primary font-semibold'; }
                         else                 { $expiryLabel = $access->expires_at->format('d.m.Y'); }
                     }
                 @endphp
@@ -85,14 +85,14 @@
                                     </span>
                                     <span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-200">
                                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                        В процессе
+                                        {{ __('В процессе') }}
                                     </span>
                                 </div>
                                 <h3 class="font-extrabold text-text text-base leading-snug">
                                     @if ($isEnt)
-                                        Единое национальное тестирование
+                                        {{ __('Единое национальное тестирование') }}
                                     @else
-                                        {{ $single?->subject?->title ?? 'Предмет' }}
+                                        {{ $single?->subject?->title ?? __('Предмет') }}
                                     @endif
                                 </h3>
                             </div>
@@ -110,7 +110,7 @@
                                 @if ($access->student_chooses_subject)
                                     <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-xl bg-gray-100 text-text-muted">
                                         <x-icon name="plus" class="w-3 h-3" />
-                                        2 предмета на выбор
+                                        {{ __('2 предмета на выбор') }}
                                     </span>
                                 @else
                                     @foreach ($access->accessSubjects->filter(fn($as) => !$as->subject?->is_mandatory) as $as)
@@ -137,7 +137,7 @@
                                 <a href="{{ route('student.test.process', $test) }}"
                                    class="btn inline-flex items-center gap-1.5 text-xs font-extrabold px-4 py-2 rounded-xl text-white transition-all duration-200 hover:shadow-md"
                                    style="background: {{ $color }}">
-                                    Продолжить
+                                    {{ __('Продолжить') }}
                                     <x-icon name="arrow-right" class="w-3.5 h-3.5" />
                                 </a>
                             </div>
@@ -152,7 +152,7 @@
     {{-- ── Доступные тесты ── --}}
     @if ($available->isNotEmpty())
         <div class="flex items-center justify-between mb-3 fade-up" style="animation-delay: 40ms">
-            <h2 class="text-base font-extrabold text-text">Доступные тесты</h2>
+            <h2 class="text-base font-extrabold text-text">{{ __('Доступные тесты') }}</h2>
             <span class="text-xs font-bold text-text-muted bg-white border border-border px-2.5 py-1 rounded-full shadow-sm">
                 {{ $available->count() }}
             </span>
@@ -161,7 +161,7 @@
         @if ($hasActiveTest)
             <div class="alert alert-warning mb-4 fade-up" style="animation-delay: 60ms">
                 <x-icon name="information-circle" class="w-4 h-4 shrink-0 mt-0.5" />
-                <span>Завершите активный тест, чтобы начать новый.</span>
+                <span>{{ __('Завершите активный тест, чтобы начать новый.') }}</span>
             </div>
         @endif
 
@@ -178,9 +178,9 @@
                     $expiryClass = 'text-text-muted';
                     if ($access->expires_at) {
                         $diff = (int) now()->diffInDays($access->expires_at, false);
-                        if ($diff < 0)       { $expiryLabel = 'Доступ истёк';         $expiryClass = 'text-danger font-bold'; }
-                        elseif ($diff === 0) { $expiryLabel = 'Сегодня';              $expiryClass = 'text-danger font-bold'; }
-                        elseif ($diff <= 3)  { $expiryLabel = "Осталось {$diff} дн."; $expiryClass = 'text-primary font-semibold'; }
+                        if ($diff < 0)       { $expiryLabel = __('Доступ истёк');       $expiryClass = 'text-danger font-bold'; }
+                        elseif ($diff === 0) { $expiryLabel = __('Сегодня');            $expiryClass = 'text-danger font-bold'; }
+                        elseif ($diff <= 3)  { $expiryLabel = __('Осталось :count дн.', ['count' => $diff]); $expiryClass = 'text-primary font-semibold'; }
                         else                 { $expiryLabel = $access->expires_at->format('d.m.Y'); }
                     }
                 @endphp
@@ -201,9 +201,9 @@
                                 </div>
                                 <h3 class="font-extrabold text-text text-base leading-snug">
                                     @if ($isEnt)
-                                        Единое национальное тестирование
+                                        {{ __('Единое национальное тестирование') }}
                                     @else
-                                        {{ $single?->subject?->title ?? 'Предмет' }}
+                                        {{ $single?->subject?->title ?? __('Предмет') }}
                                     @endif
                                 </h3>
                             </div>
@@ -221,7 +221,7 @@
                                 @if ($access->student_chooses_subject)
                                     <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-xl bg-gray-100 text-text-muted">
                                         <x-icon name="plus" class="w-3 h-3" />
-                                        2 предмета на выбор
+                                        {{ __('2 предмета на выбор') }}
                                     </span>
                                 @else
                                     @foreach ($access->accessSubjects->filter(fn($as) => !$as->subject?->is_mandatory) as $as)
@@ -240,7 +240,7 @@
                             @if ($access->attempts_limit > 0)
                                 <div class="flex items-center gap-1.5 text-xs text-text-muted">
                                     <x-icon name="refresh" class="w-3.5 h-3.5 shrink-0" />
-                                    <span>Осталось попыток: <span class="font-bold text-text">{{ $access->attempts_limit - $completedCount }}</span></span>
+                                    <span>{{ __('Осталось попыток') }}: <span class="font-bold text-text">{{ $access->attempts_limit - $completedCount }}</span></span>
                                 </div>
                             @endif
 
@@ -255,14 +255,14 @@
                                 @if ($hasActiveTest)
                                     <span class="inline-flex items-center gap-1.5 text-xs font-extrabold px-4 py-2 rounded-xl text-white cursor-not-allowed"
                                           style="background: {{ $color }}; opacity: 0.5">
-                                        Начать тест
+                                        {{ __('Начать тест') }}
                                         <x-icon name="arrow-right" class="w-3.5 h-3.5" />
                                     </span>
                                 @else
                                     <a href="{{ route('student.test.index', $access) }}"
                                        class="btn inline-flex items-center gap-1.5 text-xs font-extrabold px-4 py-2 rounded-xl text-white transition-all duration-200 hover:shadow-md"
                                        style="background: {{ $color }}">
-                                        Начать тест
+                                        {{ __('Начать тест') }}
                                         <x-icon name="arrow-right" class="w-3.5 h-3.5" />
                                     </a>
                                 @endif
@@ -306,15 +306,15 @@
     <div class="grid grid-cols-3 gap-2 sm:gap-3 mb-3 fade-up" style="animation-delay: 20ms">
         <div class="card text-center py-4 px-2">
             <p class="text-2xl font-black text-text tabular-nums leading-none">{{ $stats['totalTests'] }}</p>
-            <p class="text-[10px] sm:text-[11px] text-text-muted font-bold uppercase tracking-wide mt-1.5">Тестов пройдено</p>
+            <p class="text-[10px] sm:text-[11px] text-text-muted font-bold uppercase tracking-wide mt-1.5">{{ __('Тестов пройдено') }}</p>
         </div>
         <div class="card text-center py-4 px-2">
             <p class="text-2xl font-black tabular-nums leading-none" style="color: {{ $avgColor }}">{{ $stats['avgPct'] }}%</p>
-            <p class="text-[10px] sm:text-[11px] text-text-muted font-bold uppercase tracking-wide mt-1.5">Средний балл</p>
+            <p class="text-[10px] sm:text-[11px] text-text-muted font-bold uppercase tracking-wide mt-1.5">{{ __('Средний балл') }}</p>
         </div>
         <div class="card text-center py-4 px-2">
             <p class="text-2xl font-black tabular-nums leading-none" style="color: var(--color-success)">{{ $stats['bestPct'] }}%</p>
-            <p class="text-[10px] sm:text-[11px] text-text-muted font-bold uppercase tracking-wide mt-1.5">Лучший результат</p>
+            <p class="text-[10px] sm:text-[11px] text-text-muted font-bold uppercase tracking-wide mt-1.5">{{ __('Лучший результат') }}</p>
         </div>
     </div>
 
@@ -324,10 +324,10 @@
         @if ($pCount > 1)
             <div class="card fade-up" style="animation-delay: 60ms">
                 <div class="flex items-center justify-between mb-3">
-                    <p class="text-sm font-extrabold text-text">Прогресс по тестам</p>
+                    <p class="text-sm font-extrabold text-text">{{ __('Прогресс по тестам') }}</p>
                     <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-md bg-info-light text-info">
                         <x-icon name="chart-bar" class="w-3 h-3" />
-                        Последние {{ $pCount }}
+                        {{ __('Последние :count', ['count' => $pCount]) }}
                     </span>
                 </div>
 
@@ -354,7 +354,7 @@
         {{-- Subject breakdown --}}
         @if ($stats['subjects']->isNotEmpty())
             <div class="card fade-up" style="animation-delay: 100ms">
-                <p class="text-sm font-extrabold text-text mb-3">Сильные и слабые стороны</p>
+                <p class="text-sm font-extrabold text-text mb-3">{{ __('Сильные и слабые стороны') }}</p>
 
                 @foreach ($stats['subjects'] as $subject)
                     @php
@@ -380,10 +380,10 @@
     {{-- Activity strip --}}
     <div class="card mb-6 fade-up" style="animation-delay: 140ms">
         <div class="flex items-center justify-between mb-3">
-            <p class="text-sm font-extrabold text-text">Активность за 14 дней</p>
+            <p class="text-sm font-extrabold text-text">{{ __('Активность за 14 дней') }}</p>
             <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-md bg-success-light text-success">
                 <x-icon name="refresh" class="w-3 h-3" />
-                {{ $stats['activity']->sum('count') }} за период
+                {{ __(':count за период', ['count' => $stats['activity']->sum('count')]) }}
             </span>
         </div>
 

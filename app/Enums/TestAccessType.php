@@ -10,8 +10,8 @@ enum TestAccessType: string
     public function label(): string
     {
         return match ($this) {
-            self::Ent => 'ЕНТ',
-            self::Subject => 'Предмет',
+            self::Ent => __('ЕНТ'),
+            self::Subject => __('Предмет'),
         };
     }
 

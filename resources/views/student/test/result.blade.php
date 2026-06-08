@@ -1,5 +1,5 @@
 @extends('layouts.student')
-@section('title', 'Результат теста')
+@section('title', __('Результат теста'))
 
 @section('content')
 
@@ -17,7 +17,9 @@
         $h = intdiv($duration, 3600);
         $m = intdiv($duration % 3600, 60);
         $s = $duration % 60;
-        $durationStr = $h > 0 ? "{$h}ч {$m}м" : ($m > 0 ? "{$m}м {$s}с" : "{$s}с");
+        $durationStr = $h > 0
+            ? __(':h ч :m м', ['h' => $h, 'm' => $m])
+            : ($m > 0 ? __(':m м :s с', ['m' => $m, 's' => $s]) : __(':s с', ['s' => $s]));
     }
 
     $partLabel = fn ($part) => $part->type === \App\Enums\PartType::Nusqa
@@ -51,7 +53,7 @@
          style="background: radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in srgb, {{ $scoreColor }} 12%, transparent), transparent 70%)"></div>
 
     <div class="relative text-center pt-2 pb-1">
-        <p class="text-[10px] font-extrabold uppercase tracking-widest text-text-muted mb-5">Результат теста</p>
+        <p class="text-[10px] font-extrabold uppercase tracking-widest text-text-muted mb-5">{{ __('Результат теста') }}</p>
 
         {{-- Big score --}}
         <div class="flex items-end justify-center gap-2 mb-6">
@@ -83,7 +85,7 @@
             @endif
             <div class="flex items-center gap-1.5">
                 <x-icon name="refresh" class="w-3.5 h-3.5 shrink-0" />
-                Попытка {{ $test->attempt_number }}
+                {{ __('Попытка :number', ['number' => $test->attempt_number]) }}
             </div>
             <div class="flex items-center gap-1.5">
                 <x-icon name="calendar" class="w-3.5 h-3.5 shrink-0" />
@@ -162,13 +164,13 @@
        class="flex-1 btn text-white text-center font-extrabold py-3 rounded-2xl transition-all hover:shadow-lg active:scale-95"
        style="background: var(--color-primary)">
         <x-icon name="book-open" class="w-4 h-4" />
-        Разбор ответов
+        {{ __('Разбор ответов') }}
     </a>
 
     <a href="{{ route('student.dashboard') }}"
        class="flex-1 btn btn-outline text-center font-semibold py-3 rounded-2xl">
         <x-icon name="home" class="w-4 h-4" />
-        В кабинет
+        {{ __('В кабинет') }}
     </a>
 </div>
 

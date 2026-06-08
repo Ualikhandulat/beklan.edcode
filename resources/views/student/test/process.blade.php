@@ -1,5 +1,5 @@
 @extends('layouts.student-test')
-@section('title', 'Тестирование')
+@section('title', __('Тестирование'))
 
 @section('content')
 
@@ -361,24 +361,24 @@
                 <button type="button" @click="calcOpen = true"
                         class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left text-text hover:bg-gray-50 transition-colors border-b border-border last:border-b-0 cursor-pointer">
                     <x-icon name="calculator" class="w-4 h-4 text-text-muted shrink-0" />
-                    <span>Калькулятор</span>
+                    <span>{{ __('Калькулятор') }}</span>
                 </button>
                 <button type="button" @click="mendeleevOpen = true"
                         class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left text-text hover:bg-gray-50 transition-colors border-b border-border last:border-b-0 cursor-pointer">
                     <x-icon name="beaker" class="w-4 h-4 text-text-muted shrink-0" />
-                    <span>Менделеев</span>
+                    <span>{{ __('Менделеев') }}</span>
                 </button>
                 <button type="button" @click="solubilityOpen = true"
                         class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-left text-text hover:bg-gray-50 transition-colors cursor-pointer">
                     <x-icon name="beaker" class="w-4 h-4 text-text-muted shrink-0" />
-                    <span>Растворимость</span>
+                    <span>{{ __('Растворимость') }}</span>
                 </button>
             </div>
 
             <div class="bg-white rounded-2xl border border-border p-4" style="box-shadow: var(--shadow-card)">
                 <div class="flex items-center justify-between mb-3">
                     <span class="text-xs font-semibold text-text-muted">
-                        <span x-text="totalAnswered" class="text-text font-extrabold text-sm"></span> / <span x-text="totalQuestions"></span> отв.
+                        <span x-text="totalAnswered" class="text-text font-extrabold text-sm"></span> / <span x-text="totalQuestions"></span> {{ __('отв.') }}
                     </span>
                     <template x-if="timerStr !== null">
                         <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs transition-all duration-300"
@@ -395,7 +395,7 @@
                 </div>
                 <button @click="confirmFinish = true" class="w-full btn btn-danger">
                     <x-icon name="check" class="w-4 h-4" />
-                    Завершить тест
+                    {{ __('Завершить тест') }}
                 </button>
             </div>
 
@@ -423,9 +423,9 @@
                         <p x-show="currentQuestion.type !== 'group'"
                            class="text-xs font-semibold text-text-muted mb-5"
                            x-text="currentQuestion.type === 'multi'
-                               ? 'Выберите ' + currentQuestion.count_answers + ' варианта'
-                               : currentQuestion.type === 'match' ? 'Соответствие'
-                               : 'Один верный ответ'">
+                               ? @js(__('Выберите :count варианта')).replace(':count', currentQuestion.count_answers)
+                               : currentQuestion.type === 'match' ? @js(__('Соответствие'))
+                               : @js(__('Один верный ответ'))">
                         </p>
 
                         {{-- SELECT_ONE / IS_GROUP --}}
@@ -508,7 +508,7 @@
                                                 <span class="flex-1 leading-snug"
                                                       x-html="(currentQuestion.user_answers ?? [])[pairIdx] != null
                                                           ? (currentQuestion.vars[(currentQuestion.user_answers ?? [])[pairIdx]] || '')
-                                                          : '— Выберите ответ —'"></span>
+                                                          : @js(__('— Выберите ответ —'))"></span>
 
                                                 <svg class="w-4 h-4 text-text-muted shrink-0 transition-transform duration-200"
                                                      :class="open ? 'rotate-180' : ''"
@@ -549,7 +549,7 @@
                                 </template>
 
                                 <p class="text-xs text-center text-text-muted font-semibold">
-                                    Для каждого пункта выберите соответствующий вариант (А, Б, В или Г)
+                                    {{ __('Для каждого пункта выберите соответствующий вариант (А, Б, В или Г)') }}
                                 </p>
                             </div>
                         </template>
@@ -561,7 +561,7 @@
                                     class="btn btn-outline btn-sm"
                                     :disabled="activeSubject === 0 && activeQuestion === 0">
                                 <x-icon name="arrow-left" class="w-4 h-4" />
-                                Предыдущий
+                                {{ __('Предыдущий') }}
                             </button>
 
                             <span class="text-xs font-bold text-text-muted">
@@ -575,7 +575,7 @@
                                     class="btn btn-sm text-white"
                                     style="background: var(--color-primary)"
                                     :disabled="activeSubject === subjects.length - 1 && activeQuestion === currentSubject.questions.length - 1">
-                                Следующий
+                                {{ __('Следующий') }}
                                 <x-icon name="arrow-right" class="w-4 h-4" />
                             </button>
                         </div>
@@ -585,7 +585,7 @@
 
                 <template x-if="!currentQuestion">
                     <div class="flex flex-col items-center justify-center py-20 text-center">
-                        <p class="text-text-muted font-semibold">Нет вопросов</p>
+                        <p class="text-text-muted font-semibold">{{ __('Нет вопросов') }}</p>
                     </div>
                 </template>
 
@@ -615,7 +615,7 @@
             </template>
             <button @click="confirmFinish = true" class="ml-auto btn btn-danger btn-sm">
                 <x-icon name="check" class="w-4 h-4" />
-                Завершить
+                {{ __('Завершить') }}
             </button>
         </div>
     </div>
@@ -625,29 +625,30 @@
          class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
          @click.self="confirmFinish = false">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" @click.stop>
-            <h3 class="text-lg font-extrabold text-text mb-2">Завершить тест?</h3>
+            <h3 class="text-lg font-extrabold text-text mb-2">{{ __('Завершить тест?') }}</h3>
 
             <div class="flex items-center gap-2 mb-4">
                 <span class="text-2xl font-black"
                       :class="totalAnswered < totalQuestions ? 'text-danger' : 'text-success'"
                       x-text="totalAnswered"></span>
-                <span class="text-text-muted font-semibold">из <span x-text="totalQuestions"></span> вопросов отвечено</span>
+                <span class="text-text-muted font-semibold"
+                      x-text="@js(__('из :count вопросов отвечено')).replace(':count', totalQuestions)"></span>
             </div>
 
             <template x-if="totalAnswered < totalQuestions">
                 <p class="text-sm text-danger font-semibold mb-5">
                     <x-icon name="exclamation-circle" class="w-4 h-4 inline-block mr-1" />
-                    <span x-text="totalQuestions - totalAnswered"></span> вопросов без ответа — засчитаются как неверные.
+                    <span x-text="@js(__(':count вопросов без ответа — засчитаются как неверные.')).replace(':count', totalQuestions - totalAnswered)"></span>
                 </p>
             </template>
 
             <div class="flex gap-3 mt-2">
-                <button @click="confirmFinish = false" class="flex-1 btn btn-outline btn-sm">Продолжить</button>
+                <button @click="confirmFinish = false" class="flex-1 btn btn-outline btn-sm">{{ __('Продолжить') }}</button>
                 <button @click="confirmFinish = false; autoFinish()"
                         :disabled="finishing"
                         class="flex-1 btn btn-danger btn-sm">
-                    <template x-if="!finishing"><span>Завершить</span></template>
-                    <template x-if="finishing"><span>Сохраняем...</span></template>
+                    <template x-if="!finishing"><span>{{ __('Завершить') }}</span></template>
+                    <template x-if="finishing"><span>{{ __('Сохраняем...') }}</span></template>
                 </button>
             </div>
         </div>
@@ -656,15 +657,15 @@
     {{-- ── Test tools modals ─────────────────────────────────────────────── --}}
     <x-calculator show="calcOpen" />
 
-    <x-modal title="Таблица Менделеева" show="mendeleevOpen" size="2xl">
+    <x-modal :title="__('Таблица Менделеева')" show="mendeleevOpen" size="2xl">
         <div class="p-3">
-            <x-zoomable-image :src="asset('images/mendeleev.png')" alt="Периодическая таблица Менделеева" />
+            <x-zoomable-image :src="asset('images/mendeleev.png')" :alt="__('Периодическая таблица Менделеева')" />
         </div>
     </x-modal>
 
-    <x-modal title="Таблица растворимости" show="solubilityOpen" size="2xl">
+    <x-modal :title="__('Таблица растворимости')" show="solubilityOpen" size="2xl">
         <div class="p-3">
-            <x-zoomable-image :src="asset('images/solubility.png')" alt="Таблица растворимости" />
+            <x-zoomable-image :src="asset('images/solubility.png')" :alt="__('Таблица растворимости')" />
         </div>
     </x-modal>
 

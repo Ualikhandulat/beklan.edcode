@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\TestAccessController as AdminTestAccessController
 use App\Http\Controllers\Admin\UploadController as AdminUploadController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Student\DashboardController as StudentDashboardController;
 use App\Http\Controllers\Student\TestController as StudentTestController;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 
 /* Public */
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::post('/locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
 
 /* Auth */
 Route::middleware('guest')->group(function () {
@@ -23,6 +25,17 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+/* Artisan Commands */
+Route::get('optimize', function () {
+    echo Artisan::call('optimize');
+});
+Route::get('storage:link', function () {
+    echo Artisan::call('storage:link');
+});
+Route::get('storage:unlink', function () {
+    echo Artisan::call('storage:unlink');
+});
 
 /* Admin */
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'])->group(function () {

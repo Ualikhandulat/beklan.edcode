@@ -32,7 +32,7 @@ class TestController extends Controller
 
         if (! $access->is_active) {
             return redirect()->route('student.dashboard')
-                ->with('error', 'Доступ к этому тесту деактивирован.');
+                ->with('error', __('Доступ к этому тесту деактивирован.'));
         }
 
         // Auto-finish expired incomplete tests so they count as used attempts
@@ -55,7 +55,7 @@ class TestController extends Controller
 
             if ($used >= $access->attempts_limit) {
                 return redirect()->route('student.dashboard')
-                    ->with('error', 'Вы исчерпали все попытки для этого теста.');
+                    ->with('error', __('Вы исчерпали все попытки для этого теста.'));
             }
         }
 
@@ -121,7 +121,7 @@ class TestController extends Controller
 
         if (! $access->is_active) {
             return redirect()->route('student.dashboard')
-                ->with('error', 'Доступ к этому тесту деактивирован.');
+                ->with('error', __('Доступ к этому тесту деактивирован.'));
         }
 
         $this->validateChoices($request, $access);
@@ -279,10 +279,10 @@ class TestController extends Controller
                     'elective_subject_ids' => ['required', 'array', 'size:2'],
                     'elective_subject_ids.*' => ['required', 'distinct', 'exists:subjects,id'],
                 ], [
-                    'elective_subject_ids.required' => 'Выберите профильные предметы.',
-                    'elective_subject_ids.size' => 'Нужно выбрать ровно 2 предмета.',
-                    'elective_subject_ids.*.required' => 'Выберите профильные предметы.',
-                    'elective_subject_ids.*.distinct' => 'Предметы не должны повторяться.',
+                    'elective_subject_ids.required' => __('Выберите профильные предметы.'),
+                    'elective_subject_ids.size' => __('Нужно выбрать ровно 2 предмета.'),
+                    'elective_subject_ids.*.required' => __('Выберите профильные предметы.'),
+                    'elective_subject_ids.*.distinct' => __('Предметы не должны повторяться.'),
                 ]);
             }
 
@@ -290,7 +290,7 @@ class TestController extends Controller
                 $request->validate([
                     'nusqa_number' => ['required', 'integer', 'min:1'],
                 ], [
-                    'nusqa_number.required' => 'Выберите нұсқа.',
+                    'nusqa_number.required' => __('Выберите нұсқа.'),
                 ]);
             }
 
@@ -303,7 +303,7 @@ class TestController extends Controller
             $request->validate([
                 'part_id' => ['required', 'integer', Rule::exists('parts', 'id')->where('subject_id', $cfg->subject_id)],
             ], [
-                'part_id.required' => 'Выберите раздел.',
+                'part_id.required' => __('Выберите раздел.'),
             ]);
         }
     }

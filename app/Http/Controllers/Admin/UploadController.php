@@ -12,7 +12,7 @@ class UploadController extends Controller
     {
         $request->validate(['image' => ['required', 'image', 'max:4096']]);
 
-        $path = $request->file('image')->store('uploads', 'public');
+        $path = $request->file('image')->store('uploads/'.now()->format('Y-m-d'), 'public');
 
         return response()->json(['url' => asset('storage/'.$path)]);
     }

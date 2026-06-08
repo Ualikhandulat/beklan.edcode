@@ -24,13 +24,13 @@ class AuthController extends Controller
     public function login(LoginRequest $request): RedirectResponse
     {
         $credentials = [
-            'login'    => $request->login,
+            'login' => $request->login,
             'password' => $request->password,
         ];
 
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             return back()->withErrors([
-                'login' => 'Неверный логин или пароль.',
+                'login' => __('Неверный логин или пароль.'),
             ])->onlyInput('login');
         }
 
@@ -51,7 +51,7 @@ class AuthController extends Controller
     private function redirectByRole(): RedirectResponse
     {
         return match (Auth::user()->role) {
-            Role::Admin   => redirect()->route('admin.dashboard'),
+            Role::Admin => redirect()->route('admin.dashboard'),
             Role::Student => redirect()->route('student.dashboard'),
         };
     }

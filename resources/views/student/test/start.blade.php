@@ -1,5 +1,5 @@
 @extends('layouts.student')
-@section('title', 'Начать тест')
+@section('title', __('Начать тест'))
 
 @section('content')
 
@@ -23,7 +23,7 @@
     <a href="{{ route('student.dashboard') }}"
        class="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text mb-5 transition-colors">
         <x-icon name="arrow-left" class="w-4 h-4" />
-        Назад к кабинету
+        {{ __('Назад к кабинету') }}
     </a>
 
     {{-- Header card --}}
@@ -42,8 +42,8 @@
                         {{ $access->type->label() }}
                     </p>
                     <h1 class="text-lg font-black text-text leading-tight">
-                        @if ($isEnt) Единое национальное тестирование
-                        @else {{ $singleCfg?->subject?->title ?? 'Тест по предмету' }}
+                        @if ($isEnt) {{ __('Единое национальное тестирование') }}
+                        @else {{ $singleCfg?->subject?->title ?? __('Тест по предмету') }}
                         @endif
                     </h1>
                 </div>
@@ -55,16 +55,16 @@
                     <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2.5">
                         <x-icon name="clock" class="w-4 h-4 text-primary shrink-0" />
                         <div>
-                            <p class="text-[10px] text-text-muted font-bold uppercase">Время</p>
-                            <p class="text-sm font-extrabold text-text">{{ $access->duration_minutes }} мин.</p>
+                            <p class="text-[10px] text-text-muted font-bold uppercase">{{ __('Время') }}</p>
+                            <p class="text-sm font-extrabold text-text">{{ __(':minutes мин.', ['minutes' => $access->duration_minutes]) }}</p>
                         </div>
                     </div>
                 @else
                     <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2.5">
                         <x-icon name="clock" class="w-4 h-4 text-success shrink-0" />
                         <div>
-                            <p class="text-[10px] text-text-muted font-bold uppercase">Время</p>
-                            <p class="text-sm font-extrabold text-success">Без лимита</p>
+                            <p class="text-[10px] text-text-muted font-bold uppercase">{{ __('Время') }}</p>
+                            <p class="text-sm font-extrabold text-success">{{ __('Без лимита') }}</p>
                         </div>
                     </div>
                 @endif
@@ -72,7 +72,7 @@
                 <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2.5">
                     <x-icon name="refresh" class="w-4 h-4 text-info shrink-0" />
                     <div>
-                        <p class="text-[10px] text-text-muted font-bold uppercase">Попыток</p>
+                        <p class="text-[10px] text-text-muted font-bold uppercase">{{ __('Попыток') }}</p>
                         <p class="text-sm font-extrabold text-text">
                             {{ $access->attempts_limit === 0 ? '∞' : $access->attempts_limit }}
                         </p>
@@ -83,7 +83,7 @@
                     <div class="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2.5">
                         <x-icon name="clipboard-list" class="w-4 h-4 text-text-muted shrink-0" />
                         <div>
-                            <p class="text-[10px] text-text-muted font-bold uppercase">Вопросов</p>
+                            <p class="text-[10px] text-text-muted font-bold uppercase">{{ __('Вопросов') }}</p>
                             <p class="text-sm font-extrabold text-text">{{ $access->question_count }}</p>
                         </div>
                     </div>
@@ -97,12 +97,12 @@
          style="background: rgba(242,153,74,0.08); border: 1px solid rgba(242,153,74,0.25)">
         <x-icon name="exclamation" class="w-5 h-5 shrink-0 mt-0.5" style="color:#e08a3c" />
         <div class="text-sm text-text">
-            <p class="font-bold mb-0.5">Перед началом:</p>
+            <p class="font-bold mb-0.5">{{ __('Перед началом:') }}</p>
             <ul class="space-y-0.5 text-text-muted">
-                <li>• После старта таймер не останавливается</li>
-                <li>• Ответы сохраняются автоматически</li>
+                <li>• {{ __('После старта таймер не останавливается') }}</li>
+                <li>• {{ __('Ответы сохраняются автоматически') }}</li>
                 @if ($access->duration_minutes)
-                    <li>• Тест завершится автоматически через {{ $access->duration_minutes }} минут</li>
+                    <li>• {{ __('Тест завершится автоматически через :minutes минут', ['minutes' => $access->duration_minutes]) }}</li>
                 @endif
             </ul>
         </div>
@@ -111,7 +111,7 @@
     {{-- Subjects preview (ENT mandatory) --}}
     @if ($isEnt && $mandatory->isNotEmpty())
         <div class="card mb-4">
-            <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">Обязательные предметы</p>
+            <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">{{ __('Обязательные предметы') }}</p>
             <div class="flex flex-wrap gap-2">
                 @foreach ($mandatory as $as)
                     @if ($as->subject)
@@ -129,19 +129,26 @@
     <form method="POST" action="{{ route('student.test.start', $access) }}">
         @csrf
 
+        @if ($errors->any())
+            <div class="mb-4 p-4 bg-danger-light border border-danger/20 rounded-2xl flex items-start gap-3">
+                <x-icon name="exclamation-circle" class="w-5 h-5 text-danger shrink-0 mt-0.5" />
+                <p class="text-sm font-bold text-danger">{{ $errors->first() }}</p>
+            </div>
+        @endif
+
         {{-- ENT: Student chooses elective subjects --}}
         @if ($isEnt && $access->student_chooses_subject && $electiveSubjects->isNotEmpty())
             <div class="card mb-4">
                 <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">
-                    Выберите 2 профильных предмета
+                    {{ __('Выберите 2 профильных предмета') }}
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     @foreach([0, 1] as $i)
                         <x-form.select
                             name="elective_subject_ids[{{ $i }}]"
-                            label="Предмет {{ $i + 1 }}"
+                            label="{{ __('Предмет :number', ['number' => $i + 1]) }}"
                             :options="$electiveSubjects->pluck('title', 'id')"
-                            placeholder="— Выберите —"
+                            placeholder="{{ __('— Выберите —') }}"
                             :searchable="false"
                             :required="true" />
                     @endforeach
@@ -149,7 +156,7 @@
             </div>
         @elseif ($isEnt && $elective->isNotEmpty())
             <div class="card mb-4">
-                <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">Профильные предметы</p>
+                <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">{{ __('Профильные предметы') }}</p>
                 <div class="flex flex-wrap gap-2">
                     @foreach ($elective as $as)
                         @if ($as->subject)
@@ -165,7 +172,7 @@
         {{-- ENT: Student chooses нұсқа --}}
         @if ($isEnt && $access->student_chooses_nusqa && $nusqaNumbers->isNotEmpty())
             <div class="card mb-4">
-                <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">Выберите нұсқа</p>
+                <p class="text-xs font-extrabold text-text-muted uppercase tracking-widest mb-3">{{ __('Выберите нұсқа') }}</p>
                 <div class="flex flex-wrap gap-2">
                     @foreach ($nusqaNumbers as $n)
                         <label class="cursor-pointer">
@@ -184,9 +191,9 @@
             <div class="card mb-4">
                 <x-form.select
                     name="part_id"
-                    label="Выберите {{ $singleCfg->part_type?->label() ?? 'раздел' }}"
+                    label="{{ __('Выберите :part', ['part' => $singleCfg->part_type?->label() ?? __('раздел')]) }}"
                     :options="$choosableParts->pluck('title', 'id')"
-                    placeholder="— Выберите —"
+                    placeholder="{{ __('— Выберите —') }}"
                     :searchable="false"
                     :required="true" />
             </div>
@@ -196,7 +203,7 @@
                 class="w-full btn text-white font-extrabold py-3.5 text-base rounded-2xl transition-all duration-200 hover:shadow-lg active:scale-[0.99]"
                 style="background: {{ $color }}">
             <x-icon name="play" class="w-5 h-5" />
-            Начать тестирование
+            {{ __('Начать тестирование') }}
         </button>
     </form>
 

@@ -1,5 +1,5 @@
 @extends('layouts.public')
-@section('title', 'Вход')
+@section('title', __('Вход'))
 
 @section('content')
 <div class="min-h-[calc(100vh-9rem)] flex items-center justify-center px-4 py-12">
@@ -9,8 +9,8 @@
             <div class="inline-flex items-center gap-1 mb-3">
                 <span class="text-3xl font-extrabold text-primary">Ed</span><span class="text-3xl font-extrabold text-text">Code</span>
             </div>
-            <h2 class="text-xl font-extrabold text-text">Вход в систему</h2>
-            <p class="text-sm text-text-muted mt-1">Введите данные для входа</p>
+            <h2 class="text-xl font-extrabold text-text">{{ __('Вход в систему') }}</h2>
+            <p class="text-sm text-text-muted mt-1">{{ __('Введите данные для входа') }}</p>
         </div>
 
         <div class="card">
@@ -19,7 +19,7 @@
 
                 <x-form.input
                     name="login"
-                    label="Номер телефона"
+                    label="{{ __('Номер телефона') }}"
                     type="tel"
                     placeholder="87XXXXXXXXX"
                     :required="true"
@@ -27,7 +27,7 @@
 
                 <x-form.input
                     name="password"
-                    label="Пароль"
+                    label="{{ __('Пароль') }}"
                     type="password"
                     placeholder="••••••••"
                     :required="true"
@@ -35,11 +35,11 @@
 
                 <label class="flex items-center gap-2 cursor-pointer mb-5 font-normal">
                     <input type="checkbox" name="remember" class="w-4 h-4 rounded accent-primary">
-                    <span class="text-sm text-text-muted">Запомнить меня</span>
+                    <span class="text-sm text-text-muted">{{ __('Запомнить меня') }}</span>
                 </label>
 
                 <button type="submit" class="btn btn-primary w-full btn-lg">
-                    Войти
+                    {{ __('Войти') }}
                 </button>
             </form>
         </div>

@@ -1,5 +1,5 @@
 @extends('layouts.student')
-@section('title', 'О платформе')
+@section('title', __('О платформе'))
 
 @section('content')
 
@@ -20,8 +20,7 @@
             <span class="text-4xl font-black text-primary">Ed</span><span class="text-4xl font-black text-text">Code</span>
         </div>
         <p class="text-text-muted text-sm font-semibold max-w-md mx-auto leading-relaxed">
-            Платформа онлайн-тестирования для подготовки к ЕНТ и предметным экзаменам.
-            Проходи тесты, отслеживай результаты и работай над ошибками.
+            {{ __('Платформа онлайн-тестирования для подготовки к ЕНТ и предметным экзаменам. Проходи тесты, отслеживай результаты и работай над ошибками.') }}
         </p>
     </div>
 </div>
@@ -30,9 +29,9 @@
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     @php
         $features = [
-            ['icon' => 'clipboard-list', 'color' => 'primary',  'title' => 'Онлайн-тесты',      'text' => 'ЕНТ, предметные и тематические тесты в удобном интерфейсе.'],
-            ['icon' => 'chart-bar',      'color' => 'info',     'title' => 'Результаты сразу',   'text' => 'Мгновенный подсчёт баллов и детальный разбор каждого вопроса.'],
-            ['icon' => 'refresh',        'color' => 'success',  'title' => 'Работа над ошибками','text' => 'Просматривай разбор после каждого теста и учись на своих ошибках.'],
+            ['icon' => 'clipboard-list', 'color' => 'primary',  'title' => __('Онлайн-тесты'),      'text' => __('ЕНТ, предметные и тематические тесты в удобном интерфейсе.')],
+            ['icon' => 'chart-bar',      'color' => 'info',     'title' => __('Результаты сразу'),   'text' => __('Мгновенный подсчёт баллов и детальный разбор каждого вопроса.')],
+            ['icon' => 'refresh',        'color' => 'success',  'title' => __('Работа над ошибками'),'text' => __('Просматривай разбор после каждого теста и учись на своих ошибках.')],
         ];
     @endphp
     @foreach ($features as $i => $f)
@@ -49,14 +48,14 @@
 
 {{-- How it works --}}
 <div class="card mb-6 fade-up" style="animation-delay: 240ms">
-    <h2 class="text-base font-extrabold text-text mb-4">Как пользоваться</h2>
+    <h2 class="text-base font-extrabold text-text mb-4">{{ __('Как пользоваться') }}</h2>
     <div class="space-y-4">
         @php
             $steps = [
-                ['num' => '1', 'title' => 'Активные тесты',       'text' => 'На вкладке «Активные» отображаются тесты, которые ты ещё не завершил или по которым остались попытки.'],
-                ['num' => '2', 'title' => 'Начни тест',            'text' => 'Нажми «Начать тест», выбери нужный вариант или нұсқа (если требуется) и приступай к вопросам.'],
-                ['num' => '3', 'title' => 'Навигация по вопросам', 'text' => 'Переключайся между предметами через вкладки в сайдбаре. Отвеченные вопросы отмечаются зелёным.'],
-                ['num' => '4', 'title' => 'Работа над ошибками',   'text' => 'После завершения теста нажми «Разбор ответов» — увидишь все свои ответы с пометкой правильно/неправильно и верными ответами.'],
+                ['num' => '1', 'title' => __('Активные тесты'),       'text' => __('На вкладке «Активные» отображаются тесты, которые ты ещё не завершил или по которым остались попытки.')],
+                ['num' => '2', 'title' => __('Начни тест'),            'text' => __('Нажми «Начать тест», выбери нужный вариант или нұсқа (если требуется) и приступай к вопросам.')],
+                ['num' => '3', 'title' => __('Навигация по вопросам'), 'text' => __('Переключайся между предметами через вкладки в сайдбаре. Отвеченные вопросы отмечаются зелёным.')],
+                ['num' => '4', 'title' => __('Работа над ошибками'),   'text' => __('После завершения теста нажми «Разбор ответов» — увидишь все свои ответы с пометкой правильно/неправильно и верными ответами.')],
             ];
         @endphp
         @foreach ($steps as $step)
@@ -74,14 +73,14 @@
 
 {{-- Contacts --}}
 <div class="card fade-up" style="animation-delay: 300ms">
-    <h2 class="text-base font-extrabold text-text mb-4">Контакты</h2>
+    <h2 class="text-base font-extrabold text-text mb-4">{{ __('Контакты') }}</h2>
     <div class="space-y-3">
         <div class="flex items-center gap-3">
             <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <x-icon name="phone" class="w-4 h-4 text-primary" />
             </div>
             <div>
-                <p class="text-xs text-text-muted font-semibold">Телефон</p>
+                <p class="text-xs text-text-muted font-semibold">{{ __('Телефон') }}</p>
                 <a href="tel:+77718861404" class="text-sm font-bold text-text hover:text-primary transition-colors">
                     +7 771 886 1404
                 </a>
@@ -102,7 +101,7 @@
 
     <div class="mt-4 pt-4 border-t border-border">
         <p class="text-xs text-text-muted">
-            Работаем с 9:00 до 18:00 (пн–пт). Для получения доступа к тестам обратитесь к нам по телефону или WhatsApp выше.
+            {{ __('Работаем с 9:00 до 18:00 (пн–пт). Для получения доступа к тестам обратитесь к нам по телефону или WhatsApp выше.') }}
         </p>
     </div>
 </div>

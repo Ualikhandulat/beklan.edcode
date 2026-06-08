@@ -14,7 +14,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'login'    => ['required', 'string', 'regex:/^87\d{9}$/'],
+            'login' => ['required', 'string', 'regex:/^87\d{9}$/'],
             'password' => ['required', 'string', 'min:6'],
         ];
     }
@@ -22,10 +22,10 @@ class LoginRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'login.required' => 'Введите номер телефона.',
-            'login.regex'    => 'Номер должен начинаться с 87 и содержать 11 цифр.',
-            'password.required' => 'Введите пароль.',
-            'password.min'   => 'Пароль должен содержать не менее 6 символов.',
+            'login.required' => __('Введите номер телефона.'),
+            'login.regex' => __('Номер должен начинаться с 87 и содержать 11 цифр.'),
+            'password.required' => __('Введите пароль.'),
+            'password.min' => __('Пароль должен содержать не менее 6 символов.'),
         ];
     }
 }

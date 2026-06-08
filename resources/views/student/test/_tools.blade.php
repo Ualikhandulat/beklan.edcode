@@ -4,14 +4,14 @@
 <div class="flex items-center gap-2 overflow-x-auto">
     <button type="button" @click="calcOpen = true" class="{{ $toolBtn }}">
         <x-icon name="calculator" class="w-4 h-4 shrink-0" />
-        <span class="truncate min-w-0">Калькулятор</span>
+        <span class="truncate min-w-0">{{ __('Калькулятор') }}</span>
     </button>
     <button type="button" @click="mendeleevOpen = true" class="{{ $toolBtn }}">
         <x-icon name="beaker" class="w-4 h-4 shrink-0" />
-        <span class="truncate min-w-0">Менделеев</span>
+        <span class="truncate min-w-0">{{ __('Менделеев') }}</span>
     </button>
     <button type="button" @click="solubilityOpen = true" class="{{ $toolBtn }}">
         <x-icon name="beaker" class="w-4 h-4 shrink-0" />
-        <span class="truncate min-w-0">Растворимость</span>
+        <span class="truncate min-w-0">{{ __('Растворимость') }}</span>
     </button>
 </div>

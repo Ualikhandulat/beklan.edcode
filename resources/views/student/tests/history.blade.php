@@ -1,5 +1,5 @@
 @extends('layouts.student')
-@section('title', 'История тестов')
+@section('title', __('История тестов'))
 
 @section('content')
 
@@ -12,7 +12,7 @@
 </style>
 
 <div class="flex items-center justify-between mb-4 fade-up">
-    <h2 class="text-base font-extrabold text-text">История тестов</h2>
+    <h2 class="text-base font-extrabold text-text">{{ __('История тестов') }}</h2>
     @if ($tests->isNotEmpty())
         <span class="text-xs font-bold text-text-muted bg-white border border-border px-2.5 py-1 rounded-full shadow-sm">
             {{ $tests->total() }}
@@ -25,13 +25,13 @@
         <div class="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
             <x-icon name="chart-bar" class="w-7 h-7 text-text-muted" />
         </div>
-        <p class="font-extrabold text-text mb-1">Пока нет результатов</p>
+        <p class="font-extrabold text-text mb-1">{{ __('Пока нет результатов') }}</p>
         <p class="text-sm text-text-muted max-w-xs mx-auto leading-relaxed">
-            После прохождения первого теста здесь появится история результатов.
+            {{ __('После прохождения первого теста здесь появится история результатов.') }}
         </p>
         <a href="{{ route('student.dashboard') }}"
            class="inline-flex items-center gap-1.5 mt-5 text-sm font-bold text-primary hover:underline">
-            Перейти к тестам
+            {{ __('Перейти к тестам') }}
             <x-icon name="arrow-right" class="w-3.5 h-3.5" />
         </a>
     </div>
@@ -49,8 +49,8 @@
                 $isEnt  = $access && $access->type === \App\Enums\TestAccessType::Ent;
                 $single = $access ? ($isEnt ? null : $access->accessSubjects->first()) : null;
                 $title  = $isEnt
-                    ? 'ЕНТ'
-                    : ($single?->subject?->title ?? ($access?->type->label() ?? 'Тест'));
+                    ? __('ЕНТ')
+                    : ($single?->subject?->title ?? ($access?->type->label() ?? __('Тест')));
 
                 $duration = $test->started_at
                     ? $test->started_at->diffInSeconds($test->completed_at)
@@ -60,7 +60,9 @@
                     $h = intdiv($duration, 3600);
                     $m = intdiv($duration % 3600, 60);
                     $s = $duration % 60;
-                    $durationStr = $h > 0 ? "{$h}ч {$m}м" : ($m > 0 ? "{$m}м {$s}с" : "{$s}с");
+                    $durationStr = $h > 0
+                        ? __(':h ч :m м', ['h' => $h, 'm' => $m])
+                        : ($m > 0 ? __(':m м :s с', ['m' => $m, 's' => $s]) : __(':s с', ['s' => $s]));
                 }
             @endphp
 
@@ -92,7 +94,7 @@
                                 <div class="min-w-0">
                                     <p class="font-extrabold text-text text-sm leading-snug truncate">{{ $title }}</p>
                                     <p class="text-xs text-text-muted mt-0.5">
-                                        Попытка {{ $test->attempt_number }}
+                                        {{ __('Попытка :number', ['number' => $test->attempt_number]) }}
                                         @if ($test->completed_at)
                                             · {{ $test->completed_at->format('d.m.Y H:i') }}
                                         @endif
@@ -113,13 +115,13 @@
                                 <div class="ml-auto flex items-center gap-2">
                                     <a href="{{ route('student.test.result', $test) }}"
                                        class="text-xs font-bold text-text-muted hover:text-text px-2.5 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-                                        Результат
+                                        {{ __('Результат') }}
                                     </a>
                                     <a href="{{ route('student.test.detail', $test) }}"
                                        class="inline-flex items-center gap-1 text-xs font-extrabold px-3 py-1.5 rounded-xl text-white transition-all duration-200 hover:shadow-md"
                                        style="background: var(--color-primary)">
                                         <x-icon name="book-open" class="w-3.5 h-3.5" />
-                                        Разбор
+                                        {{ __('Разбор') }}
                                     </a>
                                 </div>
                             </div>

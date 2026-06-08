@@ -51,11 +51,11 @@
     <div class="flex items-center gap-4 px-2 mt-3 pt-3 border-t border-border">
         <div class="flex items-center gap-1.5">
             <div class="w-4 h-4 rounded-md bg-success/20 border border-success/30"></div>
-            <span class="text-[10px] font-bold text-text-muted">Отвечен</span>
+            <span class="text-[10px] font-bold text-text-muted">{{ __('Отвечен') }}</span>
         </div>
         <div class="flex items-center gap-1.5">
             <div class="w-4 h-4 rounded-md bg-gray-100"></div>
-            <span class="text-[10px] font-bold text-text-muted">Не отвечен</span>
+            <span class="text-[10px] font-bold text-text-muted">{{ __('Не отвечен') }}</span>
         </div>
     </div>
 </div>
