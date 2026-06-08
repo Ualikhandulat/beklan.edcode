@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\PartType;
+use App\Enums\QuestionType;
 use App\Models\Group;
 use App\Models\Part;
 use App\Models\Question;
@@ -57,6 +58,22 @@ class EntDataSeeder extends Seeder
             'topics' => ['Грамматика', 'Лексика', 'Чтение', 'Аудирование'],
             'nusqas' => ['1', '2'],
         ],
+    ];
+
+    /**
+     * Канонические квоты вопросов на нұсқа (зеркалят TestAssemblyService::MANDATORY_QUOTAS
+     * и ::PROFILE_QUOTA), чтобы при сборке полного ЕНТ из этих нұсқа набирался полный
+     * комплект заданий, а не «что нашлось». 'group' — целевое количество подвопросов
+     * к контекстам (каждый контекст даёт 3 шт., см. QuestionFactory::group()).
+     *
+     * @var array<string, array<string, int>>
+     */
+    private const NUSQA_QUOTAS = [
+        'История Казахстана' => ['one' => 20],
+        'Грамотность чтения' => ['group' => 10],
+        'Математическая грамотность' => ['one' => 10],
+        'Физика' => ['one' => 25, 'group' => 5, 'match' => 5, 'multi' => 5],
+        'Математика' => ['one' => 25, 'group' => 5, 'match' => 5, 'multi' => 5],
     ];
 
     private array $groups = [
@@ -119,13 +136,57 @@ class EntDataSeeder extends Seeder
                     'type' => PartType::Nusqa,
                 ]);
 
-                if ($nusqa->wasRecentlyCreated) {
+                if ($quota = self::NUSQA_QUOTAS[$subjectTitle] ?? null) {
+                    $this->topUpToQuota($subject->id, $nusqa->id, $quota);
+                } elseif ($nusqa->wasRecentlyCreated) {
                     $this->seedQuestions($subject->id, $nusqa->id, nusqa: true);
                 }
             }
         }
 
         $this->command->info('Done!');
+    }
+
+    /**
+     * Дозаполняет нұсқа вопросами до канонической квоты по типам, не трогая уже
+     * существующие (повторный запуск идемпотентен — лишнего не создаст).
+     *
+     * @param  array<string, int>  $quota
+     */
+    private function topUpToQuota(int $subjectId, int $partId, array $quota): void
+    {
+        $existing = Question::where('subject_id', $subjectId)
+            ->where('part_id', $partId)
+            ->withCount('details')
+            ->get()
+            ->groupBy(fn (Question $q) => $q->type->value);
+
+        foreach ($quota as $type => $target) {
+            if ($type === QuestionType::IS_GROUP->value) {
+                $existingDetails = ($existing->get($type) ?? collect())->sum('details_count');
+                $missingDetails = max(0, $target - $existingDetails);
+
+                if ($missingDetails > 0) {
+                    // Каждый контекст несёт 3 подвопроса (см. QuestionFactory::group())
+                    Question::factory()->group($subjectId, $partId)
+                        ->count((int) ceil($missingDetails / 3))
+                        ->create();
+                }
+
+                continue;
+            }
+
+            $missing = max(0, $target - ($existing->get($type)?->count() ?? 0));
+
+            if ($missing > 0) {
+                match ($type) {
+                    QuestionType::SELECT_ONE->value => Question::factory()->one($subjectId, $partId)->count($missing)->create(),
+                    QuestionType::SELECT_MULTI->value => Question::factory()->multi($subjectId, $partId)->count($missing)->create(),
+                    QuestionType::IS_MATCH->value => Question::factory()->match($subjectId, $partId)->count($missing)->create(),
+                    default => null,
+                };
+            }
+        }
     }
 
     private function seedQuestions(int $subjectId, int $partId, bool $nusqa = false): void
