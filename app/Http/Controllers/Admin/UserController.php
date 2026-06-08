@@ -59,6 +59,26 @@ class UserController extends Controller
         return view('admin.users.archive', compact('users', 'navigations'));
     }
 
+    public function results(User $user): View
+    {
+        abort_unless($user->role === Role::Student, 404);
+
+        $tests = $user->tests()
+            ->whereNotNull('completed_at')
+            ->with(['access.user', 'access.group', 'access.accessSubjects.subject'])
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        $navigations = [
+            route('admin.users.index') => 'Пользователи',
+            route('admin.users.edit', $user) => $user->name,
+            '#' => 'Результаты',
+        ];
+
+        return view('admin.users.results', compact('user', 'tests', 'navigations'));
+    }
+
     public function restore(User $user): RedirectResponse
     {
         $user->restore();

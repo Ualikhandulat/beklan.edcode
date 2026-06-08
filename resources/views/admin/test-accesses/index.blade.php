@@ -193,6 +193,11 @@
 
                     <td onclick="event.stopPropagation()">
                         <div class="flex items-center gap-1">
+                            <a href="{{ route('admin.test-accesses.results', $access) }}"
+                               class="btn btn-ghost btn-sm text-text-muted hover:text-primary hover:bg-primary-light"
+                               title="Результаты">
+                                <x-icon name="chart-bar" class="w-4 h-4" />
+                            </a>
                             <x-btn.edit :route="route('admin.test-accesses.edit', $access)" />
                             <x-btn.delete :route="route('admin.test-accesses.destroy', $access)" />
                         </div>

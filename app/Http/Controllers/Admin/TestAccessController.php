@@ -40,6 +40,38 @@ class TestAccessController extends Controller
         return view('admin.test-accesses.index', compact('accesses', 'navigations'));
     }
 
+    public function results(TestAccess $testAccess): View
+    {
+        $testAccess->load(['user', 'group.users', 'accessSubjects.subject']);
+
+        $tests = $testAccess->tests()
+            ->with('user')
+            ->latest()
+            ->paginate(20)
+            ->withQueryString();
+
+        $assignedCount = $testAccess->user_id
+            ? 1
+            : $testAccess->group->users->count();
+
+        $startedCount = $testAccess->tests()->whereNotNull('started_at')->distinct('user_id')->count('user_id');
+        $completedTests = $testAccess->tests()->whereNotNull('completed_at')->get(['user_id', 'total_score', 'max_score']);
+        $completedCount = $completedTests->unique('user_id')->count();
+
+        $averagePercent = $completedTests->isNotEmpty()
+            ? round($completedTests->avg(fn ($t) => $t->max_score > 0 ? $t->total_score / $t->max_score * 100 : 0))
+            : null;
+
+        $navigations = [
+            route('admin.test-accesses.index') => 'Доступы',
+            '#' => 'Результаты — '.$testAccess->targetLabel(),
+        ];
+
+        return view('admin.test-accesses.results', compact(
+            'testAccess', 'tests', 'assignedCount', 'startedCount', 'completedCount', 'averagePercent', 'navigations'
+        ));
+    }
+
     public function create(): View
     {
         return view('admin.test-accesses.form', array_merge($this->formData(), [

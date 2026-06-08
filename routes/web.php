@@ -30,12 +30,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::post('/uploads/image', [AdminUploadController::class, 'image'])->name('uploads.image');
     Route::resource('groups', AdminGroupController::class);
+    Route::get('groups/{group}/results', [AdminGroupController::class, 'results'])->name('groups.results');
     Route::post('groups/{group}/students', [AdminGroupController::class, 'addStudent'])->name('groups.students.add');
     Route::delete('groups/{group}/students/{user}', [AdminGroupController::class, 'removeStudent'])->name('groups.students.remove');
     Route::resource('users', AdminUserController::class)->except(['show']);
     Route::get('users/archive', [AdminUserController::class, 'archive'])->name('users.archive');
+    Route::get('users/{user}/results', [AdminUserController::class, 'results'])->name('users.results');
     Route::patch('users/{user}/restore', [AdminUserController::class, 'restore'])->name('users.restore')->withTrashed();
     Route::resource('test-accesses', AdminTestAccessController::class)->except(['show']);
+    Route::get('test-accesses/{test_access}/results', [AdminTestAccessController::class, 'results'])->name('test-accesses.results');
     Route::patch('test-accesses/{test_access}/toggle-active', [AdminTestAccessController::class, 'toggleActive'])->name('test-accesses.toggle-active');
 
     /* Subjects */

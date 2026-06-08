@@ -66,6 +66,13 @@
                     <td class="text-text-muted">{{ $user->group?->title ?? '—' }}</td>
                     <td onclick="event.stopPropagation()">
                         <div class="flex items-center gap-1.5">
+                            @if ($user->role === \App\Enums\Role::Student)
+                                <a href="{{ route('admin.users.results', $user) }}"
+                                   class="btn btn-ghost btn-sm text-text-muted hover:text-primary hover:bg-primary-light"
+                                   title="Результаты">
+                                    <x-icon name="chart-bar" class="w-4 h-4" />
+                                </a>
+                            @endif
                             <x-btn.edit :route="route('admin.users.edit', $user)" />
                             <x-btn.delete :route="route('admin.users.destroy', $user)" />
                         </div>

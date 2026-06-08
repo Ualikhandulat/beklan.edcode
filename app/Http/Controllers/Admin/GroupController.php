@@ -46,6 +46,32 @@ class GroupController extends Controller
         return view('admin.groups.show', compact('group', 'groups', 'students', 'available', 'navigations'));
     }
 
+    public function results(Group $group): View
+    {
+        $students = $group->users()
+            ->with(['tests' => fn ($q) => $q->whereNotNull('completed_at')])
+            ->orderBy('name')
+            ->get();
+
+        $allCompletedTests = $students->flatMap->tests;
+
+        $averagePercent = $allCompletedTests->isNotEmpty()
+            ? round($allCompletedTests->avg(fn ($t) => $t->max_score > 0 ? $t->total_score / $t->max_score * 100 : 0))
+            : null;
+
+        $activeStudentsCount = $students->filter(fn ($s) => $s->tests->isNotEmpty())->count();
+
+        $navigations = [
+            route('admin.groups.index') => 'Группы',
+            route('admin.groups.show', $group) => $group->title,
+            '#' => 'Результаты',
+        ];
+
+        return view('admin.groups.results', compact(
+            'group', 'students', 'averagePercent', 'activeStudentsCount', 'navigations'
+        ));
+    }
+
     public function addStudent(Request $request, Group $group): RedirectResponse
     {
         $request->validate(['user_id' => ['required', 'exists:users,id']]);

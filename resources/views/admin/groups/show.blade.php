@@ -106,6 +106,10 @@
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto">
                 <span class="badge badge-info">{{ $students->count() }} студ.</span>
+                <a href="{{ route('admin.groups.results', $group) }}" class="btn btn-outline btn-sm">
+                    <x-icon name="chart-bar" class="w-4 h-4" />
+                    Результаты
+                </a>
                 <button @click="openSearch()"
                         class="btn btn-success btn-sm ml-auto sm:ml-0">
                     <x-icon name="plus" class="w-4 h-4" />

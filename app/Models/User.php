@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Role;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -35,5 +36,10 @@ class User extends Authenticatable
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function tests(): HasMany
+    {
+        return $this->hasMany(Test::class);
     }
 }
