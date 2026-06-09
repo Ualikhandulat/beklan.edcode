@@ -84,10 +84,10 @@
                         @else
                             <div class="flex items-center gap-2.5">
                                 <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
-                                     style="background: {{ \App\Helpers\AvatarHelper::color($access->group->title) }}">
+                                     style="background: {{ \App\Helpers\AvatarHelper::color($access->group?->title ?? '') }}">
                                     <x-icon name="user-group" class="w-4 h-4 text-white" />
                                 </div>
-                                <p class="text-sm font-semibold text-text">{{ $access->group->title }}</p>
+                                <p class="text-sm font-semibold text-text">{{ $access->group?->title ?? '—' }}</p>
                             </div>
                         @endif
                     </td>
