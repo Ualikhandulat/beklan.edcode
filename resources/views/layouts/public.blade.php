@@ -24,10 +24,7 @@
                     <a href="{{ route('login') }}" class="btn btn-primary btn-sm">{{ __('Войти') }}</a>
                 @endguest
                 @auth
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-outline btn-sm">{{ __('Выйти') }}</button>
-                    </form>
+                    <a href="{{ route('login') }}" class="btn btn-primary btn-sm">{{ __('Кабинет') }}</a>
                 @endauth
             </div>
         </div>

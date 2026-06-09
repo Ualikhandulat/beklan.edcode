@@ -198,7 +198,7 @@ class PartQuestionController extends Controller
     {
         $data = $request->validate([
             'question' => ['required', 'string'],
-            'answers' => ['required', 'array', 'min:2'],
+            'answers' => ['required', 'array', 'min:1', 'max:3'],
             'answers.*' => ['integer'],
             'var1' => ['required', 'string'], 'var2' => ['required', 'string'],
             'var3' => ['required', 'string'], 'var4' => ['required', 'string'],

@@ -21,7 +21,7 @@
 
     <p class="q-section-label mt-6">
         Варианты ответов
-        <span class="normal-case font-semibold text-text-muted tracking-normal ml-1">— отметьте правильные (минимум 2)</span>
+        <span class="normal-case font-semibold text-text-muted tracking-normal ml-1">— отметьте правильные (от 1 до 3)</span>
     </p>
 
     <div class="space-y-3">

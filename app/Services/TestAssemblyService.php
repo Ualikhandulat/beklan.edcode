@@ -375,6 +375,7 @@ class TestAssemblyService
                 'detail_id' => $id,
                 'user_answers' => [],
                 'is_right' => null,
+                'count_answers' => $qModel?->count_answers ?? 1,
                 'var_order' => $this->generateVarOrder($qModel?->type, $varCount),
             ];
         }, $detailIds);

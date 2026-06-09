@@ -184,8 +184,7 @@
                 } else if (type === 'multi') {
                     answers = [...(q.user_answers || [])];
                     const idx = answers.indexOf(answer);
-                    if (idx >= 0) { answers.splice(idx, 1); } else { answers.push(answer); }
-                    if (answers.length > q.count_answers) { answers.shift(); }
+                    if (idx >= 0) { answers.splice(idx, 1); } else if (answers.length < 3) { answers.push(answer); }
                 } else if (type === 'match') {
                     answers = [...(q.user_answers || [null, null])];
                     while (answers.length < 2) answers.push(null);
@@ -423,7 +422,7 @@
                         <p x-show="currentQuestion.type !== 'group'"
                            class="text-xs font-semibold text-text-muted mb-5"
                            x-text="currentQuestion.type === 'multi'
-                               ? @js(__('Выберите :count варианта')).replace(':count', currentQuestion.count_answers)
+                               ? @js(__('Выберите один или несколько вариантов'))
                                : currentQuestion.type === 'match' ? @js(__('Соответствие'))
                                : @js(__('Один верный ответ'))">
                         </p>

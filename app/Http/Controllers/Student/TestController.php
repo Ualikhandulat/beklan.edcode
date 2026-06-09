@@ -193,9 +193,11 @@ class TestController extends Controller
                 $entry = $incoming->get($q['detail_id']);
 
                 if ($entry !== null) {
-                    $q['user_answers'] = array_values(
+                    $answers = array_values(
                         array_map('intval', array_filter($entry['user_answers'], fn ($a) => $a !== null))
                     );
+                    $countAnswers = (int) ($q['count_answers'] ?? PHP_INT_MAX);
+                    $q['user_answers'] = array_slice($answers, 0, $countAnswers);
                 }
             }
 
