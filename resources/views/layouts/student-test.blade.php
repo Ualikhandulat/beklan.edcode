@@ -13,7 +13,7 @@
 
     @stack('head')
 </head>
-<body class="bg-bg">
+<body class="bg-bg select-none">
 
     <nav class="bg-white border-b border-border sticky top-0 z-40 h-14 flex items-center">
         <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 flex items-center gap-3">

@@ -8,6 +8,8 @@ import {
     Heading,
     Image,
     ImageCaption,
+    ImageResizeEditing,
+    ImageResizeHandles,
     ImageStyle,
     ImageToolbar,
     ImageUpload,
@@ -23,7 +25,7 @@ const PLUGINS = [
     Essentials, Autoformat,
     Bold, Italic, Underline,
     Heading, List, Paragraph,
-    Image, ImageCaption, ImageStyle, ImageToolbar, ImageUpload, FileRepository,
+    Image, ImageCaption, ImageResizeEditing, ImageResizeHandles, ImageStyle, ImageToolbar, ImageUpload, FileRepository,
     SpecialCharacters, SpecialCharactersMathematical,
 ];
 
