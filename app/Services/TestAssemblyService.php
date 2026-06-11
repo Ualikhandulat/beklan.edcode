@@ -430,10 +430,24 @@ class TestAssemblyService
                 $subjectScore = 0;
                 $questions = $testSubject->questions;
 
+                // Batch-load all details and question models for this subject in 2 queries
+                // instead of 2 queries per question (N+1).
+                $detailIds = collect($questions)->pluck('detail_id')->filter()->all();
+
+                $details = QuestionDetail::withTrashed()
+                    ->whereIn('id', $detailIds)
+                    ->get()
+                    ->keyBy('id');
+
+                $questionModels = Question::withTrashed()
+                    ->whereIn('id', $details->pluck('question_id')->unique()->all())
+                    ->get()
+                    ->keyBy('id');
+
                 foreach ($questions as &$q) {
-                    $detail = QuestionDetail::find($q['detail_id']);
+                    $detail = $details->get($q['detail_id']);
                     // `question` is both a column and a relation on QuestionDetail — use question_id to avoid the clash
-                    $questionModel = $detail ? Question::find($detail->question_id) : null;
+                    $questionModel = $detail ? $questionModels->get($detail->question_id) : null;
 
                     if (! $detail || ! $questionModel) {
                         $q['is_right'] = false;
@@ -442,9 +456,18 @@ class TestAssemblyService
                     }
 
                     $correct = $detail->answers;
-                    $userAnswers = (array) ($q['user_answers'] ?? []);
                     $type = $questionModel->type;
                     $varOrder = $q['var_order'] ?? null;
+
+                    // Slice stored display-order answers to the scored count and persist back so
+                    // the result/detail pages only show what was actually evaluated.
+                    if ($type === QuestionType::SELECT_MULTI) {
+                        $q['user_answers'] = array_slice((array) ($q['user_answers'] ?? []), 0, $questionModel->count_answers);
+                    } elseif ($type === QuestionType::IS_MATCH) {
+                        $q['user_answers'] = array_slice((array) ($q['user_answers'] ?? []), 0, 2);
+                    }
+
+                    $userAnswers = (array) ($q['user_answers'] ?? []);
 
                     // Remap display-order indices back to original var indices before scoring.
                     // IS_MATCH answers are positional (index 0 = pair 1, index 1 = pair 2), so
