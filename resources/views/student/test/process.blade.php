@@ -47,7 +47,7 @@
             calcOpen: false,
             mendeleevOpen: false,
             solubilityOpen: false,
-            pendingSave: false,
+            pendingChanges: [],
             totalAnswered: {{ $answered }},
             totalQuestions: {{ $totalQuestions }},
             secondsLeft: {{ $secondsLeft ?? 'null' }},
@@ -87,37 +87,26 @@
                     const raw = localStorage.getItem(this.lsKey);
                     if (!raw) return;
                     const saved = JSON.parse(raw);
-                    let restoredCount = 0;
-                    saved.forEach((savedSubject, si) => {
-                        if (!this.subjects[si]) return;
-                        savedSubject.questions.forEach((savedQ, qi) => {
-                            if (!this.subjects[si].questions[qi]) return;
-                            const localAnswers = savedQ.user_answers || [];
-                            if (localAnswers.length > 0) {
-                                const wasAnswered = this.isAnswered(this.subjects[si].questions[qi]);
-                                this.subjects[si].questions[qi].user_answers = localAnswers;
-                                const nowAnswered = this.isAnswered(this.subjects[si].questions[qi]);
-                                if (!wasAnswered && nowAnswered) {
-                                    this.subjects[si].answered++;
-                                    restoredCount++;
-                                }
-                            }
-                        });
+                    if (!Array.isArray(saved) || saved.length === 0) return;
+                    saved.forEach(change => {
+                        const subject = this.subjects.find(s => s.test_subject_id === change.test_subject_id);
+                        if (!subject) return;
+                        const q = subject.questions.find(q => q.detail_id === change.detail_id);
+                        if (!q) return;
+                        const wasAnswered = this.isAnswered(q);
+                        q.user_answers = change.user_answers;
+                        if (!wasAnswered && this.isAnswered(q)) {
+                            subject.answered++;
+                        }
                     });
-                    if (restoredCount > 0) {
-                        this.totalAnswered = this.subjects.reduce((s, sub) => s + sub.answered, 0);
-                        this.pendingSave = true; // Push restored answers to server
-                    }
+                    this.totalAnswered = this.subjects.reduce((s, sub) => s + sub.answered, 0);
+                    this.pendingChanges = saved;
                 } catch (e) {}
             },
 
             saveToLocal() {
                 try {
-                    localStorage.setItem(this.lsKey, JSON.stringify(
-                        this.subjects.map(s => ({
-                            questions: s.questions.map(q => ({ user_answers: q.user_answers || [] }))
-                        }))
-                    ));
+                    localStorage.setItem(this.lsKey, JSON.stringify(this.pendingChanges));
                 } catch (e) {}
             },
 
@@ -128,7 +117,7 @@
             async autoFinish() {
                 if (this.finishing) return;
                 this.finishing = true;
-                await this.bulkSave(true);
+                await this.bulkSave();
                 fetch('{{ route('student.test.finish', $test) }}', {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' }
@@ -138,28 +127,32 @@
                 });
             },
 
-            async bulkSave(force = false) {
-                if (!force && !this.pendingSave) return;
-                this.pendingSave = false;
-                const payload = {
-                    subjects: this.subjects.map(s => ({
-                        test_subject_id: s.test_subject_id,
-                        questions: s.questions.map(q => ({
-                            detail_id: q.detail_id,
-                            user_answers: (q.user_answers || []).filter(a => a !== null),
-                        })),
-                    })),
-                };
+            async bulkSave() {
+                if (this.pendingChanges.length === 0) return;
+
+                const snapshot = this.pendingChanges.splice(0);
+
+                const bySubject = {};
+                for (const c of snapshot) {
+                    if (!bySubject[c.test_subject_id]) {
+                        bySubject[c.test_subject_id] = { test_subject_id: c.test_subject_id, questions: [] };
+                    }
+                    bySubject[c.test_subject_id].questions.push({
+                        detail_id: c.detail_id,
+                        user_answers: (c.user_answers || []).filter(a => a !== null),
+                    });
+                }
+
                 try {
                     const r = await fetch('{{ route('student.test.save', $test) }}', {
                         method: 'POST',
                         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload),
+                        body: JSON.stringify({ subjects: Object.values(bySubject) }),
                     });
                     if (!r.ok) { throw new Error('save failed'); }
-                    this.clearLocal(); // Saved to server — localStorage no longer needed
+                    this.clearLocal();
                 } catch {
-                    this.pendingSave = true;
+                    this.pendingChanges.unshift(...snapshot);
                 }
             },
 
@@ -204,8 +197,16 @@
                     this.totalAnswered--;
                 }
 
-                this.pendingSave = true;
-                this.saveToLocal(); // Save immediately to localStorage
+                const subjectId = this.subjects[this.activeSubject].test_subject_id;
+                const pendingIdx = this.pendingChanges.findIndex(
+                    c => c.test_subject_id === subjectId && c.detail_id === q.detail_id
+                );
+                if (pendingIdx >= 0) {
+                    this.pendingChanges[pendingIdx].user_answers = answers;
+                } else {
+                    this.pendingChanges.push({ test_subject_id: subjectId, detail_id: q.detail_id, user_answers: answers });
+                }
+                this.saveToLocal();
             },
 
             isAnswered(q) {

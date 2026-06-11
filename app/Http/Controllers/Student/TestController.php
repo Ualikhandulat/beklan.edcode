@@ -179,29 +179,31 @@ class TestController extends Controller
             'subjects.*.questions.*.user_answers.*' => ['nullable', 'integer'],
         ]);
 
+        $testSubjectMap = $test->subjects->keyBy('id');
+
         foreach ($request->subjects as $subjectData) {
-            $testSubject = $test->subjects()->find($subjectData['test_subject_id']);
+            $testSubject = $testSubjectMap->get($subjectData['test_subject_id']);
 
             if (! $testSubject) {
                 continue;
             }
 
             $questions = $testSubject->questions;
-            $incoming = collect($subjectData['questions'])->keyBy('detail_id');
+            $positionByDetailId = array_flip(array_column($questions, 'detail_id'));
 
-            foreach ($questions as &$q) {
-                $entry = $incoming->get($q['detail_id']);
+            foreach ($subjectData['questions'] as $entry) {
+                $pos = $positionByDetailId[$entry['detail_id']] ?? null;
 
-                if ($entry !== null) {
-                    $answers = array_values(
-                        array_map('intval', array_filter($entry['user_answers'], fn ($a) => $a !== null))
-                    );
-                    $countAnswers = (int) ($q['count_answers'] ?? PHP_INT_MAX);
-                    $q['user_answers'] = array_slice($answers, 0, $countAnswers);
+                if ($pos === null) {
+                    continue;
                 }
-            }
 
-            unset($q);
+                $answers = array_values(
+                    array_map('intval', array_filter($entry['user_answers'], fn ($a) => $a !== null))
+                );
+                $countAnswers = (int) ($questions[$pos]['count_answers'] ?? PHP_INT_MAX);
+                $questions[$pos]['user_answers'] = array_slice($answers, 0, $countAnswers);
+            }
 
             $testSubject->update(['questions' => $questions]);
         }

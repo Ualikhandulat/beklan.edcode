@@ -347,7 +347,7 @@ class TestAssemblyService
         }
 
         $details = QuestionDetail::whereIn('id', $detailIds)->get()->keyBy('id');
-        $questionModels = Question::whereIn('id', $details->pluck('question_id'))->get()->keyBy('id');
+        $questionModels = Question::whereIn('id', $details->pluck('question_id')->unique()->all())->get()->keyBy('id');
 
         $maxScore = 0;
         $questions = array_map(function ($id) use ($details, $questionModels, &$maxScore) {
