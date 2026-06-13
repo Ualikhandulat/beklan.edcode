@@ -1,7 +1,5 @@
 <?php
 
-use App\Models\QuestionDetail;
-use App\Models\TestSubject;
 use Illuminate\Database\Migrations\Migration;
 
 /**
@@ -29,7 +27,7 @@ return new class extends Migration
 
     private function shiftAll(int $delta): void
     {
-        QuestionDetail::withTrashed()->chunkById(500, function ($details) use ($delta) {
+        \App\Models\QuestionDetail::withTrashed()->chunkById(500, function ($details) use ($delta) {
             foreach ($details as $detail) {
                 $answers = $detail->answers;
 
@@ -42,7 +40,7 @@ return new class extends Migration
             }
         });
 
-        TestSubject::chunkById(500, function ($testSubjects) use ($delta) {
+        \App\Models\TestSubject::chunkById(500, function ($testSubjects) use ($delta) {
             foreach ($testSubjects as $testSubject) {
                 $questions = $testSubject->questions;
 
