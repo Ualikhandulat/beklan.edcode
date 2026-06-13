@@ -432,13 +432,13 @@
                         <template x-if="currentQuestion.type === 'one' || currentQuestion.type === 'group'">
                             <div class="space-y-2">
                                 <template x-for="(v, i) in currentQuestion.vars" :key="i">
-                                    <button type="button" @click="answerQuestion(i)"
+                                    <button type="button" @click="answerQuestion(i + 1)"
                                             class="w-full flex items-center gap-3 p-3 rounded-2xl border-2 text-left transition-all duration-150 cursor-pointer"
-                                            :class="(currentQuestion.user_answers || []).includes(i)
+                                            :class="(currentQuestion.user_answers || []).includes(i + 1)
                                                 ? 'border-primary bg-primary/8'
                                                 : 'border-border hover:border-primary/40 hover:bg-gray-50'">
                                         <span class="w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-extrabold shrink-0 transition-all"
-                                              :class="(currentQuestion.user_answers || []).includes(i)
+                                              :class="(currentQuestion.user_answers || []).includes(i + 1)
                                                   ? 'border-primary bg-primary text-white'
                                                   : 'border-border text-text-muted'"
                                               x-text="String.fromCharCode(65 + i)"></span>
@@ -452,16 +452,16 @@
                         <template x-if="currentQuestion.type === 'multi'">
                             <div class="space-y-2">
                                 <template x-for="(v, i) in currentQuestion.vars" :key="i">
-                                    <button type="button" @click="answerQuestion(i)"
+                                    <button type="button" @click="answerQuestion(i + 1)"
                                             class="w-full flex items-center gap-3 p-3 rounded-2xl border-2 text-left transition-all duration-150 cursor-pointer"
-                                            :class="(currentQuestion.user_answers || []).includes(i)
+                                            :class="(currentQuestion.user_answers || []).includes(i + 1)
                                                 ? 'border-primary bg-primary/8'
                                                 : 'border-border hover:border-primary/40 hover:bg-gray-50'">
                                         <span class="w-7 h-7 rounded-lg border-2 flex items-center justify-center shrink-0 transition-all"
-                                              :class="(currentQuestion.user_answers || []).includes(i)
+                                              :class="(currentQuestion.user_answers || []).includes(i + 1)
                                                   ? 'border-primary bg-primary text-white'
                                                   : 'border-border text-text-muted'">
-                                            <template x-if="(currentQuestion.user_answers || []).includes(i)">
+                                            <template x-if="(currentQuestion.user_answers || []).includes(i + 1)">
                                                 <x-icon name="check" class="w-3.5 h-3.5" />
                                             </template>
                                         </span>
@@ -502,12 +502,12 @@
 
                                                 <template x-if="(currentQuestion.user_answers ?? [])[pairIdx] != null">
                                                     <span class="w-5 h-5 rounded-md bg-primary/15 text-primary text-xs font-extrabold flex items-center justify-center shrink-0"
-                                                          x-text="['А','Б','В','Г'][(currentQuestion.user_answers ?? [])[pairIdx] - 2] ?? ''"></span>
+                                                          x-text="['А','Б','В','Г'][(currentQuestion.user_answers ?? [])[pairIdx] - 3] ?? ''"></span>
                                                 </template>
 
                                                 <span class="flex-1 leading-snug"
                                                       x-html="(currentQuestion.user_answers ?? [])[pairIdx] != null
-                                                          ? (currentQuestion.vars[(currentQuestion.user_answers ?? [])[pairIdx]] || '')
+                                                          ? (currentQuestion.vars[(currentQuestion.user_answers ?? [])[pairIdx] - 1] || '')
                                                           : @js(__('— Выберите ответ —'))"></span>
 
                                                 <svg class="w-4 h-4 text-text-muted shrink-0 transition-transform duration-200"
@@ -529,13 +529,13 @@
                                                  class="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl border border-border shadow-lg z-20 overflow-hidden">
                                                 <template x-for="(letter, optIdx) in ['А', 'Б', 'В', 'Г']" :key="optIdx">
                                                     <button type="button"
-                                                            @click="answerQuestion({ pair: pairIdx, val: 2 + optIdx }); open = false"
+                                                            @click="answerQuestion({ pair: pairIdx, val: 3 + optIdx }); open = false"
                                                             class="w-full flex items-start gap-3 px-3.5 py-2.5 text-left transition-colors border-b last:border-0 border-border/60"
-                                                            :class="(currentQuestion.user_answers ?? [])[pairIdx] === (2 + optIdx)
+                                                            :class="(currentQuestion.user_answers ?? [])[pairIdx] === (3 + optIdx)
                                                                 ? 'bg-primary/8 text-primary'
                                                                 : 'hover:bg-gray-50 text-black'">
                                                         <span class="w-5 h-5 rounded-md text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5 transition-colors"
-                                                              :class="(currentQuestion.user_answers ?? [])[pairIdx] === (2 + optIdx)
+                                                              :class="(currentQuestion.user_answers ?? [])[pairIdx] === (3 + optIdx)
                                                                   ? 'bg-primary text-white'
                                                                   : 'bg-gray-100 text-black'"
                                                               x-text="letter"></span>

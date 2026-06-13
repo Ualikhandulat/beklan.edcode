@@ -90,7 +90,7 @@ class PartQuestionController extends Controller
             ]);
             $q->detail()->create([
                 'question' => $data['question'],
-                'answers' => [2, 3],
+                'answers' => [3, 4],
                 'var1' => $data['var1'],
                 'var2' => $data['var2'],
                 'var5' => $data['var5'],
@@ -199,7 +199,7 @@ class PartQuestionController extends Controller
         $data = $request->validate([
             'question' => ['required', 'string'],
             'answers' => ['required', 'array', 'min:1', 'max:3'],
-            'answers.*' => ['integer'],
+            'answers.*' => ['integer', 'min:1', 'max:8'],
             'var1' => ['required', 'string'], 'var2' => ['required', 'string'],
             'var3' => ['required', 'string'], 'var4' => ['required', 'string'],
             'var5' => ['required', 'string'], 'var6' => ['required', 'string'],
@@ -227,7 +227,7 @@ class PartQuestionController extends Controller
 
         $question->detail()->updateOrCreate([], [
             'question' => $data['question'],
-            'answers' => [2, 3],
+            'answers' => [3, 4],
             'var1' => $data['var1'], 'var2' => $data['var2'],
             'var5' => $data['var5'], 'var6' => $data['var6'],
             'var7' => $data['var7'], 'var8' => $data['var8'],

@@ -386,15 +386,18 @@ class TestAssemblyService
     /**
      * Generate a shuffled order for answer option vars.
      *
+     * Values are 1-based positions into the displayed (compacted) vars array — display
+     * position d (0-based array index) maps to original answer value $order[d].
+     *
      * IS_MATCH keeps its first two vars (the left-column prompts) fixed and only
-     * shuffles the remaining answer-option vars (var5-var8 → display positions 2+).
+     * shuffles the remaining answer-option vars (var5-var8 → positions 3+).
      * All other types are fully shuffled.
      *
      * @return int[]
      */
     private function generateVarOrder(?QuestionType $type, int $varCount): array
     {
-        $order = range(0, max(0, $varCount - 1));
+        $order = $varCount > 0 ? range(1, $varCount) : [];
 
         if ($varCount < 2 || $type === null) {
             return $order;
@@ -408,7 +411,7 @@ class TestAssemblyService
             $options = array_slice($order, 2);
             shuffle($options);
 
-            return array_merge([0, 1], $options);
+            return array_merge([1, 2], $options);
         }
 
         shuffle($order);
@@ -469,18 +472,19 @@ class TestAssemblyService
 
                     $userAnswers = (array) ($q['user_answers'] ?? []);
 
-                    // Remap display-order indices back to original var indices before scoring.
+                    // Remap 1-based display positions back to original 1-based var positions before
+                    // scoring (var_order is a 0-based array holding 1-based values, hence -1 on lookup).
                     // IS_MATCH answers are positional (index 0 = pair 1, index 1 = pair 2), so
                     // nulls must be preserved rather than filtered out.
                     if ($varOrder !== null && ! empty($userAnswers)) {
                         if ($type === QuestionType::IS_MATCH) {
                             $userAnswers = array_map(
-                                fn ($displayIdx) => $displayIdx === null ? null : ($varOrder[$displayIdx] ?? null),
+                                fn ($displayIdx) => $displayIdx === null ? null : ($varOrder[$displayIdx - 1] ?? null),
                                 $userAnswers
                             );
                         } else {
                             $userAnswers = array_values(array_filter(
-                                array_map(fn ($displayIdx) => $varOrder[$displayIdx] ?? null, $userAnswers),
+                                array_map(fn ($displayIdx) => $varOrder[$displayIdx - 1] ?? null, $userAnswers),
                                 fn ($v) => $v !== null
                             ));
                         }

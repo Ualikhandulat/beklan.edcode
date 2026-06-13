@@ -359,25 +359,26 @@ class TestController extends Controller
                     }
                 }
 
-                // Apply the stored shuffle order so each student sees options in a unique order
+                // Apply the stored shuffle order so each student sees options in a unique order.
+                // var_order values are 1-based positions into the (0-based) $vars array, hence -1.
                 $varOrder = $q['var_order'] ?? null;
                 if ($varOrder !== null && count($varOrder) === count($vars)) {
                     $shuffledVars = [];
                     foreach ($varOrder as $originalIdx) {
-                        $shuffledVars[] = $vars[$originalIdx] ?? null;
+                        $shuffledVars[] = $vars[$originalIdx - 1] ?? null;
                     }
                     $vars = $shuffledVars;
                 }
 
-                // Remap correct answer original-indices to display-indices so they align
-                // with user_answers (which are stored in display order after shuffling).
+                // Remap correct original 1-based positions to 1-based display positions so they
+                // align with user_answers (which are stored as 1-based display positions).
                 $correct = null;
                 if ($withCorrect) {
                     $originalCorrect = $detail->answers ?? [];
                     if ($varOrder !== null) {
                         $reverseOrder = array_flip($varOrder);
                         $correct = array_values(array_filter(
-                            array_map(fn ($origIdx) => $reverseOrder[$origIdx] ?? null, $originalCorrect),
+                            array_map(fn ($origIdx) => isset($reverseOrder[$origIdx]) ? $reverseOrder[$origIdx] + 1 : null, $originalCorrect),
                             fn ($v) => $v !== null
                         ));
                     } else {

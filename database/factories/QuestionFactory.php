@@ -59,7 +59,7 @@ class QuestionFactory extends Factory
             QuestionDetail::create([
                 'question_id' => $q->id,
                 'question' => $this->questionText($q),
-                'answers' => [0],
+                'answers' => [1],
                 'var1' => $this->variantLabel(1, true),
                 'var2' => $this->variantLabel(2, false),
                 'var3' => $this->variantLabel(3, false),
@@ -81,7 +81,7 @@ class QuestionFactory extends Factory
             QuestionDetail::create([
                 'question_id' => $q->id,
                 'question' => $this->questionText($q),
-                'answers' => [0, 1],
+                'answers' => [1, 2],
                 'var1' => $this->variantLabel(1, true),
                 'var2' => $this->variantLabel(2, true),
                 'var3' => $this->variantLabel(3, false),
@@ -97,7 +97,7 @@ class QuestionFactory extends Factory
      *
      * Формат: var1/var2 — вопросы левого столбца, var5 — правильный ответ для var1,
      * var6 — правильный ответ для var2, var7/var8 — дистракторы. После сжатия vars
-     * получается [var1, var2, var5, var6, var7, var8], поэтому правильные индексы — [2, 3].
+     * получается [var1, var2, var5, var6, var7, var8], поэтому правильные позиции (1-based) — [3, 4].
      */
     public function match(int $subjectId, int $partId): static
     {
@@ -113,7 +113,7 @@ class QuestionFactory extends Factory
             QuestionDetail::create([
                 'question_id' => $q->id,
                 'question' => 'Установите соответствие:',
-                'answers' => [2, 3],
+                'answers' => [3, 4],
                 'var1' => "Вопрос 1 для {$subjectTitle}, №{$q->id}",
                 'var2' => "Вопрос 2 для {$subjectTitle}, №{$q->id}",
                 'var5' => $this->variantLabel(1, true, 'для вопроса 1'),
@@ -141,7 +141,7 @@ class QuestionFactory extends Factory
                 QuestionDetail::create([
                     'question_id' => $q->id,
                     'question' => "Вопрос {$i} к контексту {$subjectTitle}, №{$q->id}. ".fake()->sentence(6).'?',
-                    'answers' => [0],
+                    'answers' => [1],
                     'var1' => $this->variantLabel(1, true),
                     'var2' => $this->variantLabel(2, false),
                     'var3' => $this->variantLabel(3, false),

@@ -236,23 +236,23 @@
                             <div class="space-y-2">
                                 <template x-for="(v, i) in currentQuestion.vars" :key="i">
                                     <div class="w-full flex items-center gap-3 p-3 rounded-2xl border-2"
-                                         :class="(currentQuestion.correct || []).includes(i)
+                                         :class="(currentQuestion.correct || []).includes(i + 1)
                                              ? 'border-success bg-success/8'
-                                             : ((currentQuestion.user_answers || []).includes(i) && !(currentQuestion.correct || []).includes(i)
+                                             : ((currentQuestion.user_answers || []).includes(i + 1) && !(currentQuestion.correct || []).includes(i + 1)
                                                  ? 'border-danger bg-danger/8'
                                                  : 'border-border bg-gray-50/50')">
                                         <span class="w-7 h-7 rounded-full border-2 flex items-center justify-center text-xs font-extrabold shrink-0"
-                                              :class="(currentQuestion.correct || []).includes(i)
+                                              :class="(currentQuestion.correct || []).includes(i + 1)
                                                   ? 'border-success bg-success text-white'
-                                                  : ((currentQuestion.user_answers || []).includes(i)
+                                                  : ((currentQuestion.user_answers || []).includes(i + 1)
                                                       ? 'border-danger bg-danger text-white'
                                                       : 'border-border text-text-muted')"
                                               x-text="String.fromCharCode(65 + i)"></span>
                                         <span class="flex-1 text-sm font-semibold text-black leading-snug" x-html="v"></span>
-                                        <template x-if="(currentQuestion.correct || []).includes(i)">
+                                        <template x-if="(currentQuestion.correct || []).includes(i + 1)">
                                             <svg class="w-4 h-4 text-success shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                                         </template>
-                                        <template x-if="(currentQuestion.user_answers || []).includes(i) && !(currentQuestion.correct || []).includes(i)">
+                                        <template x-if="(currentQuestion.user_answers || []).includes(i + 1) && !(currentQuestion.correct || []).includes(i + 1)">
                                             <svg class="w-4 h-4 text-danger shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                                         </template>
                                     </div>
@@ -265,21 +265,21 @@
                             <div class="space-y-2">
                                 <template x-for="(v, i) in currentQuestion.vars" :key="i">
                                     <div class="w-full flex items-center gap-3 p-3 rounded-2xl border-2"
-                                         :class="(currentQuestion.correct || []).includes(i)
+                                         :class="(currentQuestion.correct || []).includes(i + 1)
                                              ? 'border-success bg-success/8'
-                                             : ((currentQuestion.user_answers || []).includes(i) && !(currentQuestion.correct || []).includes(i)
+                                             : ((currentQuestion.user_answers || []).includes(i + 1) && !(currentQuestion.correct || []).includes(i + 1)
                                                  ? 'border-danger bg-danger/8'
                                                  : 'border-border bg-gray-50/50')">
                                         <span class="w-7 h-7 rounded-lg border-2 flex items-center justify-center shrink-0"
-                                              :class="(currentQuestion.correct || []).includes(i)
+                                              :class="(currentQuestion.correct || []).includes(i + 1)
                                                   ? 'border-success bg-success text-white'
-                                                  : ((currentQuestion.user_answers || []).includes(i)
+                                                  : ((currentQuestion.user_answers || []).includes(i + 1)
                                                       ? 'border-danger bg-danger text-white'
                                                       : 'border-border text-text-muted')">
-                                            <template x-if="(currentQuestion.correct || []).includes(i)">
+                                            <template x-if="(currentQuestion.correct || []).includes(i + 1)">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                             </template>
-                                            <template x-if="(currentQuestion.user_answers || []).includes(i) && !(currentQuestion.correct || []).includes(i)">
+                                            <template x-if="(currentQuestion.user_answers || []).includes(i + 1) && !(currentQuestion.correct || []).includes(i + 1)">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                             </template>
                                         </span>
@@ -329,9 +329,9 @@
                                                         <span class="w-5 h-5 rounded-md text-xs font-extrabold flex items-center justify-center shrink-0"
                                                               :class="(currentQuestion.correct || [])[pairIdx] === (currentQuestion.user_answers || [])[pairIdx]
                                                                   ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'"
-                                                              x-text="['А','Б','В','Г'][(currentQuestion.user_answers ?? [])[pairIdx] - 2] ?? '?'"></span>
+                                                              x-text="['А','Б','В','Г'][(currentQuestion.user_answers ?? [])[pairIdx] - 3] ?? '?'"></span>
                                                         <span class="text-sm font-semibold text-black leading-snug"
-                                                              x-html="currentQuestion.vars[(currentQuestion.user_answers ?? [])[pairIdx]] || ''"></span>
+                                                              x-html="currentQuestion.vars[(currentQuestion.user_answers ?? [])[pairIdx] - 1] || ''"></span>
                                                     </div>
                                                 </template>
                                                 <template x-if="(currentQuestion.user_answers ?? [])[pairIdx] == null">
@@ -343,9 +343,9 @@
                                                     <p class="text-[10px] font-extrabold uppercase tracking-widest text-success mb-1.5">{{ __('Верный ответ') }}</p>
                                                     <div class="flex items-center gap-2">
                                                         <span class="w-5 h-5 rounded-md bg-success/20 text-success text-xs font-extrabold flex items-center justify-center shrink-0"
-                                                              x-text="['А','Б','В','Г'][(currentQuestion.correct || [])[pairIdx] - 2] ?? '?'"></span>
+                                                              x-text="['А','Б','В','Г'][(currentQuestion.correct || [])[pairIdx] - 3] ?? '?'"></span>
                                                         <span class="text-sm font-semibold text-black leading-snug"
-                                                              x-html="currentQuestion.vars[(currentQuestion.correct || [])[pairIdx]] || ''"></span>
+                                                              x-html="currentQuestion.vars[(currentQuestion.correct || [])[pairIdx] - 1] || ''"></span>
                                                     </div>
                                                 </div>
                                             </template>
