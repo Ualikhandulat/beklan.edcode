@@ -110,6 +110,7 @@ class DashboardController extends Controller
             ->map(fn ($row) => ['title' => $row->title, 'pct' => (int) $row->pct, 'attempts' => (int) $row->attempts]);
 
         $recent = Test::whereNotNull('completed_at')
+            ->whereHas('user')
             ->with('user:id,name,login')
             ->latest('completed_at')
             ->paginate(10, ['id', 'user_id', 'total_score', 'max_score', 'completed_at'])
