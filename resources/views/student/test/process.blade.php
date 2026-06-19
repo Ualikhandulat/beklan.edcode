@@ -139,7 +139,9 @@
                     }
                     bySubject[c.test_subject_id].questions.push({
                         detail_id: c.detail_id,
-                        user_answers: (c.user_answers || []).filter(a => a !== null),
+                        // Keep positions intact for IS_MATCH (index 0 = pair 1, index 1 = pair 2):
+                        // filtering out unanswered (null) pairs would shift answers into the wrong slot.
+                        user_answers: c.user_answers || [],
                     });
                 }
 

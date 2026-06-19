@@ -375,12 +375,26 @@ class TestAssemblyService
                 'detail_id' => $id,
                 'user_answers' => [],
                 'is_right' => null,
-                'count_answers' => $qModel?->count_answers ?? 1,
+                'count_answers' => $this->scoredAnswerCount($qModel),
                 'var_order' => $this->generateVarOrder($qModel?->type, $varCount),
             ];
         }, $detailIds);
 
         return ['questions' => $questions, 'max_score' => $maxScore];
+    }
+
+    /**
+     * Сколько ответов реально оценивается у вопроса — используется как предел при сохранении
+     * ответов студента. IS_GROUP оценивается как один выбор (хотя у родительского контекста
+     * count_answers = 0), поэтому возвращаем 1, а не унаследованный ноль, который обнулял бы ответ.
+     */
+    private function scoredAnswerCount(?Question $question): int
+    {
+        return match ($question?->type) {
+            QuestionType::SELECT_MULTI => max(1, $question->count_answers),
+            QuestionType::IS_MATCH => 2,
+            default => 1, // SELECT_ONE, IS_GROUP, неизвестный/null
+        };
     }
 
     /**

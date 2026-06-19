@@ -198,10 +198,18 @@ class TestController extends Controller
                     continue;
                 }
 
-                $answers = array_values(
-                    array_map('intval', array_filter($entry['user_answers'], fn ($a) => $a !== null))
-                );
-                $countAnswers = (int) ($questions[$pos]['count_answers'] ?? PHP_INT_MAX);
+                // Keep positions intact: IS_MATCH answers are positional (index 0 = pair 1,
+                // index 1 = pair 2), so an unanswered pair must stay null — collapsing the
+                // array would shift the next answer into the wrong slot and mis-score it.
+                // Non-positional types (one/group/multi) never send nulls, so this is safe.
+                $answers = array_map(fn ($a) => $a === null ? null : (int) $a, $entry['user_answers']);
+                // IS_GROUP questions inherit count_answers = 0 from their parent context, which
+                // would slice the answer down to an empty array and silently discard it. Treat any
+                // non-positive cap as "no limit" so such answers (and legacy in-progress tests) survive.
+                $countAnswers = (int) ($questions[$pos]['count_answers'] ?? 0);
+                if ($countAnswers <= 0) {
+                    $countAnswers = PHP_INT_MAX;
+                }
                 $questions[$pos]['user_answers'] = array_slice($answers, 0, $countAnswers);
             }
 
