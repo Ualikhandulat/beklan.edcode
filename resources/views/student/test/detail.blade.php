@@ -33,6 +33,25 @@
 
             isRight(q) { return q.is_right === true; },
             isWrong(q) { return q.is_right === false; },
+
+            // Трёхуровневый статус для нумерации и иконок: полностью верный ответ,
+            // частично верный (match/multi — набрал часть баллов) или неверный.
+            // Старые тесты, оценённые до появления points/max_points, не несут их — для них
+            // безопасно откатываемся к бинарному is_right (без «частичного» состояния).
+            status(q) {
+                if (q.points == null || q.max_points == null) {
+                    return q.is_right ? 'full' : 'wrong';
+                }
+                if (q.points <= 0) return 'wrong';
+                if (q.points >= q.max_points) return 'full';
+                return 'partial';
+            },
+            isPartial(q) { return this.status(q) === 'partial'; },
+
+            // Кол-во полностью верных в предмете (частичные считаются отдельно, не как «верно»).
+            fullCount(subject) {
+                return (subject?.questions ?? []).filter(q => this.status(q) === 'full').length;
+            },
         }));
     });
 </script>
@@ -47,9 +66,9 @@
             <span class="text-sm font-bold text-text truncate">{{ $subjectsData[0]['subject']->title }}</span>
         </div>
         <span class="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
-              :class="subjects[0]?.questions.filter(q => q.is_right).length === subjects[0]?.questions.length
+              :class="fullCount(subjects[0]) === subjects[0]?.questions.length
                   ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'"
-              x-text="`${subjects[0]?.questions.filter(q => q.is_right).length}/${subjects[0]?.questions.length}`"></span>
+              x-text="`${fullCount(subjects[0])}/${subjects[0]?.questions.length}`"></span>
     </div>
     @else
     <div class="lg:hidden bg-white border-b border-border" x-data="{ subjectOpen: false }">
@@ -62,9 +81,9 @@
             </div>
             <div class="flex items-center gap-2 shrink-0 ml-3">
                 <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                      :class="subjects[activeSubject]?.questions.filter(q => q.is_right).length === subjects[activeSubject]?.questions.length
+                      :class="fullCount(subjects[activeSubject]) === subjects[activeSubject]?.questions.length
                           ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'"
-                      x-text="`${subjects[activeSubject]?.questions.filter(q => q.is_right).length}/${subjects[activeSubject]?.questions.length}`"></span>
+                      x-text="`${fullCount(subjects[activeSubject])}/${subjects[activeSubject]?.questions.length}`"></span>
                 <svg class="w-4 h-4 text-text-muted transition-transform duration-200"
                      :class="subjectOpen ? 'rotate-180' : ''"
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,9 +110,9 @@
                     <span x-text="subject.subject.title" class="flex-1 truncate"></span>
                     <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
                           :class="si === activeSubject ? 'bg-primary/15 text-primary'
-                              : (subject.questions.filter(q => q.is_right).length === subject.questions.length
+                              : (fullCount(subject) === subject.questions.length
                                   ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger')"
-                          x-text="`${subject.questions.filter(q => q.is_right).length}/${subject.questions.length}`"></span>
+                          x-text="`${fullCount(subject)}/${subject.questions.length}`"></span>
                 </button>
             </template>
         </div>
@@ -109,9 +128,11 @@
                         class="w-9 h-9 rounded-xl text-xs font-extrabold shrink-0 transition-all duration-150 cursor-pointer"
                         :class="qi === activeQuestion
                             ? 'bg-primary text-white shadow-sm scale-110'
-                            : (q.is_right
+                            : (status(q) === 'full'
                                 ? 'bg-success/20 text-success border border-success/30'
-                                : 'bg-danger/15 text-danger border border-danger/20')"
+                                : (status(q) === 'partial'
+                                    ? 'bg-warning/20 text-warning border border-warning/40'
+                                    : 'bg-danger/15 text-danger border border-danger/20'))"
                         x-text="qi + 1">
                 </button>
             </template>
@@ -131,9 +152,9 @@
                 <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
                 <span class="text-sm font-bold text-text flex-1 truncate">{{ $subjectsData[0]['subject']->title }}</span>
                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
-                      :class="subjects[0]?.questions.filter(q => q.is_right).length === subjects[0]?.questions.length
+                      :class="fullCount(subjects[0]) === subjects[0]?.questions.length
                           ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger'"
-                      x-text="`${subjects[0]?.questions.filter(q => q.is_right).length}/${subjects[0]?.questions.length}`"></span>
+                      x-text="`${fullCount(subjects[0])}/${subjects[0]?.questions.length}`"></span>
             </div>
             @else
             <div class="bg-white rounded-2xl border border-border overflow-hidden" style="box-shadow: var(--shadow-card)">
@@ -147,9 +168,9 @@
                         <span x-text="subject.subject.title" class="flex-1 truncate"></span>
                         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
                               :class="si === activeSubject ? 'bg-white/25 text-white'
-                                  : (subject.questions.filter(q => q.is_right).length === subject.questions.length
+                                  : (fullCount(subject) === subject.questions.length
                                       ? 'bg-success/15 text-success' : 'bg-danger/15 text-danger')"
-                              x-text="`${subject.questions.filter(q => q.is_right).length}/${subject.questions.length}`"></span>
+                              x-text="`${fullCount(subject)}/${subject.questions.length}`"></span>
                     </button>
                 </template>
             </div>
@@ -164,9 +185,11 @@
                                 class="aspect-square rounded-lg text-xs font-extrabold transition-all duration-150 cursor-pointer"
                                 :class="qi === activeQuestion
                                     ? 'bg-primary text-white shadow-sm scale-110'
-                                    : (q.is_right
+                                    : (status(q) === 'full'
                                         ? 'bg-success/20 text-success border border-success/30 hover:bg-success/30'
-                                        : 'bg-danger/15 text-danger border border-danger/20 hover:bg-danger/25')"
+                                        : (status(q) === 'partial'
+                                            ? 'bg-warning/20 text-warning border border-warning/40 hover:bg-warning/30'
+                                            : 'bg-danger/15 text-danger border border-danger/20 hover:bg-danger/25'))"
                                 x-text="qi + 1">
                         </button>
                     </template>
@@ -210,11 +233,16 @@
                         {{-- Status icon + question text --}}
                         <div class="flex items-start gap-3 mb-3">
                             <span class="w-7 h-7 rounded-xl flex items-center justify-center text-sm font-extrabold text-white shrink-0 mt-0.5"
-                                  :class="isRight(currentQuestion) ? 'bg-success' : 'bg-danger'">
-                                <template x-if="isRight(currentQuestion)">
+                                  :class="status(currentQuestion) === 'full' ? 'bg-success' : (status(currentQuestion) === 'partial' ? 'bg-warning' : 'bg-danger')">
+                                <template x-if="status(currentQuestion) === 'full'">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                                 </template>
-                                <template x-if="isWrong(currentQuestion)">
+                                <template x-if="status(currentQuestion) === 'partial'">
+                                    {{-- Частично верно: показываем заработанные баллы из максимума --}}
+                                    <span class="text-[10px] font-black leading-none"
+                                          x-text="`${currentQuestion.points}/${currentQuestion.max_points}`"></span>
+                                </template>
+                                <template x-if="status(currentQuestion) === 'wrong'">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>
                                 </template>
                             </span>

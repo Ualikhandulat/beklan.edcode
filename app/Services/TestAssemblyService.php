@@ -365,10 +365,7 @@ class TestAssemblyService
 
             if ($qModel) {
                 // SELECT_ONE/IS_GROUP — 0 или 1 балл, SELECT_MULTI/IS_MATCH — 0-2 балла (см. calculatePoints)
-                $maxScore += match ($qModel->type) {
-                    QuestionType::SELECT_ONE, QuestionType::IS_GROUP => 1,
-                    QuestionType::SELECT_MULTI, QuestionType::IS_MATCH => 2,
-                };
+                $maxScore += $this->maxPointsFor($qModel->type);
             }
 
             return [
@@ -507,6 +504,10 @@ class TestAssemblyService
                     $pts = $this->calculatePoints($type, $userAnswers, $correct, $questionModel);
                     $subjectScore += $pts;
                     $q['is_right'] = $pts > 0;
+                    // Сохраняем фактические баллы и максимум, чтобы разбор мог различать
+                    // полностью верный / частично верный (match, multi) / неверный ответ.
+                    $q['points'] = $pts;
+                    $q['max_points'] = $this->maxPointsFor($type);
                 }
 
                 unset($q);
@@ -524,6 +525,19 @@ class TestAssemblyService
             // dashboard reloads fresh progress/activity data after this completed attempt.
             Cache::forget("student.dashboard.stats.{$test->user_id}");
         });
+    }
+
+    /**
+     * Максимально возможный балл за вопрос данного типа: 1 для SELECT_ONE/IS_GROUP,
+     * 2 для SELECT_MULTI/IS_MATCH. Единый источник правды для max_score предмета и
+     * для max_points отдельного вопроса (используется в разборе ответов).
+     */
+    private function maxPointsFor(QuestionType $type): int
+    {
+        return match ($type) {
+            QuestionType::SELECT_ONE, QuestionType::IS_GROUP => 1,
+            QuestionType::SELECT_MULTI, QuestionType::IS_MATCH => 2,
+        };
     }
 
     /**

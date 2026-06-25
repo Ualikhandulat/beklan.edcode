@@ -369,8 +369,14 @@ class TestController extends Controller
 
                 // Apply the stored shuffle order so each student sees options in a unique order.
                 // var_order values are 1-based positions into the (0-based) $vars array, hence -1.
+                // The SAME guard must gate both the vars shuffle and the correct-answer remap below:
+                // if a detail was edited after assembly (var added/removed) the lengths diverge, and
+                // remapping `correct` while leaving `vars` unshuffled would put them in different
+                // coordinate spaces — highlighting the wrong option as "correct" in the review.
                 $varOrder = $q['var_order'] ?? null;
-                if ($varOrder !== null && count($varOrder) === count($vars)) {
+                $applyOrder = $varOrder !== null && count($varOrder) === count($vars);
+
+                if ($applyOrder) {
                     $shuffledVars = [];
                     foreach ($varOrder as $originalIdx) {
                         $shuffledVars[] = $vars[$originalIdx - 1] ?? null;
@@ -383,14 +389,24 @@ class TestController extends Controller
                 $correct = null;
                 if ($withCorrect) {
                     $originalCorrect = $detail->answers ?? [];
-                    if ($varOrder !== null) {
+
+                    if (! $applyOrder) {
+                        $correct = $originalCorrect;
+                    } elseif ($questionModel->type === QuestionType::IS_MATCH) {
+                        // IS_MATCH answers are positional (index 0 = pair 1, index 1 = pair 2);
+                        // keep positions intact (map missing → null) instead of filtering, which
+                        // would shift a pair's correct answer into the wrong slot — mirrors score().
+                        $reverseOrder = array_flip($varOrder);
+                        $correct = array_map(
+                            fn ($origIdx) => isset($reverseOrder[$origIdx]) ? $reverseOrder[$origIdx] + 1 : null,
+                            $originalCorrect
+                        );
+                    } else {
                         $reverseOrder = array_flip($varOrder);
                         $correct = array_values(array_filter(
                             array_map(fn ($origIdx) => isset($reverseOrder[$origIdx]) ? $reverseOrder[$origIdx] + 1 : null, $originalCorrect),
                             fn ($v) => $v !== null
                         ));
-                    } else {
-                        $correct = $originalCorrect;
                     }
                 }
 
@@ -404,6 +420,8 @@ class TestController extends Controller
                     'vars' => $vars,
                     'user_answers' => $q['user_answers'],
                     'is_right' => $q['is_right'],
+                    'points' => $q['points'] ?? null,
+                    'max_points' => $q['max_points'] ?? null,
                     'correct' => $correct,
                 ];
             }
