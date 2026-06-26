@@ -372,7 +372,7 @@ class TestAssemblyService
                 'detail_id' => $id,
                 'user_answers' => [],
                 'is_right' => null,
-                'count_answers' => $this->scoredAnswerCount($qModel),
+                'count_answers' => $this->scoredAnswerCount($qModel, $varCount),
                 'var_order' => $this->generateVarOrder($qModel?->type, $varCount),
             ];
         }, $detailIds);
@@ -381,14 +381,17 @@ class TestAssemblyService
     }
 
     /**
-     * Сколько ответов реально оценивается у вопроса — используется как предел при сохранении
-     * ответов студента. IS_GROUP оценивается как один выбор (хотя у родительского контекста
-     * count_answers = 0), поэтому возвращаем 1, а не унаследованный ноль, который обнулял бы ответ.
+     * Сколько вариантов студент может максимум выбрать — используется как предел при сохранении
+     * ответов. Для SELECT_MULTI по правилам ҰБТ (вопросы 36–40) лишние неверные варианты должны
+     * учитываться при подсчёте (2+ неверных = 0 баллов), поэтому разрешаем выбрать любое число
+     * вариантов вплоть до их общего количества, а не ограничиваем числом правильных. IS_GROUP
+     * оценивается как один выбор (хотя у родительского контекста count_answers = 0), поэтому
+     * возвращаем 1, а не унаследованный ноль, который обнулял бы ответ.
      */
-    private function scoredAnswerCount(?Question $question): int
+    private function scoredAnswerCount(?Question $question, int $varCount): int
     {
         return match ($question?->type) {
-            QuestionType::SELECT_MULTI => max(1, $question->count_answers),
+            QuestionType::SELECT_MULTI => max(1, $varCount),
             QuestionType::IS_MATCH => 2,
             default => 1, // SELECT_ONE, IS_GROUP, неизвестный/null
         };
@@ -473,11 +476,11 @@ class TestAssemblyService
                     $type = $questionModel->type;
                     $varOrder = $q['var_order'] ?? null;
 
-                    // Slice stored display-order answers to the scored count and persist back so
-                    // the result/detail pages only show what was actually evaluated.
-                    if ($type === QuestionType::SELECT_MULTI) {
-                        $q['user_answers'] = array_slice((array) ($q['user_answers'] ?? []), 0, $questionModel->count_answers);
-                    } elseif ($type === QuestionType::IS_MATCH) {
+                    // IS_MATCH is positional (index 0 = pair 1, index 1 = pair 2) — keep exactly two
+                    // slots. SELECT_MULTI keeps every selection (including wrong ones) so the ҰБТ
+                    // penalty for extra wrong picks can be applied; persist back so the result/detail
+                    // pages show what the student actually selected.
+                    if ($type === QuestionType::IS_MATCH) {
                         $q['user_answers'] = array_slice((array) ($q['user_answers'] ?? []), 0, 2);
                     }
 
@@ -544,7 +547,7 @@ class TestAssemblyService
      * Calculate points for a single question based on its type.
      *
      * SELECT_ONE / IS_GROUP : 1 or 0
-     * SELECT_MULTI           : 2 / 1 / 0  (based on matching count)
+     * SELECT_MULTI           : 2 / 1 / 0  (ҰБТ 36–40, см. scoreSelectMulti)
      * IS_MATCH               : 0–2  (positional pair check)
      *
      * @param  int[]  $userAnswers
@@ -558,7 +561,7 @@ class TestAssemblyService
     ): int {
         return match ($type) {
             QuestionType::SELECT_ONE, QuestionType::IS_GROUP => $this->scoreSelectOne($userAnswers, $correctAnswers),
-            QuestionType::SELECT_MULTI => $this->scoreSelectMulti($userAnswers, $correctAnswers, $question->count_answers),
+            QuestionType::SELECT_MULTI => $this->scoreSelectMulti($userAnswers, $correctAnswers),
             QuestionType::IS_MATCH => $this->scoreMatch($userAnswers, $correctAnswers),
         };
     }
@@ -569,17 +572,33 @@ class TestAssemblyService
         return isset($userAnswers[0]) && isset($correctAnswers[0]) && $userAnswers[0] === $correctAnswers[0] ? 1 : 0;
     }
 
-    /** @param int[] $userAnswers @param int[] $correctAnswers */
-    private function scoreSelectMulti(array $userAnswers, array $correctAnswers, int $countAnswers): int
+    /**
+     * Подсчёт по правилам ҰБТ для вопросов 36–40 (1–3 правильных варианта, максимум 2 балла).
+     * C — число правильных вариантов, cs — выбрано правильных, ws — выбрано неправильных:
+     *  - все правильные и ни одного лишнего (cs == C, ws == 0)            → 2 балла
+     *  - набрано не менее C-1 правильных и не более одной ошибки (ws ≤ 1) → 1 балл
+     *  - неправильных 2 и более, либо правильных недостаточно             → 0 баллов
+     *
+     * @param  int[]  $userAnswers
+     * @param  int[]  $correctAnswers
+     */
+    private function scoreSelectMulti(array $userAnswers, array $correctAnswers): int
     {
-        $userAnswers = array_slice($userAnswers, 0, $countAnswers);
-        $matching = count(array_intersect($userAnswers, $correctAnswers));
+        $userAnswers = array_values(array_unique(array_filter($userAnswers, fn ($a) => $a !== null)));
+        $correctCount = count($correctAnswers);
 
-        if ($matching === $countAnswers) {
+        if ($correctCount === 0) {
+            return 0;
+        }
+
+        $correctSelected = count(array_intersect($userAnswers, $correctAnswers));
+        $wrongSelected = count($userAnswers) - $correctSelected;
+
+        if ($correctSelected === $correctCount && $wrongSelected === 0) {
             return 2;
         }
 
-        if ($matching > 0 && ($countAnswers - $matching) === 1) {
+        if ($correctSelected >= max(1, $correctCount - 1) && $wrongSelected <= 1) {
             return 1;
         }
 

@@ -233,8 +233,8 @@ class TestFlowStressTest extends TestCase
     }
 
     /**
-     * multi: правильные — $correct (size = $countAnswers). Балл по правилу движка:
-     * все верные → 2; ровно одного не хватает (matching = k-1, без лишних сверх k) → 1; иначе 0.
+     * multi: правильные — $correct (size = $countAnswers). Балл по правилам ҰБТ (см. expectedMulti):
+     * все верные без лишних → 2; не менее C-1 верных и не более 1 ошибки → 1; иначе 0.
      *
      * @param  int[]  $correct
      * @return array{0: array<int, int>|null, 1: int}
@@ -289,14 +289,21 @@ class TestFlowStressTest extends TestCase
      */
     private function expectedMulti(array $intended, array $correct, int $countAnswers): int
     {
-        $intended = array_slice($intended, 0, $countAnswers);
-        $matching = count(array_intersect($intended, $correct));
+        $intended = array_values(array_unique($intended));
+        $correctCount = count($correct);
 
-        if ($matching === $countAnswers) {
+        if ($correctCount === 0) {
+            return 0;
+        }
+
+        $correctSelected = count(array_intersect($intended, $correct));
+        $wrongSelected = count($intended) - $correctSelected;
+
+        if ($correctSelected === $correctCount && $wrongSelected === 0) {
             return 2;
         }
 
-        if ($matching > 0 && ($countAnswers - $matching) === 1) {
+        if ($correctSelected >= max(1, $correctCount - 1) && $wrongSelected <= 1) {
             return 1;
         }
 

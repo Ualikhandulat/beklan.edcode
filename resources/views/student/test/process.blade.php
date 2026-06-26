@@ -179,7 +179,8 @@
                 } else if (type === 'multi') {
                     answers = [...(q.user_answers || [])];
                     const idx = answers.indexOf(answer);
-                    if (idx >= 0) { answers.splice(idx, 1); } else if (answers.length < 3) { answers.push(answer); }
+                    const maxSelectable = (q.vars && q.vars.length) || 6;
+                    if (idx >= 0) { answers.splice(idx, 1); } else if (answers.length < maxSelectable) { answers.push(answer); }
                 } else if (type === 'match') {
                     answers = [...(q.user_answers || [null, null])];
                     while (answers.length < 2) answers.push(null);
