@@ -193,8 +193,8 @@
                     <ul style="list-style:none; margin:0 0 22px; padding:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:11px;">
                         @foreach ([
                             'Призёр соревнований <b>международного уровня</b> по робототехнике',
+                            'Робототехника бойынша Дубай, Дортмунд қалаларында өткен <b>Халықаралық деңгейдегі</b> жарыстардың жүлдегері',
                             'Предметная олимпиада по информатике, городской этап — <b>II место</b>',
-                            'ЕНТ-2025, рекордный балл по городу Шымкент — <b>138</b>',
                             'Автор <b>методических книг</b>',
                             'Лучшие результаты в центре подготовки к ЕНТ KEMENGER',
                         ] as $achievement)
@@ -202,7 +202,6 @@
                         @endforeach
                     </ul>
                     <div style="margin-top:auto; display:flex; flex-wrap:wrap; gap:10px; padding-top:18px; border-top:1px solid rgba(26,20,16,0.08);">
-                        <div style="flex:1 1 120px;"><div style="font-size:20px; font-weight:700; color:#E0982F;">138</div><div style="font-size:12px; color:#98908A;">{{ __('Рекорд ЕНТ') }}</div></div>
                         <div style="flex:1 1 120px;"><div style="font-size:20px; font-weight:700; color:#1C150F;">{{ __('12 лет') }}</div><div style="font-size:12px; color:#98908A;">{{ __('опыт') }}</div></div>
                         <div style="flex:1 1 120px;"><div style="font-size:20px; font-weight:700; color:#1C150F;">{{ __('Международный') }}</div><div style="font-size:12px; color:#98908A;">{{ __('призёр') }}</div></div>
                     </div>
