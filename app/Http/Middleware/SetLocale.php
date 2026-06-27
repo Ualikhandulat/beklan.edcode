@@ -12,7 +12,7 @@ class SetLocale
     /**
      * @var array<int, string>
      */
-    public const SUPPORTED_LOCALES = ['ru', 'kk'];
+    public const array SUPPORTED_LOCALES = ['kk', 'ru'];
 
     public function handle(Request $request, Closure $next): Response
     {
