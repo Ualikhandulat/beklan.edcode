@@ -54,6 +54,31 @@ class Test extends Model
         return $this->started_at->addMinutes($duration)->isPast();
     }
 
+    /** Score as a percentage of the max (null when not completed or max is 0). */
+    public function percent(): ?int
+    {
+        if (! $this->isCompleted() || ! $this->max_score) {
+            return null;
+        }
+
+        return (int) round($this->total_score / $this->max_score * 100);
+    }
+
+    /** Human-readable duration between start and finish, e.g. "1ч 5м" (null when not completed). */
+    public function durationLabel(): ?string
+    {
+        if (! $this->started_at || ! $this->completed_at) {
+            return null;
+        }
+
+        $seconds = (int) $this->started_at->diffInSeconds($this->completed_at);
+        $h = intdiv($seconds, 3600);
+        $m = intdiv($seconds % 3600, 60);
+        $s = $seconds % 60;
+
+        return $h > 0 ? "{$h}ч {$m}м" : ($m > 0 ? "{$m}м {$s}с" : "{$s}с");
+    }
+
     /** Seconds remaining before time runs out (null = no limit). */
     public function secondsRemaining(): ?int
     {

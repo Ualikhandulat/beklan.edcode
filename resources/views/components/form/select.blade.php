@@ -27,7 +27,7 @@
     }
 @endphp
 
-<div class="form-group">
+<div {{ $attributes->except('onchange')->merge(['class' => 'form-group']) }}>
     @if ($label)
         <label for="{{ $name }}">
             {{ $label }}
@@ -75,10 +75,12 @@
                 this.label = lab;
                 this.open  = false;
                 this.search = '';
+                // Уведомляем hidden input после обновления value — чтобы срабатывал его onchange (автосабмит фильтров)
+                this.$nextTick(() => this.$refs.hidden?.dispatchEvent(new Event('change', { bubbles: true })));
             }
         }" class="relative" @click.outside="open = false">
 
-        <input type="hidden" name="{{ $name }}" x-model="value">
+        <input type="hidden" name="{{ $name }}" x-model="value" x-ref="hidden" {{ $attributes->only('onchange') }}>
 
         {{-- Trigger --}}
         <button type="button"

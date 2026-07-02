@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\GroupController as AdminGroupController;
+use App\Http\Controllers\Admin\ResultController as AdminResultController;
 use App\Http\Controllers\Admin\Subject\PartController as AdminPartController;
 use App\Http\Controllers\Admin\Subject\PartQuestionController;
 use App\Http\Controllers\Admin\SubjectController as AdminSubjectController;
@@ -42,6 +43,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::post('/uploads/image', [AdminUploadController::class, 'image'])->name('uploads.image');
+    Route::get('results', [AdminResultController::class, 'index'])->name('results.index');
+    Route::get('results/export', [AdminResultController::class, 'export'])->name('results.export');
+    Route::get('results/{test}', [AdminResultController::class, 'show'])->name('results.show');
     Route::resource('groups', AdminGroupController::class);
     Route::get('groups/{group}/results', [AdminGroupController::class, 'results'])->name('groups.results');
     Route::post('groups/{group}/students', [AdminGroupController::class, 'addStudent'])->name('groups.students.add');

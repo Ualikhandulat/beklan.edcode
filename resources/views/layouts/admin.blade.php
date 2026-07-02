@@ -91,6 +91,12 @@
                 <x-icon name="shield-check" class="w-5 h-5 shrink-0" />
                 Доступы
             </a>
+
+            <a href="{{ route('admin.results.index') }}" @click="nav = false"
+               class="sidebar-nav-link {{ request()->routeIs('admin.results.*') ? 'active' : '' }}">
+                <x-icon name="chart-bar" class="w-5 h-5 shrink-0" />
+                Результаты
+            </a>
         </nav>
 
         <div class="sidebar-footer">

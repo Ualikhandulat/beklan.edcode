@@ -67,7 +67,7 @@ class UserController extends Controller
             ->whereNotNull('completed_at')
             ->with(['access.user', 'access.group', 'access.accessSubjects.subject'])
             ->latest()
-            ->paginate(15)
+            ->paginate()
             ->withQueryString();
 
         $navigations = [

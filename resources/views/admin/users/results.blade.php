@@ -98,12 +98,21 @@
                                 </span>
                             </div>
 
-                            @if ($durationStr !== null)
+                            @if ($durationStr !== null || $test->isCompleted())
                                 <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border/60">
-                                    <span class="text-xs text-text-muted flex items-center gap-1">
-                                        <x-icon name="clock" class="w-3 h-3" />
-                                        {{ $durationStr }}
-                                    </span>
+                                    @if ($durationStr !== null)
+                                        <span class="text-xs text-text-muted flex items-center gap-1">
+                                            <x-icon name="clock" class="w-3 h-3" />
+                                            {{ $durationStr }}
+                                        </span>
+                                    @endif
+                                    @if ($test->isCompleted())
+                                        <a href="{{ route('admin.results.show', $test) }}"
+                                           class="ml-auto btn btn-outline btn-sm">
+                                            <x-icon name="eye" class="w-3.5 h-3.5" />
+                                            Разбор
+                                        </a>
+                                    @endif
                                 </div>
                             @endif
                         </div>

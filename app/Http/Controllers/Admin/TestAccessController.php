@@ -32,7 +32,7 @@ class TestAccessController extends Controller
                 });
             })
             ->latest()
-            ->paginate(20)
+            ->paginate()
             ->withQueryString();
 
         $navigations = [route('admin.test-accesses.index') => 'Доступы'];
@@ -47,7 +47,7 @@ class TestAccessController extends Controller
         $tests = $testAccess->tests()
             ->with('user')
             ->latest()
-            ->paginate(20)
+            ->paginate()
             ->withQueryString();
 
         $assignedCount = $testAccess->user_id

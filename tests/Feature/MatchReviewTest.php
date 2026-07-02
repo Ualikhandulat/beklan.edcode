@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Enums\PartType;
 use App\Enums\TestAccessType;
-use App\Http\Controllers\Student\TestController;
 use App\Models\Part;
 use App\Models\Question;
 use App\Models\QuestionDetail;
@@ -14,8 +13,8 @@ use App\Models\TestAccess;
 use App\Models\TestAccessSubject;
 use App\Models\User;
 use App\Services\TestAssemblyService;
+use App\Services\TestReviewService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use ReflectionMethod;
 use Tests\TestCase;
 
 /**
@@ -181,7 +180,7 @@ class MatchReviewTest extends TestCase
     }
 
     /**
-     * Вызывает приватный buildSubjectsData (withCorrect: true) — ровно те данные, что
+     * Вызывает TestReviewService::subjectsData (withCorrect: true) — ровно те данные, что
      * страница разбора отдаёт во фронтенд.
      *
      * @return array<int, array<string, mixed>>
@@ -189,10 +188,8 @@ class MatchReviewTest extends TestCase
     private function review(Test $test): array
     {
         $test->refresh()->load(['subjects.subject', 'subjects.part', 'access']);
-        $controller = app(TestController::class);
-        $method = new ReflectionMethod($controller, 'buildSubjectsData');
 
-        return $method->invoke($controller, $test, true);
+        return app(TestReviewService::class)->subjectsData($test, withCorrect: true);
     }
 
     /** @param array<int, array<string, mixed>> $review */
