@@ -7,12 +7,15 @@ use App\Models\Test;
 use App\Models\TestAccess;
 use App\Models\TestSubject;
 use App\Models\User;
+use App\Services\LeaderboardService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
+    public function __construct(public LeaderboardService $leaderboard) {}
+
     public function index(): View
     {
         $user = auth()->user()->load('group');
@@ -47,8 +50,9 @@ class DashboardController extends Controller
         $hasActiveTest = $inProgress->isNotEmpty();
 
         $stats = $this->buildStats($user);
+        $leaderboard = $this->buildLeaderboard($user);
 
-        return view('student.dashboard', compact('user', 'inProgress', 'available', 'hasActiveTest', 'inProgressTests', 'completedCounts', 'stats'));
+        return view('student.dashboard', compact('user', 'inProgress', 'available', 'hasActiveTest', 'inProgressTests', 'completedCounts', 'stats', 'leaderboard'));
     }
 
     /**
@@ -150,6 +154,32 @@ class DashboardController extends Controller
             'progress' => $progress,
             'subjects' => $subjects,
             'activity' => $activity,
+        ];
+    }
+
+    /**
+     * Global student leaderboard ranked by average score percentage. Returns the
+     * top ten plus the current user's own row and rank when they placed below it.
+     *
+     * @return array{
+     *     top: Collection<int, array{id: int, name: string, group: ?string, tests: int, avgPct: int, bestPct: int}>,
+     *     total: int,
+     *     currentRank: ?int,
+     *     current: ?array{id: int, name: string, group: ?string, tests: int, avgPct: int, bestPct: int},
+     * }
+     */
+    private function buildLeaderboard(User $user): array
+    {
+        // Cache key format mirrored in TestAssemblyService::score(), which forgets it on test completion.
+        $rows = collect(Cache::remember('student.leaderboard', now()->addDays(7), fn () => $this->leaderboard->rows()));
+
+        $index = $rows->search(fn (array $row) => $row['id'] === $user->id);
+
+        return [
+            'top' => $rows->take(10),
+            'total' => $rows->count(),
+            'currentRank' => $index === false ? null : $index + 1,
+            'current' => $index === false ? null : $rows[$index],
         ];
     }
 

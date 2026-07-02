@@ -97,6 +97,12 @@
                 <x-icon name="chart-bar" class="w-5 h-5 shrink-0" />
                 Результаты
             </a>
+
+            <a href="{{ route('admin.rating.index') }}" @click="nav = false"
+               class="sidebar-nav-link {{ request()->routeIs('admin.rating.*') ? 'active' : '' }}">
+                <x-icon name="academic-cap" class="w-5 h-5 shrink-0" />
+                Рейтинг
+            </a>
         </nav>
 
         <div class="sidebar-footer">

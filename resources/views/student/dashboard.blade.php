@@ -407,5 +407,112 @@
     </div>
 @endif
 
+{{-- ── Рейтинг учеников ─────────────────────────────────────────────────── --}}
+@if ($leaderboard['top']->isNotEmpty())
+    @php
+        $inTop = $leaderboard['currentRank'] !== null && $leaderboard['currentRank'] <= $leaderboard['top']->count();
+
+        $rankBadge = function (int $rank) {
+            return match ($rank) {
+                1 => 'background: linear-gradient(135deg, #FFD76A, #F2A93B); color: #fff; box-shadow: 0 2px 8px rgba(242,169,59,0.45)',
+                2 => 'background: linear-gradient(135deg, #D7DDE4, #A9B2BC); color: #fff; box-shadow: 0 2px 8px rgba(169,178,188,0.45)',
+                3 => 'background: linear-gradient(135deg, #E8B189, #C98A57); color: #fff; box-shadow: 0 2px 8px rgba(201,138,87,0.45)',
+                default => '',
+            };
+        };
+
+        $pctColor = fn (int $pct) => $pct >= 70 ? 'var(--color-success)' : ($pct >= 50 ? 'var(--color-primary)' : 'var(--color-danger)');
+    @endphp
+
+    <div class="card mb-6 fade-up" style="animation-delay: 180ms">
+        <div class="flex items-center justify-between mb-4">
+            <p class="text-sm font-extrabold text-text">{{ __('Рейтинг учеников') }}</p>
+            <span class="inline-flex items-center gap-1.5 text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-md"
+                  style="background: var(--color-primary-light); color: var(--color-primary)">
+                <x-icon name="users" class="w-3 h-3" />
+                {{ __(':count участников', ['count' => $leaderboard['total']]) }}
+            </span>
+        </div>
+
+        <div class="space-y-1">
+            @foreach ($leaderboard['top'] as $i => $row)
+                @php
+                    $rank      = $i + 1;
+                    $isCurrent = $row['id'] === $user->id;
+                    $medal     = $rankBadge($rank);
+                @endphp
+                <div class="flex items-center gap-3 px-2.5 py-2 rounded-xl {{ $isCurrent ? 'ring-1' : '' }}"
+                     @if ($isCurrent) style="background: var(--color-primary-light); --tw-ring-color: var(--color-primary)" @endif>
+
+                    <span class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-black tabular-nums {{ $medal ? '' : 'bg-gray-100 text-text-muted' }}"
+                          @if ($medal) style="{{ $medal }}" @endif>
+                        {{ $rank }}
+                    </span>
+
+                    <x-avatar :name="$row['name']" size="sm" />
+
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-extrabold text-text truncate leading-tight">
+                            {{ $row['name'] }}
+                            @if ($isCurrent)
+                                <span class="inline-flex items-center text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-px rounded ml-1 text-white align-middle"
+                                      style="background: var(--color-primary)">{{ __('Вы') }}</span>
+                            @endif
+                        </p>
+                        @if ($row['group'])
+                            <p class="text-[10px] text-text-muted truncate">{{ $row['group'] }}</p>
+                        @endif
+                    </div>
+
+                    <div class="text-right shrink-0">
+                        <p class="text-sm font-black tabular-nums leading-none" style="color: {{ $pctColor($row['avgPct']) }}">{{ $row['avgPct'] }}%</p>
+                        <p class="text-[10px] text-text-muted font-semibold mt-0.5">{{ __(':count тест(ов)', ['count' => $row['tests']]) }}</p>
+                    </div>
+                </div>
+            @endforeach
+
+            @if ($leaderboard['currentRank'] !== null && ! $inTop)
+                <div class="flex items-center justify-center gap-1.5 py-1.5" aria-hidden="true">
+                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                </div>
+
+                <div class="flex items-center gap-3 px-2.5 py-2 rounded-xl ring-1"
+                     style="background: var(--color-primary-light); --tw-ring-color: var(--color-primary)">
+
+                    <span class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-black tabular-nums text-white"
+                          style="background: var(--color-primary)">
+                        {{ $leaderboard['currentRank'] }}
+                    </span>
+
+                    <x-avatar :name="$leaderboard['current']['name']" size="sm" />
+
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-extrabold text-text truncate leading-tight">
+                            {{ $leaderboard['current']['name'] }}
+                            <span class="inline-flex items-center text-[9px] font-extrabold uppercase tracking-widest px-1.5 py-px rounded ml-1 text-white align-middle"
+                                  style="background: var(--color-primary)">{{ __('Вы') }}</span>
+                        </p>
+                        @if ($leaderboard['current']['group'])
+                            <p class="text-[10px] text-text-muted truncate">{{ $leaderboard['current']['group'] }}</p>
+                        @endif
+                    </div>
+
+                    <div class="text-right shrink-0">
+                        <p class="text-sm font-black tabular-nums leading-none" style="color: {{ $pctColor($leaderboard['current']['avgPct']) }}">{{ $leaderboard['current']['avgPct'] }}%</p>
+                        <p class="text-[10px] text-text-muted font-semibold mt-0.5">{{ __(':count тест(ов)', ['count' => $leaderboard['current']['tests']]) }}</p>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        @if ($leaderboard['currentRank'] === null)
+            <p class="text-[11px] text-text-muted font-semibold text-center mt-3 pt-3 border-t border-border">
+                {{ __('Завершите первый тест, чтобы попасть в рейтинг') }}
+            </p>
+        @endif
+    </div>
+@endif
 
 @endsection

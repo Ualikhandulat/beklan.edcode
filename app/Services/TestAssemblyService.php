@@ -524,9 +524,10 @@ class TestAssemblyService
                 'completed_at' => now(),
             ]);
 
-            // Cache key format mirrored in DashboardController::buildStats() — drop it so the
-            // dashboard reloads fresh progress/activity data after this completed attempt.
+            // Cache key formats mirrored in DashboardController::buildStats() / buildLeaderboard() —
+            // drop them so the dashboard reloads fresh stats and rating after this completed attempt.
             Cache::forget("student.dashboard.stats.{$test->user_id}");
+            Cache::forget('student.leaderboard');
         });
     }
 
