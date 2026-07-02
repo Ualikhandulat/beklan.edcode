@@ -27,6 +27,8 @@
 
     @yield('content')
 
+    <x-content-protection />
+
     @stack('scripts')
 </body>
 </html>

@@ -174,4 +174,6 @@
     </a>
 </div>
 
+<x-content-protection />
+
 @endsection

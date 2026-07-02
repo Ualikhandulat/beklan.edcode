@@ -43,7 +43,7 @@ class PartController extends Controller
     public function show(Subject $subject, Part $part): View
     {
         $type = request('type');
-        $questions = $part->questions()->with('detail', 'details')->latest()->get();
+        $questions = $part->questions()->with('detail', 'details')->latest('id')->get();
         $showUrl = route('admin.subjects.parts.show', [$subject, $part]);
         $storeRoutes = [
             'one' => route('admin.subjects.parts.questions.store.one', [$subject, $part]),

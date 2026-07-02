@@ -240,6 +240,10 @@ class TestAssemblyService
             $query->orderByRaw('CASE WHEN questions.type = ? THEN 0 ELSE 1 END', [$type]);
         }
 
+        // Внутри каждого типа — строго в порядке добавления вопросов админом,
+        // чтобы нұсқа шла у студента по очереди, а не в произвольном порядке БД.
+        $query->orderBy('qd.id');
+
         if ($limit) {
             $query->limit($limit);
         }
