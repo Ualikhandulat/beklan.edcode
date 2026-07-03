@@ -52,7 +52,7 @@ class SubjectController extends Controller
         $subject->load(['parts.questions']);
 
         $topics = $subject->parts->where('type', PartType::Topic);
-        $nusqas = $subject->parts->where('type', PartType::Nusqa);
+        $nusqas = $subject->parts->where('type', PartType::Nusqa)->sortBy('title', SORT_NATURAL)->values();
 
         $navigations = [
             route('admin.subjects.index') => 'Предметы',

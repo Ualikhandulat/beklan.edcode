@@ -194,6 +194,7 @@ class TestAccessController extends Controller
                     'title' => $s->title,
                     'nusqas' => $s->parts
                         ->where('type', PartType::Nusqa->value)
+                        ->sortBy('title', SORT_NATURAL)
                         ->map(fn ($p) => ['id' => $p->id, 'title' => $p->title, 'count' => $p->questions_count])
                         ->values()->all(),
                     'topics' => $s->parts

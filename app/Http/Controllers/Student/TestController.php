@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Enums\PartType;
 use App\Enums\TestAccessType;
 use App\Http\Controllers\Controller;
 use App\Models\Part;
@@ -96,6 +97,10 @@ class TestController extends Controller
                     ->where('type', $cfg->part_type->value)
                     ->orderBy('title')
                     ->get(['id', 'title']);
+
+                if ($cfg->part_type === PartType::Nusqa) {
+                    $choosableParts = $choosableParts->sortBy('title', SORT_NATURAL)->values();
+                }
             }
         }
 
@@ -108,11 +113,15 @@ class TestController extends Controller
                 ?? $electiveSubjects->first()?->id;
 
             if ($referenceSubjectId) {
+                // 'number' is the positional index in id order (used by TestAssemblyService),
+                // so it must stay tied to id order — only the display is sorted by title.
                 $nusqaNumbers = Part::where('subject_id', $referenceSubjectId)
                     ->where('type', 'nusqa')
                     ->orderBy('id')
                     ->get(['id', 'title'])
-                    ->map(fn ($p, $i) => ['number' => $i + 1, 'title' => $p->title]);
+                    ->map(fn ($p, $i) => ['number' => $i + 1, 'title' => $p->title])
+                    ->sortBy('title', SORT_NATURAL)
+                    ->values();
             }
         }
 
