@@ -95,11 +95,15 @@ class TestController extends Controller
             if ($cfg && $cfg->student_chooses_part && $cfg->part_type) {
                 $choosableParts = Part::where('subject_id', $cfg->subject_id)
                     ->where('type', $cfg->part_type->value)
+                    // Админ мог ограничить выбор подмножеством нұсқа (part_ids)
+                    ->when(! empty($cfg->part_ids), fn ($q) => $q->whereIn('id', $cfg->part_ids))
                     ->orderBy('title')
                     ->get(['id', 'title']);
 
                 if ($cfg->part_type === PartType::Nusqa) {
-                    $choosableParts = $choosableParts->sortBy('title', SORT_NATURAL)->values();
+                    // Title нұсқа — просто номер («1», «2»…), показываем как «Нұсқа 1»
+                    $choosableParts = $choosableParts->sortBy('title', SORT_NATURAL)->values()
+                        ->each(fn (Part $part) => $part->title = __('Нұсқа :number', ['number' => $part->title]));
                 }
             }
         }
@@ -327,10 +331,18 @@ class TestController extends Controller
         $cfg = $access->accessSubjects->first();
 
         if ($cfg && $cfg->student_chooses_part && $cfg->part_type) {
+            $partIdRules = ['required', 'integer', Rule::exists('parts', 'id')->where('subject_id', $cfg->subject_id)];
+
+            // Админ мог ограничить выбор подмножеством нұсқа (part_ids)
+            if (! empty($cfg->part_ids)) {
+                $partIdRules[] = Rule::in($cfg->part_ids);
+            }
+
             $request->validate([
-                'part_id' => ['required', 'integer', Rule::exists('parts', 'id')->where('subject_id', $cfg->subject_id)],
+                'part_id' => $partIdRules,
             ], [
                 'part_id.required' => __('Выберите раздел.'),
+                'part_id.in' => __('Выберите раздел из предложенного списка.'),
             ]);
         }
     }

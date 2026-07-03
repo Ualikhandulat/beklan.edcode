@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTestAccessRequest;
 use App\Http\Requests\Admin\UpdateTestAccessRequest;
 use App\Models\Group;
+use App\Models\Part;
 use App\Models\Subject;
 use App\Models\TestAccess;
 use App\Models\User;
@@ -159,13 +160,39 @@ class TestAccessController extends Controller
             }
         } else {
             $cfg = $data['subject'];
+            $studentChoosesPart = (bool) ($cfg['student_chooses_part'] ?? false);
+
             $access->accessSubjects()->create([
                 'subject_id' => $cfg['subject_id'],
                 'part_type' => $cfg['part_type'] ?: null,
                 'part_id' => $cfg['part_id'] ?: null,
-                'student_chooses_part' => (bool) ($cfg['student_chooses_part'] ?? false),
+                'part_ids' => $this->allowedNusqaPartIds($cfg, $studentChoosesPart),
+                'student_chooses_part' => $studentChoosesPart,
             ]);
         }
+    }
+
+    /**
+     * Отмеченные админом нұсқа, из которых студент выбирает одну при старте.
+     * Актуально только для типа «Нұсқа» с выбором студента; пустой список = все нұсқа.
+     *
+     * @param  array<string, mixed>  $cfg
+     * @return int[]|null
+     */
+    private function allowedNusqaPartIds(array $cfg, bool $studentChoosesPart): ?array
+    {
+        if (! $studentChoosesPart || ($cfg['part_type'] ?? null) !== PartType::Nusqa->value || empty($cfg['part_ids'])) {
+            return null;
+        }
+
+        $ids = Part::where('subject_id', $cfg['subject_id'])
+            ->where('type', PartType::Nusqa->value)
+            ->whereIn('id', $cfg['part_ids'])
+            ->pluck('id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
+
+        return $ids ?: null;
     }
 
     /** @return array<string, mixed> */

@@ -37,6 +37,7 @@
              'subjectId' => $existingSingle?->subject_id ?? null,
              'partType'  => $existingSingle?->part_type?->value ?? '',
              'partId'    => $existingSingle?->part_id ?? null,
+             'partIds'   => $existingSingle?->part_ids ?? [],
              'scp'       => (bool) ($existingSingle?->student_chooses_part ?? false),
          ]),
 
@@ -90,7 +91,7 @@
              this.electives = [{subjectId:null},{subjectId:null}];
              this.nusqaMode = 'random';
              this.nusqaNumber = '';
-             this.single = {subjectId:null,partType:'',partId:null,scp:false};
+             this.single = {subjectId:null,partType:'',partId:null,partIds:[],scp:false};
          }
      }">
 
@@ -327,7 +328,7 @@
                             <label>Предмет <span class="text-danger">*</span></label>
                             <select name="subject[subject_id]"
                                     x-model.number="single.subjectId"
-                                    @change="single.partType=''; single.partId=null; single.scp=false"
+                                    @change="single.partType=''; single.partId=null; single.partIds=[]; single.scp=false"
                                     class="w-full px-4 py-2.5 border border-border rounded-2xl text-sm bg-white focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors">
                                 <option value="">— Выберите предмет —</option>
                                 @foreach ($subjectsWithParts as $id => $s)
@@ -347,7 +348,7 @@
 
                         <div class="flex flex-wrap gap-2 mb-4">
                             <button type="button"
-                                @click="single.partType=''; single.partId=null; single.scp=false"
+                                @click="single.partType=''; single.partId=null; single.partIds=[]; single.scp=false"
                                 :class="single.partType===''
                                     ? 'btn btn-primary btn-sm'
                                     : 'btn btn-outline btn-sm text-text-muted'">
@@ -355,7 +356,7 @@
                             </button>
                             @foreach ($partTypes as $val => $label)
                             <button type="button"
-                                @click="single.partType='{{ $val }}'; single.partId=null; single.scp=false"
+                                @click="single.partType='{{ $val }}'; single.partId=null; single.partIds=[]; single.scp=false"
                                 :class="single.partType==='{{ $val }}'
                                     ? 'btn btn-primary btn-sm'
                                     : 'btn btn-outline btn-sm text-text-muted'">
@@ -384,7 +385,7 @@
                                         <input type="hidden" name="subject[student_chooses_part]" value="0">
                                         <input type="checkbox" name="subject[student_chooses_part]" value="1"
                                                class="sr-only peer" x-model="single.scp"
-                                               @change="if (single.scp) single.partId = null">
+                                               @change="single.partId = null; single.partIds = []">
                                         <div class="w-9 h-5 bg-gray-200 peer-checked:bg-primary rounded-full transition-all shadow-inner border border-gray-200 peer-focus:ring-2 peer-focus:ring-primary/30"></div>
                                         <div class="absolute top-[2px] left-[2px] bg-white rounded-full h-4 w-4 shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] peer-checked:translate-x-full"></div>
                                     </div>
@@ -417,7 +418,35 @@
                                     </div>
                                 </template>
                                 <template x-if="single.scp">
-                                    <input type="hidden" name="subject[part_id]" value="">
+                                    <div>
+                                        <input type="hidden" name="subject[part_id]" value="">
+
+                                        {{-- Nusqa subset: student picks one of the checked нұсқа --}}
+                                        <template x-if="single.partType === 'nusqa'">
+                                            <div class="form-group !mb-0">
+                                                <label>
+                                                    Доступные нұсқа
+                                                    <span class="text-xs text-text-muted font-normal">(ничего не отмечено — студент выбирает из всех)</span>
+                                                </label>
+                                                <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                                    <template x-for="n in subjectNusqas" :key="n.id">
+                                                        <label class="cursor-pointer">
+                                                            <input type="checkbox" name="subject[part_ids][]"
+                                                                   :value="n.id" x-model.number="single.partIds"
+                                                                   class="sr-only peer">
+                                                            <span class="flex items-center justify-between px-3 py-2 rounded-xl border border-border text-xs font-semibold text-text-muted transition-all peer-checked:border-primary peer-checked:text-primary peer-checked:bg-primary/8 hover:border-primary/50">
+                                                                <span class="truncate mr-2" x-text="`Нұсқа ${n.title}`"></span>
+                                                                <span class="font-mono whitespace-nowrap" x-text="`${n.count} вопр.`"></span>
+                                                            </span>
+                                                        </label>
+                                                    </template>
+                                                </div>
+                                                <p class="text-xs text-text-muted mt-2"
+                                                   x-show="single.partIds.length > 0"
+                                                   x-text="`Отмечено: ${single.partIds.length} из ${subjectNusqas.length}. Студент выберет одну из отмеченных.`"></p>
+                                            </div>
+                                        </template>
+                                    </div>
                                 </template>
                             </div>
                         </template>

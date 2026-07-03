@@ -13,11 +13,13 @@ class TestAccessSubject extends Model
         'subject_id',
         'part_type',
         'part_id',
+        'part_ids',
         'student_chooses_part',
     ];
 
     protected $casts = [
         'part_type' => PartType::class,
+        'part_ids' => 'array',
         'student_chooses_part' => 'boolean',
     ];
 
