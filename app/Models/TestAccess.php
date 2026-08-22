@@ -15,6 +15,7 @@ class TestAccess extends Model
         'user_id',
         'group_id',
         'is_active',
+        'is_trial',
         'student_chooses_subject',
         'nusqa_number',
         'student_chooses_nusqa',
@@ -27,6 +28,7 @@ class TestAccess extends Model
     protected $casts = [
         'type' => TestAccessType::class,
         'is_active' => 'boolean',
+        'is_trial' => 'boolean',
         'student_chooses_subject' => 'boolean',
         'student_chooses_nusqa' => 'boolean',
         'expires_at' => 'datetime',
@@ -65,10 +67,13 @@ class TestAccess extends Model
 
         return $query
             ->where('is_active', true)
-            ->where(function (Builder $q) use ($userId, $groupId) {
+            ->where(function (Builder $q) use ($user, $userId, $groupId) {
                 $q->where('user_id', $userId);
                 if ($groupId) {
                     $q->orWhere('group_id', $groupId);
+                }
+                if ($user->has_trial_access) {
+                    $q->orWhere('is_trial', true);
                 }
             })
             ->where(function (Builder $q) {
@@ -85,6 +90,26 @@ class TestAccess extends Model
 
     public function targetLabel(): string
     {
+        if ($this->is_trial) {
+            return 'Пробный доступ';
+        }
+
         return $this->user?->name ?? $this->group?->title ?? '—';
+    }
+
+    /**
+     * IDs of parts served by active trial accesses — hidden from part
+     * choice lists of regular (paid) accesses.
+     *
+     * @return int[]
+     */
+    public static function trialPartIds(): array
+    {
+        return TestAccessSubject::query()
+            ->whereIn('test_access_id', self::query()->where('is_trial', true)->select('id'))
+            ->whereNotNull('part_id')
+            ->pluck('part_id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
     }
 }

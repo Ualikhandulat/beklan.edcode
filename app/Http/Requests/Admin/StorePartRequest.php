@@ -26,6 +26,7 @@ class StorePartRequest extends FormRequest
                 Rule::when($isNusqa, ['numeric', 'integer', 'min:1', 'max:9999']),
             ],
             'type' => ['required', new Enum(PartType::class)],
+            'is_trial' => ['boolean'],
         ];
     }
 

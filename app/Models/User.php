@@ -21,6 +21,7 @@ class User extends Authenticatable
         'iin',
         'password',
         'group_id',
+        'has_trial_access',
     ];
 
     protected $hidden = [
@@ -31,6 +32,7 @@ class User extends Authenticatable
     protected $casts = [
         'role' => Role::class,
         'password' => 'hashed',
+        'has_trial_access' => 'boolean',
     ];
 
     public function group(): BelongsTo

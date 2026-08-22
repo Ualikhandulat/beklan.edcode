@@ -75,6 +75,39 @@
             </div>
         </form>
     </div>
+
+    {{-- Пробный доступ (только для существующих учеников) --}}
+    @if ($user->exists && $user->role === \App\Enums\Role::Student)
+        <div class="card mt-5">
+            <p class="q-section-label mb-3">Пробный доступ</p>
+
+            @if ($user->has_trial_access)
+                <div class="flex items-center gap-2.5">
+                    <span class="badge badge-primary inline-flex items-center gap-1.5">
+                        <x-icon name="sparkles" class="w-3.5 h-3.5" />
+                        Пробный доступ открыт
+                    </span>
+                </div>
+            @elseif ($hasTests ?? false)
+                <p class="text-sm text-text-muted">
+                    Пробный доступ нельзя открыть: у пользователя уже есть пройденные или начатые тесты.
+                </p>
+            @else
+                <form method="POST" action="{{ route('admin.users.grant-trial', $user) }}"
+                      class="flex flex-wrap items-center justify-between gap-3">
+                    @csrf
+                    @method('PATCH')
+                    <p class="text-sm text-text-muted max-w-md">
+                        Пользователь увидит активный пробный тест в своём кабинете и сможет пройти его один раз.
+                    </p>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <x-icon name="sparkles" class="w-4 h-4" />
+                        Открыть пробный доступ
+                    </button>
+                </form>
+            @endif
+        </div>
+    @endif
 </div>
 
 @endsection

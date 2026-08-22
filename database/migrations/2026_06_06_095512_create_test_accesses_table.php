@@ -14,10 +14,13 @@ return new class extends Migration
             $table->id();
             $table->string('type'); // TestAccessType enum: 'ent' | 'subject'
 
-            // Target: one of user or group must be set
+            // Target: one of user or group must be set (both null for the trial access)
             $table->foreignIdFor(User::class)->nullable()->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Group::class)->nullable()->constrained()->cascadeOnDelete();
             $table->boolean('is_active')->default(true);
+
+            // Пробный доступ: виден всем пользователям с users.has_trial_access
+            $table->boolean('is_trial')->default(false);
 
             // ENT: student picks own elective subjects
             $table->boolean('student_chooses_subject')->default(false);

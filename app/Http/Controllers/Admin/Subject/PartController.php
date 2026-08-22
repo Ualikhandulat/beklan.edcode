@@ -8,11 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePartRequest;
 use App\Models\Part;
 use App\Models\Subject;
+use App\Services\TrialAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class PartController extends Controller
 {
+    public function __construct(private TrialAccessService $trialAccess) {}
+
     public function create(Subject $subject): View
     {
         $type = PartType::tryFrom(request('type', '')) ?? PartType::Topic;
@@ -29,12 +32,15 @@ class PartController extends Controller
             'action' => route('admin.subjects.parts.store', $subject),
             'method' => 'POST',
             'navigations' => $navigations,
+            'isTrialPart' => false,
         ]);
     }
 
     public function store(StorePartRequest $request, Subject $subject): RedirectResponse
     {
-        $subject->parts()->create($request->validated());
+        $part = $subject->parts()->create($request->safe()->except('is_trial'));
+
+        $this->syncTrialFlag($request, $part);
 
         return redirect()->route('admin.subjects.show', $subject)
             ->with('success', 'Добавлено.');
@@ -86,15 +92,32 @@ class PartController extends Controller
             'action' => route('admin.subjects.parts.update', [$subject, $part]),
             'method' => 'PUT',
             'navigations' => $navigations,
+            'isTrialPart' => $this->trialAccess->trialPartId() === $part->id,
         ]);
     }
 
     public function update(StorePartRequest $request, Subject $subject, Part $part): RedirectResponse
     {
-        $part->update($request->validated());
+        $part->update($request->safe()->except('is_trial'));
+
+        $this->syncTrialFlag($request, $part);
 
         return redirect()->route('admin.subjects.show', $subject)
             ->with('success', 'Обновлено.');
+    }
+
+    /** Галочка «Пробный нұсқа»: назначает или снимает пробный доступ для нұсқа. */
+    private function syncTrialFlag(StorePartRequest $request, Part $part): void
+    {
+        if ($part->type !== PartType::Nusqa) {
+            return;
+        }
+
+        if ($request->boolean('is_trial')) {
+            $this->trialAccess->assignPart($part);
+        } elseif ($this->trialAccess->trialPartId() === $part->id) {
+            $this->trialAccess->unassignPart($part);
+        }
     }
 
     public function destroy(Subject $subject, Part $part): RedirectResponse

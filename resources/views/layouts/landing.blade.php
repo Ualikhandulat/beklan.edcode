@@ -34,6 +34,20 @@
         /* hover behaviours ported from the design's style-hover attributes */
         .lp-lift    { transition: transform .2s ease; }
         .lp-lift:hover    { transform: translateY(-2px); }
+        @keyframes lp-shine { 0% { left: -60%; } 55%, 100% { left: 140%; } }
+        .lp-btn-shine { position: relative; overflow: hidden; }
+        .lp-btn-shine::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -60%;
+            width: 45%; height: 100%;
+            background: linear-gradient(105deg, transparent, rgba(255,255,255,0.5), transparent);
+            transform: skewX(-20deg);
+            animation: lp-shine 3.2s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .lp-arrow { transition: transform .2s ease; }
+        a:hover .lp-arrow { transform: translateX(4px); }
         .lp-cta     { transition: filter .2s ease; }
         .lp-cta:hover     { filter: brightness(1.05); }
         .lp-outline { transition: border-color .2s ease; }

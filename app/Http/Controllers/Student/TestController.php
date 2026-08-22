@@ -93,10 +93,15 @@ class TestController extends Controller
         if ($access->type !== TestAccessType::Ent) {
             $cfg = $access->accessSubjects->first();
             if ($cfg && $cfg->student_chooses_part && $cfg->part_type) {
+                // Пробный нұсқа скрыт от обычных (платных) доступов, чтобы студент
+                // случайно не выбрал его вместо своих нұсқа.
+                $trialPartIds = $access->is_trial ? [] : TestAccess::trialPartIds();
+
                 $choosableParts = Part::where('subject_id', $cfg->subject_id)
                     ->where('type', $cfg->part_type->value)
                     // Админ мог ограничить выбор подмножеством нұсқа (part_ids)
                     ->when(! empty($cfg->part_ids), fn ($q) => $q->whereIn('id', $cfg->part_ids))
+                    ->when(! empty($trialPartIds), fn ($q) => $q->whereNotIn('id', $trialPartIds))
                     ->orderBy('title')
                     ->get(['id', 'title']);
 
@@ -291,7 +296,8 @@ class TestController extends Controller
     private function authorizeAccess(TestAccess $access, User $user): void
     {
         $allowed = $access->user_id === $user->id
-            || ($user->group_id && $access->group_id === $user->group_id);
+            || ($user->group_id && $access->group_id === $user->group_id)
+            || ($access->is_trial && $user->has_trial_access);
 
         abort_if(! $allowed, 403);
     }
@@ -336,6 +342,12 @@ class TestController extends Controller
             // Админ мог ограничить выбор подмножеством нұсқа (part_ids)
             if (! empty($cfg->part_ids)) {
                 $partIdRules[] = Rule::in($cfg->part_ids);
+            }
+
+            // Пробный нұсқа нельзя выбрать в обычном (платном) доступе
+            $trialPartIds = $access->is_trial ? [] : TestAccess::trialPartIds();
+            if (! empty($trialPartIds)) {
+                $partIdRules[] = Rule::notIn($trialPartIds);
             }
 
             $request->validate([

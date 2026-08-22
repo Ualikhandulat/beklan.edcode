@@ -44,6 +44,11 @@
             </form>
         </div>
 
+        <p class="text-center text-sm text-text-muted mt-5">
+            {{ __('Нет аккаунта?') }}
+            <a href="{{ route('register') }}" class="font-semibold text-primary hover:underline">{{ __('Зарегистрироваться') }}</a>
+        </p>
+
     </div>
 </div>
 @endsection

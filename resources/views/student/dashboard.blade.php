@@ -198,6 +198,12 @@
                                           style="background: {{ $colorLight }}; color: {{ $color }}">
                                         {{ $access->type->label() }}
                                     </span>
+                                    @if ($access->is_trial)
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/25">
+                                            <x-icon name="sparkles" class="w-3 h-3 shrink-0" />
+                                            {{ __('Пробный тест') }}
+                                        </span>
+                                    @endif
                                 </div>
                                 <h3 class="font-extrabold text-text text-base leading-snug">
                                     @if ($isEnt)

@@ -25,6 +25,8 @@ Route::post('/locale/{locale}', [LocaleController::class, 'update'])->name('loca
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
@@ -56,6 +58,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:administrator'
     Route::get('users/archive', [AdminUserController::class, 'archive'])->name('users.archive');
     Route::get('users/{user}/results', [AdminUserController::class, 'results'])->name('users.results');
     Route::patch('users/{user}/restore', [AdminUserController::class, 'restore'])->name('users.restore')->withTrashed();
+    Route::patch('users/{user}/grant-trial', [AdminUserController::class, 'grantTrial'])->name('users.grant-trial');
     Route::resource('test-accesses', AdminTestAccessController::class)->except(['show']);
     Route::get('test-accesses/{test_access}/results', [AdminTestAccessController::class, 'results'])->name('test-accesses.results');
     Route::patch('test-accesses/{test_access}/toggle-active', [AdminTestAccessController::class, 'toggleActive'])->name('test-accesses.toggle-active');

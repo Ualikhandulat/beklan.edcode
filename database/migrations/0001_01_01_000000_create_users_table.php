@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('role');
             $table->foreignIdFor(Group::class)->nullable()->default(null)->constrained();
+            $table->boolean('has_trial_access')->default(false);
             $table->string('name');
             $table->string('login')->unique(); // телефон
             $table->string('iin')->unique();

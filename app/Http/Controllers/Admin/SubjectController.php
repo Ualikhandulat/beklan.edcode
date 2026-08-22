@@ -7,11 +7,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreSubjectRequest;
 use App\Http\Requests\Admin\UpdateSubjectRequest;
 use App\Models\Subject;
+use App\Services\TrialAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class SubjectController extends Controller
 {
+    public function __construct(private TrialAccessService $trialAccess) {}
+
     public function index(): View
     {
         $subjects = Subject::withCount(['topics', 'nusqas', 'questions', 'parts'])->latest()->get();
@@ -59,7 +62,9 @@ class SubjectController extends Controller
             '#' => $subject->title,
         ];
 
-        return view('admin.subjects.show', compact('subject', 'tab', 'topics', 'nusqas', 'navigations'));
+        $trialPartId = $this->trialAccess->trialPartId();
+
+        return view('admin.subjects.show', compact('subject', 'tab', 'topics', 'nusqas', 'navigations', 'trialPartId'));
     }
 
     public function edit(Subject $subject): View|RedirectResponse

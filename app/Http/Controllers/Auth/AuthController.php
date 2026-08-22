@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Auth;
 use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +41,30 @@ class AuthController extends Controller
         Auth::logoutOtherDevices($request->password);
 
         return $this->redirectByRole();
+    }
+
+    public function showRegister(): View|RedirectResponse
+    {
+        if (Auth::check()) {
+            return $this->redirectByRole();
+        }
+
+        return view('public.auth.register');
+    }
+
+    public function register(RegisterRequest $request): RedirectResponse
+    {
+        $user = User::create([
+            ...$request->validated(),
+            'role' => Role::Student,
+            'has_trial_access' => true,
+        ]);
+
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('student.dashboard')
+            ->with('success', __('Регистрация прошла успешно! Вам открыт пробный тест — у вас есть 1 попытка. Удачи!'));
     }
 
     public function logout(Request $request): RedirectResponse

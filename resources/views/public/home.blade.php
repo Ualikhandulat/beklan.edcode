@@ -46,6 +46,12 @@
             </p>
             <div style="display:flex; flex-wrap:wrap; gap:14px; margin-bottom:44px;">
                 <a href="{{ route('login') }}" class="lp-lift" style="padding:15px 28px; border-radius:13px; font-size:16px; font-weight:500; color:#fff; background:linear-gradient(140deg, var(--accent,#F2994A), #EC7E2E); box-shadow:0 14px 30px rgba(242,153,74,0.4);">{{ __('Войти в систему') }} →</a>
+                @if ($trialAccess)
+                    <a href="#trial" class="lp-lift lp-btn-shine" style="display:inline-flex; align-items:center; gap:10px; padding:15px 26px; border-radius:13px; font-size:16px; font-weight:600; color:#3A2606; background:linear-gradient(140deg, #F2B850, #E59A2E); box-shadow:0 14px 30px rgba(229,154,46,0.42);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                        {{ __('Пробный тест бесплатно') }}
+                    </a>
+                @endif
                 <a href="#how" class="lp-outline" style="padding:15px 26px; border-radius:13px; font-size:16px; font-weight:500; color:#1C150F; background:#fff; border:1px solid rgba(26,20,16,0.12); box-shadow:0 4px 14px rgba(80,50,20,0.06);">{{ __('Как это работает') }}</a>
             </div>
             <div style="display:flex; flex-wrap:wrap; gap:clamp(20px,4vw,44px);">
@@ -117,6 +123,61 @@
             </div>
         </div>
     </section>
+
+    {{-- ===================== TRIAL TEST ===================== --}}
+    @if ($trialAccess)
+    <section id="trial" style="max-width:1200px; margin:0 auto; padding:clamp(24px,4vw,48px) clamp(18px,4vw,40px);">
+        <div style="position:relative; overflow:hidden; border-radius:28px; padding:clamp(36px,5vw,64px) clamp(24px,5vw,56px); background:linear-gradient(140deg, rgba(242,153,74,0.16), rgba(242,184,80,0.10)); border:1px solid rgba(242,153,74,0.35);">
+            <div style="position:absolute; top:-90px; left:-50px; width:280px; height:280px; border-radius:50%; background:radial-gradient(closest-side, rgba(242,153,74,0.28), transparent 70%); animation:lp-drift 9s ease-in-out infinite;"></div>
+            <div style="position:relative; z-index:1; display:flex; flex-wrap:wrap; align-items:center; gap:clamp(28px,4vw,52px);">
+                <div style="flex:1 1 380px; min-width:280px;">
+                    <div style="display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:999px; background:#fff; border:1px solid rgba(242,153,74,0.4); font-size:13px; font-weight:700; color:#C26A1E; margin-bottom:18px;">
+                        <span style="width:7px; height:7px; border-radius:50%; background:var(--accent,#F2994A); box-shadow:0 0 12px var(--accent,#F2994A); animation:lp-blink 2.2s infinite;"></span>
+                        {{ __('Бесплатно') }}
+                    </div>
+                    <h2 style="margin:0 0 14px; font-size:clamp(28px,4.4vw,48px); line-height:1.06; letter-spacing:-0.03em; font-weight:700; color:#1C150F;">{{ __('Пройди пробный тест') }}</h2>
+                    <p style="margin:0 0 26px; max-width:520px; font-size:clamp(15px,1.6vw,18px); line-height:1.6; color:#6B6259;">
+                        {{ __('Зарегистрируйся и бесплатно пройди пробное тестирование — узнай формат вопросов и оцени свой уровень.') }}
+                    </p>
+                    <a href="{{ route('register') }}" class="lp-lift lp-btn-shine" style="display:inline-flex; align-items:center; gap:11px; padding:17px 34px; border-radius:14px; font-size:17px; font-weight:600; color:#fff; background:linear-gradient(140deg, var(--accent,#F2994A), #EC6F3D); box-shadow:0 18px 38px rgba(242,153,74,0.5);">
+                        {{ __('Пройти пробный тест') }}
+                        <svg class="lp-arrow" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
+                    <div style="margin-top:14px; font-size:13px; color:#98908A;">{{ __('Регистрация занимает меньше минуты') }}</div>
+                </div>
+                <div style="flex:1 1 260px; min-width:240px; display:flex; flex-direction:column; gap:12px;">
+                    @if ($trialSubject)
+                        <div style="display:flex; align-items:center; gap:12px; padding:16px 20px; border-radius:16px; background:#fff; border:1px solid rgba(242,153,74,0.3); box-shadow:0 10px 24px -14px rgba(120,70,20,0.25);">
+                            <span style="width:38px; height:38px; flex:none; border-radius:11px; display:grid; place-items:center; background:var(--accent,#F2994A); color:#fff;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C12 5 10.4 4 8.4 4 6.4 4 5 5 4 5.5v13C5 18 6.4 17 8.4 17c2 0 3.6 1 3.6 2.5"/><path d="M12 6.5C12 5 13.6 4 15.6 4 17.6 4 19 5 20 5.5v13C19 18 17.6 17 15.6 17c-2 0-3.6 1-3.6 2.5"/></svg></span>
+                            <div>
+                                <div style="font-size:12px; color:#98908A;">{{ __('Предмет') }}</div>
+                                <div style="font-size:16px; font-weight:700; color:#1C150F;">{{ $trialSubject->title }}</div>
+                            </div>
+                        </div>
+                    @endif
+                    <div style="display:flex; gap:12px;">
+                        @if ($trialQuestionCount)
+                            <div style="flex:1; padding:14px 18px; border-radius:16px; background:#fff; border:1px solid rgba(26,20,16,0.08);">
+                                <div style="font-size:20px; font-weight:700; color:#1C150F;">{{ $trialQuestionCount }}</div>
+                                <div style="font-size:12px; color:#98908A;">{{ __('вопросов') }}</div>
+                            </div>
+                        @endif
+                        @if ($trialAccess->duration_minutes)
+                            <div style="flex:1; padding:14px 18px; border-radius:16px; background:#fff; border:1px solid rgba(26,20,16,0.08);">
+                                <div style="font-size:20px; font-weight:700; color:#1C150F;">{{ $trialAccess->duration_minutes }}</div>
+                                <div style="font-size:12px; color:#98908A;">{{ __('минут') }}</div>
+                            </div>
+                        @endif
+                        <div style="flex:1; padding:14px 18px; border-radius:16px; background:#fff; border:1px solid rgba(26,20,16,0.08);">
+                            <div style="font-size:20px; font-weight:700; color:#E0982F;">{{ $trialAccess->attempts_limit > 0 ? $trialAccess->attempts_limit : '∞' }}</div>
+                            <div style="font-size:12px; color:#98908A;">{{ __('попытка') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
 
     {{-- ===================== AUTHORS ===================== --}}
     <section id="authors" style="max-width:1200px; margin:0 auto; padding:clamp(40px,6vw,80px) clamp(18px,4vw,40px);">
@@ -292,7 +353,15 @@
             <div style="position:relative; z-index:1;">
                 <h2 style="margin:0 auto 16px; max-width:640px; font-size:clamp(28px,4.6vw,52px); line-height:1.05; letter-spacing:-0.03em; font-weight:700; color:#1C150F;">{{ __('Готов проверить свои знания?') }}</h2>
                 <p style="margin:0 auto 32px; max-width:520px; font-size:clamp(15px,1.7vw,18px); line-height:1.6; color:#6B6259;">{{ __('Войди в систему по логину и паролю, который выдал преподаватель, и приступай к тестам.') }}</p>
-                <a href="{{ route('login') }}" class="lp-lift" style="display:inline-block; padding:16px 36px; border-radius:14px; font-size:17px; font-weight:500; color:#fff; background:linear-gradient(140deg, var(--accent,#F2994A), #EC7E2E); box-shadow:0 16px 34px rgba(242,153,74,0.45);">{{ __('Войти в систему') }} →</a>
+                <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:14px;">
+                    <a href="{{ route('login') }}" class="lp-lift" style="display:inline-block; padding:16px 36px; border-radius:14px; font-size:17px; font-weight:500; color:#fff; background:linear-gradient(140deg, var(--accent,#F2994A), #EC7E2E); box-shadow:0 16px 34px rgba(242,153,74,0.45);">{{ __('Войти в систему') }} →</a>
+                    @if ($trialAccess)
+                        <a href="{{ route('register') }}" class="lp-lift lp-btn-shine" style="display:inline-flex; align-items:center; gap:10px; padding:16px 32px; border-radius:14px; font-size:17px; font-weight:600; color:#3A2606; background:linear-gradient(140deg, #F2B850, #E59A2E); box-shadow:0 16px 34px rgba(229,154,46,0.45);">
+                            {{ __('Пройти пробный тест') }}
+                            <svg class="lp-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
     </section>

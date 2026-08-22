@@ -22,7 +22,9 @@ class TestAccessController extends Controller
 {
     public function index(Request $request): View
     {
+        // Пробный доступ управляется галочкой в форме нұсқа и здесь не показывается
         $accesses = TestAccess::with(['user', 'group', 'accessSubjects.subject', 'accessSubjects.part'])
+            ->where('is_trial', false)
             ->when($request->type, fn ($q) => $q->where('type', $request->type))
             ->when($request->target === 'user', fn ($q) => $q->whereNotNull('user_id'))
             ->when($request->target === 'group', fn ($q) => $q->whereNotNull('group_id'))
@@ -51,9 +53,11 @@ class TestAccessController extends Controller
             ->paginate()
             ->withQueryString();
 
-        $assignedCount = $testAccess->user_id
-            ? 1
-            : $testAccess->group->users->count();
+        $assignedCount = match (true) {
+            $testAccess->is_trial => User::where('has_trial_access', true)->count(),
+            (bool) $testAccess->user_id => 1,
+            default => $testAccess->group?->users->count() ?? 0,
+        };
 
         $startedCount = $testAccess->tests()->whereNotNull('started_at')->distinct('user_id')->count('user_id');
         $completedTests = $testAccess->tests()->whereNotNull('completed_at')->get(['user_id', 'total_score', 'max_score']);

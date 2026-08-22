@@ -126,7 +126,25 @@ class UserController extends Controller
             'action' => route('admin.users.update', $user),
             'method' => 'PUT',
             'navigations' => $navigations,
+            'hasTests' => $user->tests()->exists(),
         ]);
+    }
+
+    /**
+     * Открыть пользователю пробный доступ. Возможно только пока он не проходил
+     * ни одного теста и пробный доступ ему ещё не открывали.
+     */
+    public function grantTrial(User $user): RedirectResponse
+    {
+        if ($user->role !== Role::Student || $user->has_trial_access || $user->tests()->exists()) {
+            return redirect()->route('admin.users.edit', $user)
+                ->with('error', 'Пробный доступ открыть нельзя: он уже открыт или у пользователя есть тесты.');
+        }
+
+        $user->update(['has_trial_access' => true]);
+
+        return redirect()->route('admin.users.edit', $user)
+            ->with('success', 'Пробный доступ открыт.');
     }
 
     public function update(UpdateUserRequest $request, User $user): RedirectResponse

@@ -66,6 +66,12 @@
                                         {{ $part->title }}
                                         <x-icon name="arrow-top-right" class="w-3.5 h-3.5 shrink-0" />
                                     </span>
+                                    @if ($part->id === $trialPartId)
+                                        <span class="badge badge-primary inline-flex items-center gap-1 ml-2">
+                                            <x-icon name="sparkles" class="w-3 h-3" />
+                                            Пробный
+                                        </span>
+                                    @endif
                                 </td>
                                 <td>{{ $part->questions->count() }}</td>
                                 <td onclick="event.stopPropagation()">
