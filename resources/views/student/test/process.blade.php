@@ -73,6 +73,13 @@
                 // Auto-save every 60 seconds
                 setInterval(() => { this.bulkSave(); }, 60000);
 
+                // Flush unsaved answers when the page is reloaded/closed or goes to background
+                // (keepalive fetch survives unload). localStorage remains the fallback.
+                window.addEventListener('pagehide', () => { this.bulkSave(); });
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) { this.bulkSave(); }
+                });
+
                 if (this.secondsLeft === null) return;
                 const tick = () => {
                     if (this.secondsLeft <= 0) { this.autoFinish(); return; }
@@ -106,7 +113,11 @@
 
             saveToLocal() {
                 try {
-                    localStorage.setItem(this.lsKey, JSON.stringify(this.pendingChanges));
+                    if (this.pendingChanges.length === 0) {
+                        localStorage.removeItem(this.lsKey);
+                    } else {
+                        localStorage.setItem(this.lsKey, JSON.stringify(this.pendingChanges));
+                    }
                 } catch (e) {}
             },
 
@@ -130,7 +141,10 @@
             async bulkSave() {
                 if (this.pendingChanges.length === 0) return;
 
-                const snapshot = this.pendingChanges.splice(0);
+                // Deep-copy instead of splicing: pending entries stay in localStorage while the
+                // request is in flight, so a reload mid-request never loses them. Answers changed
+                // during the request are detected by comparing against this snapshot afterwards.
+                const snapshot = this.pendingChanges.map(c => ({ ...c, user_answers: [...(c.user_answers || [])] }));
 
                 const bySubject = {};
                 for (const c of snapshot) {
@@ -150,12 +164,23 @@
                         method: 'POST',
                         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json' },
                         body: JSON.stringify({ subjects: Object.values(bySubject) }),
+                        keepalive: true,
                     });
-                    if (!r.ok) { throw new Error('save failed'); }
-                    this.clearLocal();
+                    // A redirect (e.g. session expired → login page) returns 200 for the login
+                    // HTML, so it must be treated as a failure or the answers would be dropped.
+                    if (!r.ok || r.redirected) { throw new Error('save failed'); }
+
+                    // Drop only the entries that were actually persisted; keep anything that
+                    // changed while the request was in flight for the next save.
+                    const sameAnswers = (a, b) => JSON.stringify(a || []) === JSON.stringify(b || []);
+                    this.pendingChanges = this.pendingChanges.filter(c => {
+                        const saved = snapshot.find(x => x.test_subject_id === c.test_subject_id && x.detail_id === c.detail_id);
+                        return !saved || !sameAnswers(saved.user_answers, c.user_answers);
+                    });
                 } catch {
-                    this.pendingChanges.unshift(...snapshot);
+                    // Keep pendingChanges untouched — they will be retried on the next save.
                 }
+                this.saveToLocal();
             },
 
             subjects: @json($subjectsData),
@@ -175,7 +200,8 @@
                 let answers;
 
                 if (type === 'one' || type === 'group') {
-                    answers = [answer];
+                    // Clicking the already selected option deselects it (lets the student skip the question)
+                    answers = (q.user_answers || []).includes(answer) ? [] : [answer];
                 } else if (type === 'multi') {
                     answers = [...(q.user_answers || [])];
                     const idx = answers.indexOf(answer);
